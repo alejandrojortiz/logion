@@ -1,0 +1,10 @@
+10/03/22
+Document selection is exactly what it sounds like. Any text highlighted within the document
+will be considered a selection. This is useful, but not what I want. Will test to see if
+possible to limit selection candidacy to a specific div.
+Wrapping multiple paragraphs in a div doesn't work. Event does not fire. Will test on individual
+paragraphs within that div.
+Individual paragraphs in the div also don't work.  This seems to be because the selectionchange
+event only applies to the entire doucment or input and textarea elements. Will test the textarea
+to see if this might work.
+https://stackoverflow.com/questions/3545018/selected-text-event-trigger-in-javascript

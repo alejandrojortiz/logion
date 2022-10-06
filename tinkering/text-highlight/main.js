@@ -56,7 +56,7 @@ function handleChangeButton() {
     );
     statusBox.style =
       "margin: 0; display: inline-block; width: 1em; height: 1em; color: green;";
-    statusBox.innerHTML = "&#10003";
+    statusBox.innerHTML = "&#10003"; // check
   } else {
     document.removeEventListener(
       "selectionchange",
@@ -68,6 +68,6 @@ function handleChangeButton() {
     );
     statusBox.style =
       "margin: 0; display: inline-block; width: 1em; height: 1em; color: red;";
-    statusBox.innerHTML = "&#10005";
+    statusBox.innerHTML = "&#10005"; // X
   }
 }

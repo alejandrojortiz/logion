@@ -16,7 +16,20 @@
         <p>Div Paragraph test 1. Text within this div should not be eligible for the "selectionchange" event</p>
         <p>Div Paragraph test 2. This text should also not be eligible for the event listener to fire</p>
     </div>
-
+    <div id="parameter-option-container" style="margin-top: 2em;">
+      <label for="prefix">
+        Prefix: 
+        <input type="text" id="prefix" name="prefix">
+      </label>
+      <label for="suffix">
+        Suffix: 
+        <input type="text" id="suffix" name="suffix">
+      </label>
+      <label for="distance">
+        Distance: 
+        <input type="range" id="distance" name="distance">
+      </label>
+    </div>
     <div id="selection-container" style="border: 1px black solid; margin-top: 1em;">
       <p style="color: green;">THE TEXT IN THIS BOX MAY BE SELECTABLE</p>
       <p>Depending on the handler function for the selection event, this text may be selectable.

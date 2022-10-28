@@ -39,8 +39,6 @@ def add_account():
 def update_account():
     '''Function that updates user account details to postGRE server'''
     
-    url = "file:reg.sqlite?mode=rw"
-    
     # retrieve arguments
     name = flask.request.args.get('name')
     email = flask.request.args.get('email')

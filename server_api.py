@@ -4,6 +4,7 @@ functions responsible for all query interactions with the logion database
 authors: Eugene Liu
 
 '''
+from distutils.log import error
 import psycopg2
 from config import config
 
@@ -22,8 +23,16 @@ def __connect():
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     
-def add_account(ID: int, name: str, email: str, password: str, institution: str, position: str):
+def add_account(parameter_dict: dict):
     '''Function for updating account information'''
+    
+    # unpacking dictionary items
+    ID = parameter_dict.get("id")
+    name = parameter_dict.get("name")
+    email = parameter_dict.get("email")
+    institution = parameter_dict.get("institution")
+    position = parameter_dict.get("position")
+    
     
     # making connection with database
     conn = __connect()
@@ -32,11 +41,16 @@ def add_account(ID: int, name: str, email: str, password: str, institution: str,
     curr = conn.cursor()
     
     # adding user account info into user accounts table
-    SQL_str = "INSERT INTO users (userid, name, email, password, institution, position) "
+    
+    '''
+    * modify database to remove passwords
+    '''
+    
+    SQL_str = "INSERT INTO users (userid, name, email, institution, position) "
     SQL_str += "VALUES (" + str(ID)
     SQL_str += ", " + name
     SQL_str +=  ", " + email
-    SQL_str += ", " + password
+    #SQL_str += ", " + password
     SQL_str += ", " + institution
     SQL_str += ", " + position
     SQL_str += ");"
@@ -79,23 +93,98 @@ def update_account(parameter_to_update: dict, userID: int):
     
     print("User account has been successfully updated")
 
-def get_text_options(ID:int):
-    '''Function that returns all previously uploaded text in array'''
+def get_text(userid:int):
+    '''
+    Function that returns arrays of dicts where each dict is a row of a text query. Each
+    row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text). 
+    '''
+    texts = None
     
-    conn = connect()
-    curr = conn.cursor()
+    # creating SQL statement
+    SQL_str = "SELECT * FROM texts WHERE userid LIKE=" + str(userid)
     
-    return texts
+    try:
+        # creating connection to database
+        conn = __connect()
+        curr = conn.cursor()
+
+        # executing cursor 
+        curr.execute(SQL_str)
+        texts = curr.fetchall()
+        
+        text_array = []
+        for text in texts:
+            text_dict = {}
+            text_dict["textid"] = text[2]
+            text_dict["userid"] = text[0]
+            text_dict["textname"] = text[3]
+            text_dict["uploaded"] = text[1]
+            
+            text_array.append(text_dict)
+
+        curr.close()
+        conn.close()
+        
+    except (Exception, psycopg2.DatabaseError):
+        print(error)
+    return text_array
 
 def get_predictions(textID: int):
-    '''Function that returns predictions from textID in array'''
+    ''''
+    Function that returns arrays of dicts where each dict is a row of prediction query. Each
+    row/dict will have the following keys: "textid", "prediction_name", "token_number", 
+    "prediction" (text). 
+    '''
     predictions = None
     
-    return predictions
+    # creating SQL statement
+    SQL_str = "SELECT * FROM predictions WHERE textid LIKE=" + str(textID)
+    
+    try:
+        # creating connection to database
+        conn = __connect()
+        curr = conn.cursor()
 
-def upload_text(text: str, userid: int):
-    '''Function that stores user uploaded text to database'''
-    pass
+        # executing cursor 
+        curr.execute(SQL_str)
+        predictions = curr.fetchall()
+        
+        prediction_array = []
+        for prediction in predictions:
+            prediction_dict = {}
+            prediction_dict["textid"] = prediction[0]
+            prediction_dict["prediction_name"] = prediction[3]
+            prediction_dict["token_number"] = prediction[2]
+            prediction_dict["prediction"] = prediction[1]
+            
+            prediction_array.append(prediction_dict)
+
+        curr.close()
+        conn.close()
+    except (Exception, psycopg2.DatabaseError):
+        print(error)
+    
+    return prediction_array
+
+def upload_text(text: str, text_name: str, userid: int):
+    '''uploads text'''
+
+    SQL_str = "INSERT INTO texts (useerid, uploaded, textname)"
+    SQL_str += "VALUES" + str(userid) + " " + text + " " + text_name + ";"
+    
+    try:
+        # creating connection to database
+        conn = __connect()
+        curr = conn.cursor()
+
+        # executing upload statement
+        curr.execute(SQL_str)
+
+        curr.close()
+        conn.close()
+    except (Exception, psycopg2.DatabaseError):
+        print(error)
+        
 
 def upload_prediction(prediction: str, textid: int):
     '''Function that uploads prediction to database'''

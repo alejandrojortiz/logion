@@ -4,7 +4,6 @@ Runs the server in browser
 author: Jay White
 '''
 
-
 import sys
 import flask_methods
 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <title>Project Page</title>
+    <script src="../static/highlight.js" defer></script>
+    <!-- Temporary inline style for barebone layout and spacing. 
+        Will have external stylesheet later -->
+    <style>
+      p {
+        margin: 0;
+      }
+      #parameter-container label {
+        display: inline-block;
+      }
+      #main-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      input[name="project-name"] {
+        margin: 1em;
+      }
+      input:disabled {
+        background-color: rgb(196, 194, 194);
+        border: none;
+      }
+      #parameter-container {
+        margin-bottom: 1em;
+      }
+      #textarea-container {
+        width: 80%;
+        border: 1px black solid;
+        padding: 0.2em;
+        margin-bottom: 1em;
+      }
+      #textarea-container > textarea {
+        width: 100%;
+        height: 10em;
+        resize: none;
+        border: none;
+        padding: 0;
+      }
+      #prediction-container {
+        width: 80%;
+        border: 1px black solid;
+        padding: 0.2em;
+        margin-bottom: 1em;
+      }
+      #prediction-output {
+        min-height: 4em;
+      }
+      #prev-predictions-container {
+        margin-bottom: 1em;
+        min-height: 5em;
+        border: black 1px solid;
+        padding: 0.2em;
+        width: 80%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h2>Logo</h2>
+    </header>
+    <div id="main-content">
+      <input
+        type="text"
+        placeholder="Project Name"
+        name="project-name"
+        aria-label="Project Name"
+      />
+      <div id="parameter-container">
+        <label>
+          Prefix:
+          <input type="text" disabled />
+        </label>
+        <label>
+          Suffix:
+          <input type="text" disabled />
+        </label>
+        <label for="token-number">
+          Number of Tokens:
+          <input type="text" id="token-number" required />
+        </label>
+        <label>
+          Distance:
+          <input type="num" disabled />
+        </label>
+      </div>
+      <div id="textarea-container">
+        <textarea style="margin: none" wrap="soft" id="editor"></textarea>
+        <button type="button" id="predict-button">Predict</button>
+      </div>
+      <div id="prev-predictions-container"></div>
+      <div id="prediction-container">
+        <input type="text" placeholder="Prediction Name:" />
+        <p id="prediction-output"></p>
+        <button type="button">Save Prediction</button>
+      </div>
+      <button type="button">Save Project</button>
+    </div>
+  </body>
+</html>

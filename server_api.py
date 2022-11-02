@@ -33,6 +33,11 @@ def add_account(parameter_dict: dict):
     institution = parameter_dict.get("institution")
     position = parameter_dict.get("position")
     
+    SQL_str = "INSERT INTO users (id, name, email, institution, position) "
+    SQL_str += "VALUES (" + ID + ", "
+    SQL_str += email + ", "
+    SQL_str += institution + ", "
+    SQL_str += position + ");"
     
     # making connection with database
     conn = __connect()
@@ -42,9 +47,6 @@ def add_account(parameter_dict: dict):
     
     # adding user account info into user accounts table
     
-    '''
-    * modify database to remove passwords
-    '''
     
     SQL_str = "INSERT INTO users (userid, name, email, institution, position) "
     SQL_str += "VALUES (" + str(ID)
@@ -86,7 +88,8 @@ def update_account(parameter_to_update: dict, userID: int):
         
         else:
             SQL_str += ", " + parameter + "=" + str(parameter_to_update.get(parameter))
-
+    
+    SQL_str += ";"
     curr.execute(SQL_str)
     curr.close()
     conn.close()
@@ -101,7 +104,7 @@ def get_text(userid:int):
     texts = None
     
     # creating SQL statement
-    SQL_str = "SELECT * FROM texts WHERE userid LIKE=" + str(userid)
+    SQL_str = "SELECT * FROM texts WHERE userid LIKE=" + str(userid) + ";"
     
     try:
         # creating connection to database
@@ -138,7 +141,7 @@ def get_predictions(textID: int):
     predictions = None
     
     # creating SQL statement
-    SQL_str = "SELECT * FROM predictions WHERE textid LIKE=" + str(textID)
+    SQL_str = "SELECT * FROM predictions WHERE textid LIKE=" + str(textID) + ";"
     
     try:
         # creating connection to database
@@ -156,6 +159,7 @@ def get_predictions(textID: int):
             prediction_dict["prediction_name"] = prediction[3]
             prediction_dict["token_number"] = prediction[2]
             prediction_dict["prediction"] = prediction[1]
+            prediction_dict["predictionid"] = prediction[4]
             
             prediction_array.append(prediction_dict)
 
@@ -170,7 +174,7 @@ def upload_text(text: str, text_name: str, userid: int):
     '''uploads text'''
 
     SQL_str = "INSERT INTO texts (useerid, uploaded, textname)"
-    SQL_str += "VALUES" + str(userid) + " " + text + " " + text_name + ";"
+    SQL_str += "VALUES (" + str(userid) + ", " + text + ", " + text_name + ");"
     
     try:
         # creating connection to database
@@ -186,18 +190,79 @@ def upload_text(text: str, text_name: str, userid: int):
         print(error)
         
 
-def upload_prediction(prediction: str, textid: int):
+def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str):
     '''Function that uploads prediction to database'''
-
-def update_text(text: str, textid:int):
-    '''Function that updates an existing uploaded text stored in the database'''
-    pass
-
-def update_prediction(prediction: str, textid:int):
-    '''Function that updates an existion upload prediction stored in the database'''
-    pass
-
     
+    SQL_str = "INSERT INTO predictions (textid, predictionoutput, tokennumber, predictionname)"
+    SQL_str += "VALUES (" + str(textid) + ", " + prediction + ", " + token_number + ", " + str(prediction_name) + ");"
+
+    try:
+        # creating connection to database
+        conn = __connect()
+        curr = conn.cursor()
+
+        # executing upload statement
+        curr.execute(SQL_str)
+
+        curr.close()
+        conn.close()
+    except (Exception, psycopg2.DatabaseError):
+        print(error)
+        
+def update_text(update_dict: dict, textid):
+    '''Function that updates an existing uploaded text stored in the database'''
+    SQL_str = "UPDATE texts SET "
+    
+    columns = update_dict.keys
+    for i, col in enumerate(columns):
+        
+        if i == 0:
+            SQL_str += col + "=" + update_dict[col]
+        else:
+            SQL_str += ", " + col + "=" + update_dict[col]
+    
+    SQL_str += "WHERE textid=" + str(textid) + ";"
+
+    try:
+        # creating connection to database
+        conn = __connect()
+        curr = conn.cursor()
+
+        # executing upload statement
+        curr.execute(SQL_str)
+
+        curr.close()
+        conn.close()
+    except (Exception, psycopg2.DatabaseError):
+        print(error)
+
+def update_prediction(update_dict: dict, predictionid: int):
+    '''Function that updates an existion upload prediction stored in the database'''
+    SQL_str = "UPDATE predictions SET "
+    
+    columns = update_dict.keys
+    for i, col in enumerate(columns):
+        
+        if i == 0:
+            SQL_str += col + "=" + update_dict[col]
+        else:
+            SQL_str += ", " + col + "=" + update_dict[col]
+    
+    SQL_str += "WHERE predictionid=" + str(predictionid) + ";"
+
+
+    try:
+        # creating connection to database
+        conn = __connect()
+        curr = conn.cursor()
+
+        # executing upload statement
+        curr.execute(SQL_str)
+
+        curr.close()
+        conn.close()
+    except (Exception, psycopg2.DatabaseError):
+        print(error)
     
     
     

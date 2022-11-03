@@ -3,19 +3,15 @@ import torch
 from transformers import BertTokenizer, BertForMaskedLM
 # may need to do pip install transformers
 # may need to do pip install torch
+# files needed to do predictions.
+# https://drive.google.com/drive/u/2/folders/1eocoWpyd8NdrQATGwV47dqUnRQvtxhII
 
 tok = BertTokenizer.from_pretrained("pranaydeeps/Ancient-Greek-BERT")
-# print ("test1")
 greekbert1 = BertForMaskedLM.from_pretrained("1spanpsellos")
-# print ("test2")
 greekbert2 = BertForMaskedLM.from_pretrained("3span_ft")
-# print ("test3")
 greekbert3 = BertForMaskedLM.from_pretrained("3spanreal")
-# print ("test4")
 greekbert4 = BertForMaskedLM.from_pretrained("4spanreal")
-# print ("test5")
 greekbert5 = BertForMaskedLM.from_pretrained("5spanreal")
-# print ("test6")
 
 greekbert1.eval() # We are not training BERT at all here, only evaluating it. Thus we call bert.eval().
 greekbert2.eval() # We are not training BERT at all here, only evaluating it. Thus we call bert.eval().

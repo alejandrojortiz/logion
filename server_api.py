@@ -18,7 +18,7 @@ base = declarative_base()
 class users(base):
     __tablename__ = "users"
     
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(String, primary_key=True)
     name = Column(String)
     email = Column(String)
     institution = Column(String)
@@ -67,7 +67,19 @@ class predictions(base):
     
     
 base.metadata.create_all(engine)   
+
+def confirm_user(userID:str):
+    '''Function that checks if user is in the database'''
+    conn = engine.connect()
     
+    stmt = predictions.select()
+    result = conn.execute(stmt)
+    
+    if result is None:
+        return False
+    else:
+        return True
+
 def add_account(parameter_dict: dict):
     '''Function for updating account information'''
     
@@ -113,7 +125,7 @@ def update_account(parameter_to_update: dict, userID: int):
     
     print("User account has been successfully updated")
     '''
-def get_text(userid:int):
+def get_text(userid:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each
     row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text). 
@@ -152,7 +164,7 @@ def get_predictions(textID: int):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = predictions.select().where(predictions.text_id==textID)
+    stmt = predictions.select().where(predictions.text_id)
     result = conn.execute(stmt)
     
     
@@ -173,7 +185,7 @@ def get_predictions(textID: int):
 
     return prediction_array
 
-def upload_text(text: str, text_name: str, userid: int):
+def upload_text(text: str, text_name: str, userid: str):
     '''uploads text'''
 
     stmt = insert(texts).values(user_id=userid, text_name=text_name,

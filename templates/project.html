@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Project Page</title>
-    <script src="../static/highlight.js" defer></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../static/highlight.js" defer></script> -->
     <!-- Temporary inline style for barebone layout and spacing. 
         Will have external stylesheet later -->
     <style>
@@ -69,6 +70,7 @@
         placeholder="Project Name"
         name="project-name"
         aria-label="Project Name"
+        value={{text_name}}
       />
       <div id="parameter-container">
         <label>
@@ -89,10 +91,14 @@
         </label>
       </div>
       <div id="textarea-container">
-        <textarea style="margin: none" wrap="soft" id="editor"></textarea>
+        <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
         <button type="button" id="predict-button">Predict</button>
       </div>
-      <div id="prev-predictions-container"></div>
+      <div id="prev-predictions-container"> 
+        {% for row in prediction_array: %}
+          <p>"%s row.prediction_name": "%s row.prediction"</p>
+        {% endfor %}
+      </div>
       <div id="prediction-container">
         <input type="text" placeholder="Prediction Name:" />
         <p id="prediction-output"></p>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <title>Account Page</title>
+    </head>
+    <body>
+        <a href="/project/%s userid/0">New Project</a>
+        <style>
+            .project-link-container {
+                padding: 0.2em;
+            }
+            .project-link {
+                margin: 0;
+            }
+        </style>
+        <div class="project-link-container">
+            {% for row in text_array: %}
+                <p class="project-link"><a href="/project/%s %row.userid/%s row.textid">{{row.textname}}</a></p>
+            {% endfor %}
+        </div>
+    </body>
+</html>

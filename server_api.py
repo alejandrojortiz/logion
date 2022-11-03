@@ -4,25 +4,82 @@ functions responsible for all query interactions with the logion database
 authors: Eugene Liu
 
 '''
-from distutils.log import error
-import psycopg2
-from config import config
+from sqlalchemy import create_engine
+from sqlalchemy import Column, String, Integer, Identity, VARCHAR
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import insert
 
-def __connect():
-    '''private function that connects to postgresql server and returns connection object'''
-    try:
-        
-        # getting connection parameters
-        params = config()
-        
-        print("Connection to PostgreSQL database...")
-        conn = psycopg2.connect(**params)
-        print("Connection established!")
-        
-        return conn
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+db_string = ""
+engine = create_engine(db_string, echo=True)
+
+base = declarative_base()
+
+# declaring users table
+class users(base):
+    __tablename__ = "users"
     
+    user_id = Column(String, primary_key=True)
+    name = Column(String)
+    email = Column(String)
+    institution = Column(String)
+    position = Column(String)
+    
+    def __init__(self, user_id, name, email, institution, position):
+        self.user_id = user_id
+        self.name = name
+        self.email = email
+        self.institution = institution
+        self.position = position
+
+# declaring texts table
+class texts(base):
+    __tablename__ = "texts"
+    
+    text_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
+    user_id = Column(Integer)
+    text_name = Column(String, VARCHAR(length=8000))
+    uploaded = Column(String, VARCHAR(length=8000))
+    
+    def __init__(self, text_id, user_id, text_name, uploaded):
+        self.text_id = text_id
+        self.user_id = user_id
+        self.text_name = text_name
+        self.uploaded = uploaded
+
+# declaring predictions table
+class predictions(base):
+    
+    __tablename__ = "predictions"
+    
+    prediction_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
+    token_number = Column(Integer)
+    text_id = Column(Integer)
+    prediction_name = Column(String, VARCHAR(length=8000))
+    prediction_output = Column(String, VARCHAR(length=8000))
+    
+    def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output):
+        self.prediction_id = prediction_id
+        self.text_id = text_id
+        self.token_number = token_number
+        self.prediction_name = prediction_name
+        self.prediction_output = prediction_output
+    
+    
+    
+base.metadata.create_all(engine)   
+
+def confirm_user(userID:str):
+    '''Function that checks if user is in the database'''
+    conn = engine.connect()
+    
+    stmt = predictions.select()
+    result = conn.execute(stmt)
+    
+    if result is None:
+        return False
+    else:
+        return True
+
 def add_account(parameter_dict: dict):
     '''Function for updating account information'''
     
@@ -33,45 +90,20 @@ def add_account(parameter_dict: dict):
     institution = parameter_dict.get("institution")
     position = parameter_dict.get("position")
     
-    SQL_str = "INSERT INTO users (id, name, email, institution, position) "
-    SQL_str += "VALUES (" + ID + ", "
-    SQL_str += email + ", "
-    SQL_str += institution + ", "
-    SQL_str += position + ");"
-    
-    # making connection with database
-    conn = __connect()
-    
-    # making cursor
-    curr = conn.cursor()
-    
-    # adding user account info into user accounts table
-    
-    
-    SQL_str = "INSERT INTO users (userid, name, email, institution, position) "
-    SQL_str += "VALUES (" + str(ID)
-    SQL_str += ", " + name
-    SQL_str +=  ", " + email
-    #SQL_str += ", " + password
-    SQL_str += ", " + institution
-    SQL_str += ", " + position
-    SQL_str += ");"
-    
-    # executing statement
-    curr.execute(SQL_str)
-    
-    # closing cursor and database connection
-    curr.close()
-    conn.close()
-    
-    print("User added successfully")
 
+    # adding it to the users table
+    stmt = insert(users).values(user_id=ID, name=name, 
+                                email=email, 
+                                institution=institution, 
+                                position=position)
+
+    # execution of stmt
+    conn = engine.connect()
+    result = conn.execute(stmt)
+
+# needs to be updated to sqlalchemy
+'''
 def update_account(parameter_to_update: dict, userID: int):
-    '''Function for updating account'''
-    
-    # making connection with database
-    conn = __connect()
-    curr = conn.cursor()
     
     # getting all parameters to be updated
     parameters = parameter_to_update.keys
@@ -90,46 +122,36 @@ def update_account(parameter_to_update: dict, userID: int):
             SQL_str += ", " + parameter + "=" + str(parameter_to_update.get(parameter))
     
     SQL_str += ";"
-    curr.execute(SQL_str)
-    curr.close()
-    conn.close()
     
     print("User account has been successfully updated")
-
-def get_text(userid:int):
+    '''
+def get_text(userid:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each
     row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text). 
     '''
-    texts = None
+    conn = engine.connect()
     
     # creating SQL statement
-    SQL_str = "SELECT * FROM texts WHERE userid LIKE=" + str(userid) + ";"
+    stmt = texts.select().where(texts.user_id == userid)
+    result = conn.execute(stmt)
     
-    try:
-        # creating connection to database
-        conn = __connect()
-        curr = conn.cursor()
-
-        # executing cursor 
-        curr.execute(SQL_str)
-        texts = curr.fetchall()
+    
+    if result is None:
+        return None
+    
+    text_array = []
+    for text in result:
+        text = list(text)
+        text_dict = {}
         
-        text_array = []
-        for text in texts:
-            text_dict = {}
-            text_dict["textid"] = text[2]
-            text_dict["userid"] = text[0]
-            text_dict["textname"] = text[3]
-            text_dict["uploaded"] = text[1]
-            
-            text_array.append(text_dict)
-
-        curr.close()
-        conn.close()
+        text_dict["textid"] = text[0]
+        text_dict["userid"] = text[1]
+        text_dict["textname"] = text[2]
+        text_dict["uploaded"] = text[3]
         
-    except (Exception, psycopg2.DatabaseError):
-        print(error)
+        text_array.append(text_dict)
+
     return text_array
 
 def get_predictions(textID: int):
@@ -138,79 +160,56 @@ def get_predictions(textID: int):
     row/dict will have the following keys: "textid", "prediction_name", "token_number", 
     "prediction" (text). 
     '''
-    predictions = None
+    
+    conn = engine.connect()
     
     # creating SQL statement
-    SQL_str = "SELECT * FROM predictions WHERE textid LIKE=" + str(textID) + ";"
+    stmt = predictions.select().where(predictions.text_id)
+    result = conn.execute(stmt)
     
-    try:
-        # creating connection to database
-        conn = __connect()
-        curr = conn.cursor()
-
-        # executing cursor 
-        curr.execute(SQL_str)
-        predictions = curr.fetchall()
+    
+    if result is None:
+        return None
+    
+    prediction_array = []
+    for prediction in result:
+        prediction = list(prediction)
+        prediction_dict = {}
         
-        prediction_array = []
-        for prediction in predictions:
-            prediction_dict = {}
-            prediction_dict["textid"] = prediction[0]
-            prediction_dict["prediction_name"] = prediction[3]
-            prediction_dict["token_number"] = prediction[2]
-            prediction_dict["prediction"] = prediction[1]
-            prediction_dict["predictionid"] = prediction[4]
-            
-            prediction_array.append(prediction_dict)
+        prediction_dict["prediction_id"] = prediction[0]
+        prediction_dict["token_number"] = prediction[1]
+        prediction_dict["text_id"] = prediction[2]
+        prediction_dict["prediction_name"] = prediction[3]
+        prediction_dict["prediction_output"] = prediction[4]       
+        prediction_array.append(prediction_dict)
 
-        curr.close()
-        conn.close()
-    except (Exception, psycopg2.DatabaseError):
-        print(error)
-    
     return prediction_array
 
-def upload_text(text: str, text_name: str, userid: int):
+def upload_text(text: str, text_name: str, userid: str):
     '''uploads text'''
 
-    SQL_str = "INSERT INTO texts (useerid, uploaded, textname)"
-    SQL_str += "VALUES (" + str(userid) + ", " + text + ", " + text_name + ");"
-    
-    try:
-        # creating connection to database
-        conn = __connect()
-        curr = conn.cursor()
+    stmt = insert(texts).values(user_id=userid, text_name=text_name,
+                                uploaded=text)
 
-        # executing upload statement
-        curr.execute(SQL_str)
-
-        curr.close()
-        conn.close()
-    except (Exception, psycopg2.DatabaseError):
-        print(error)
+    # execution of stmt
+    conn = engine.connect()
+    result = conn.execute(stmt)
         
 
 def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str):
     '''Function that uploads prediction to database'''
     
-    SQL_str = "INSERT INTO predictions (textid, predictionoutput, tokennumber, predictionname)"
-    SQL_str += "VALUES (" + str(textid) + ", " + prediction + ", " + token_number + ", " + str(prediction_name) + ");"
+    stmt = insert(predictions).values(token_number=token_number, text_id=textid,
+                                      prediction_name=prediction_name,
+                                      prediction_output=prediction)
 
-    try:
-        # creating connection to database
-        conn = __connect()
-        curr = conn.cursor()
+    # execution of stmt
+    conn = engine.connect()
+    result = conn.execute(stmt)
 
-        # executing upload statement
-        curr.execute(SQL_str)
-
-        curr.close()
-        conn.close()
-    except (Exception, psycopg2.DatabaseError):
-        print(error)
-        
+'''
 def update_text(update_dict: dict, textid):
-    '''Function that updates an existing uploaded text stored in the database'''
+    
     SQL_str = "UPDATE texts SET "
     
     columns = update_dict.keys
@@ -237,7 +236,6 @@ def update_text(update_dict: dict, textid):
         print(error)
 
 def update_prediction(update_dict: dict, predictionid: int):
-    '''Function that updates an existion upload prediction stored in the database'''
     SQL_str = "UPDATE predictions SET "
     
     columns = update_dict.keys
@@ -263,7 +261,7 @@ def update_prediction(update_dict: dict, predictionid: int):
         conn.close()
     except (Exception, psycopg2.DatabaseError):
         print(error)
-    
+'''
     
     
 

@@ -20,64 +20,73 @@ def index():
     html_code = flask.render_template("index.html")
     response = flask.make_response(html_code)
     return response
-        
 
-@app.route('/account/<sub>', methods=['GET', 'POST'])
-def account(sub):
+
+@app.route('/account/<userid>', methods=['GET', 'POST'])
+def account(userid):
     '''account landing page'''
     if request.method == 'POST':
         # create account
-        name = flask.request.args.get('name')
+        username = flask.request.args.get('username')
         email = flask.request.args.get('email')
         institution = flask.request.args.get('institution')
-        sub = flask.request.args.get('sub')
+        userid = flask.request.args.get('userid')
 
         args_dict = {}
 
-        if name is not None:
-            args_dict['name'] = name
+        if username is not None:
+            args_dict['username'] = username
         if email is not None:
             args_dict['email'] = email
         if institution is not None:
             args_dict['institution'] = institution
-        if sub is not None:
-            args_dict['sub'] = sub
-        
+        if userid is not None:
+            args_dict['userid'] = userid
+
         server_api.add_account(args_dict)
 
-        html_code = flask.render_template("account.html", sub=sub, user_name=user_name
-                                          projects=None)
+        html_code = flask.render_template("account.html", userid=userid, text_array=None)
 
     else:
         # existing account
-        sub = flask.request.args.get('sub')
-        user_name, projects = server_api.login(sub)
-        html_code = flask.render_template("account.html", sub=sub, user_name=user_name
-                                          projects=projects)
+        userid = flask.request.args.get('userid')
+
+        # text_array of dicts where each dict is a row of a text query
+        # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
+        text_array = server_api.get_text(userid)
+        html_code = flask.render_template("account.html", userid=userid, text_array=text_array)
 
     response = flask.make_response(html_code)
 
-    if sub is not None:
-        response.set_cookie("sub", sub)
-    
     return response
 
 #-----------------------------------------------------------------------
 
-def temporary_prediction(text, number):
-    pass
-    
+def temporary_prediction(text, parameters):
+    output = [[['elre', '##lv'], 0.04347], [['erl', '##kpi'], 0.019174], [['erl', '##labe'], 0.0078557]]
+    return output
 
-@app.route('/project/<sub>/<proj_id>', methods=['GET'])
-def project(sub, proj_id):
+@app.route('/project/<userid>/<textid>', methods=['GET'])
+def project(userid, textid, text_dict, prediction_array, text_masked, prediction):
     '''Page containing main project interface'''
-    if sub is flask.request.cookies.get('sub')
-        '''error'''
-        pass
 
-    html_code = flask.render_template("project.html", sub=sub, proj_id=proj_id)
+    textname = text_dict.get("textname")
+    uploaded = text_dict.get("uploaded")
+
+    # prediction_array of returns arrays of dicts where each dict is a row of prediction query
+    # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
+    prediction_array = get_predictions(textID=textid)
+
+    parameters = {}
+    token_number = flask.request.args.get('token-number')
+    paramters["token_number"] = token_number
+
+    if text_masked is not None:
+        prediction = temporary_prediction(uploaded, parameters)
+
+    html_code = flask.render_template("project.html", userid=userid, textid=textid, 
+                                      text_dict=text_dict, prediction_array=prediction_array,
+                                      text_masked=text_masked, prediction=prediction)
     response = flask.make_response(html_code)
-
-
 
     return response

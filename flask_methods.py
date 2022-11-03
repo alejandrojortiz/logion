@@ -5,13 +5,13 @@ author: Jay White
 '''
 
 import flask
-import server_api
+#import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 #-----------------------------------------------------------------------
 
-app = flask.Flask(__name__, template_folder='.')
+app = flask.Flask(__name__)
 
 #-----------------------------------------------------------------------
 
@@ -25,19 +25,14 @@ def index():
 
 @app.route('/auth', methods=['POST'])
 def auth():
-    csrf_token_cookei = flask.request.cookies.get('g_csrf_token')
-    if not csrf_token_cookie:
-        webapp2.abort(400, 'No CSRF token in Cookie.')
-    csrf_token_body = self.request.get('g_csrf_token')
-    if not csrf_token_body:
-        webapp2.abort(400, 'No CSRF token in post body.')
-    if csrf_token_cookie != csrf_token_body:
-        webapp2.abort(400, 'Failed to verify double submit cookie.')
+
 
     try:
         # Specify the CLIENT_ID of the app that accesses the backend:
+        token = flask.request.get_data().decode('utf-8').split("&")[0].split("=")[1]
+        print(token)
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), '492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com')
-
+        print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
         userid = idinfo['sub']
         username = idinfo['name']
@@ -55,7 +50,16 @@ def auth():
             # pass
         # else:
             # server_api.add_account(args_dict)
-
+        temp = '''
+        <html>
+        <head></head>
+        <body>
+        <a href="/account/{{userid}}">account</a>
+        </body>
+        </html>
+        '''
+        temp = temp.replace('{{userid}}', userid)
+        return flask.make_response(temp)
 
     except ValueError:
         # Invalid token
@@ -70,8 +74,8 @@ def account(userid):
         # if server_api.contains_user(userid):
             # text_array = server_api.get_text(userid)
         # else:
-        text_array = None
-        html_code = flask.render_template("account.html", userid=userid, text_array=text_array)
+    text_array = None
+    html_code = flask.render_template("account.html", userid=userid, text_array=text_array)
 
     response = flask.make_response(html_code)
 
@@ -87,17 +91,18 @@ def temporary_prediction(text, parameters):
 def project(userid, textid):
     '''Page containing main project interface'''
 
-    if textid is "0":
+    if textid == "0":
         textname = ""
         uploaded = ""
     
-    else:
-        textname = text_dict.get("textname")
-        uploaded = text_dict.get("uploaded")
+    #else:
+        #textname = text_dict.get("textname")
+        #uploaded = text_dict.get("uploaded")
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
-    prediction_array = get_predictions(textID=textid)
+    #prediction_array = get_predictions(textID=textid)
+    prediction_array = []
 
     # parameters = {}
     # token_number = flask.request.args.get('token-number')
@@ -106,12 +111,12 @@ def project(userid, textid):
     # if text_masked is not None:
         # prediction = temporary_prediction(uploaded, parameters)
 
-    html_code = flask.render_template("project.html", text_name=textname, uploaded=uploaded
-                                       prediction_array=prediction_array)
+    html_code = flask.render_template("project.html", text_name=textname, uploaded=uploaded,
+     prediction_array=prediction_array)
     response = flask.make_response(html_code)
 
     return response
 
-@app.route('/predict/<text>', methods=[POST])
+@app.route('/predict/<text>', methods=['POST'])
 def predict(text):
     pass

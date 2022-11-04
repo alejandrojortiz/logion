@@ -8,7 +8,7 @@ import flask
 #import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from temp_pred import main as predict
+#from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
 

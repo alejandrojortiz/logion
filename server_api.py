@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, Integer, Identity, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import insert
 
-db_string = "postgres://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
+db_string = "postgresql://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
 engine = create_engine(db_string, echo=True)
 
 base = declarative_base()

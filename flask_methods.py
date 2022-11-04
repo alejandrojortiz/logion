@@ -46,7 +46,7 @@ def auth():
         args_dict['institution'] = ""
         args_dict['postition'] = ""
 
-        if server_api.contains_user(userid):
+        if server_api.confirm_user(userid):
             pass
         else:
             server_api.add_account(args_dict)

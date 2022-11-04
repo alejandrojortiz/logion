@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-16" />
     <title>Project Page</title>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="../static/highlight.js" defer></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Temporary inline style for barebone layout and spacing. 
         Will have external stylesheet later -->
     <style>
@@ -70,7 +69,7 @@
         placeholder="Project Name"
         name="project-name"
         aria-label="Project Name"
-        value={{text_name}}
+        value="{{text_name}}"
       />
       <div id="parameter-container">
         <label>
@@ -83,25 +82,75 @@
         </label>
         <label for="token-number">
           Number of Tokens:
-          <input type="text" id="token-number" required />
+          <input type="num" id="token-number" />
         </label>
         <label>
           Distance:
           <input type="num" disabled />
         </label>
       </div>
+      <script async defer>
+        function debounce(fn, delay) {
+          let timer = null;
+          return function () {
+            var context = this,
+              args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+              fn.apply(context, args);
+            }, delay);
+          };
+        }
+        const DEBOUNCE_DURATION = 100;
+        document.addEventListener(
+          "selectionchange",
+          debounce(getHighlight, DEBOUNCE_DURATION)
+        );
+        function getHighlight() {
+          // Get text
+          const editor = $("#editor");
+          let text = editor.val();
+          if (!text) return "";
+          if (editor.prop('selectionStart') == editor.prop('selectionEnd')) return "";
+
+          // Replace selection with the appropriate number of tokens
+          const numTokens = $("#token-number").val();
+          let ret = text.substring(0, editor.prop('selectionStart'));
+          for (let i = 0; i < numTokens; i++) {
+            if (i == 0) ret += " {tok.mask_token} ";
+            else ret += "{tok.mask_token} ";
+          }
+          ret += text.substring(editor.prop('selectionEnd'));
+          return ret;
+        };
+        function handlePredictResponse(response) {
+          console.log("IN CALLBACK");
+          $('#prediction-output').html(response);
+        }
+        function handlePredictClick() {
+          console.log("Clicked");
+          const text = getHighlight();
+          if (!text) return;
+          transfer = {
+            text: text,
+            numTokens: $('#token-number').val()
+          }
+          request = $.post('/predict', transfer, handlePredictResponse)
+        }
+        
+      </script>
       <div id="textarea-container">
         <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
-        <button type="button" id="predict-button">Predict</button>
+        <button type="button" id="predict-button" onclick="handlePredictClick()">Predict</button>
       </div>
-      <div id="prev-predictions-container"> 
+      <div id="prev-predictions-container">
         {% for row in prediction_array: %}
-          <p>"%s row.prediction_name": "%s row.prediction"</p>
+        <p>{{"%s:" % row.prediction_name}} {{"%s" % row.prediction}}</p>
         {% endfor %}
       </div>
       <div id="prediction-container">
         <input type="text" placeholder="Prediction Name:" />
-        <p id="prediction-output"></p>
+        <div id="prediction-output"></div>
         <button type="button">Save Prediction</button>
       </div>
       <button type="button">Save Project</button>

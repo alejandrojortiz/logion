@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, Integer, Identity, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import insert
 
-db_string = "postgres://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
+db_string = "postgresql://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
 engine = create_engine(db_string, echo=True)
 
 base = declarative_base()
@@ -37,8 +37,8 @@ class texts(base):
     
     text_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
     user_id = Column(Integer)
-    text_name = Column(String, VARCHAR(length=8000))
-    uploaded = Column(String, VARCHAR(length=8000))
+    text_name = Column(VARCHAR(length=8000))
+    uploaded = Column(VARCHAR(length=8000))
     
     def __init__(self, text_id, user_id, text_name, uploaded):
         self.text_id = text_id
@@ -54,8 +54,8 @@ class predictions(base):
     prediction_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
     token_number = Column(Integer)
     text_id = Column(Integer)
-    prediction_name = Column(String, VARCHAR(length=8000))
-    prediction_output = Column(String, VARCHAR(length=8000))
+    prediction_name = Column(VARCHAR(length=8000))
+    prediction_output = Column(VARCHAR(length=8000))
     
     def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output):
         self.prediction_id = prediction_id

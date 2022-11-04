@@ -8,6 +8,7 @@ import flask
 #import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
 
@@ -74,7 +75,7 @@ def account(userid):
         # if server_api.contains_user(userid):
             # text_array = server_api.get_text(userid)
         # else:
-    text_array = None
+    text_array = []
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array)
 
     response = flask.make_response(html_code)
@@ -85,6 +86,7 @@ def account(userid):
 
 def temporary_prediction(text, parameters):
     output = [[['elre', '##lv'], 0.04347], [['erl', '##kpi'], 0.019174], [['erl', '##labe'], 0.0078557]]
+    pred = pred(text, parameters)
     return output
 
 @app.route('/project/<userid>/<textid>', methods=['GET'])

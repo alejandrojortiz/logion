@@ -6,7 +6,7 @@ author: Jay White
 
 import flask
 import urllib.parse
-#import server_api
+import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 #from temp_pred import main as predict
@@ -43,13 +43,13 @@ def auth():
         args_dict['username'] = username
         args_dict['email'] = email
         args_dict['userid'] = userid
-        args_dict['institution'] = None
-        args_dict['postition'] = None
+        args_dict['institution'] = ""
+        args_dict['postition'] = ""
 
-        # if server_api.contains_user(userid):
-            # pass
-        # else:
-            # server_api.add_account(args_dict)
+        if server_api.contains_user(userid):
+            pass
+        else:
+            server_api.add_account(args_dict)
         temp = '''
         <html>
         <head></head>

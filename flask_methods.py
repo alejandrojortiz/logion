@@ -26,14 +26,12 @@ def index():
 
 @app.route('/auth', methods=['POST'])
 def auth():
-
-
     try:
         # Specify the CLIENT_ID of the app that accesses the backend:
         token = flask.request.get_data().decode('utf-8').split("&")[0].split("=")[1]
-        print(token)
+        #print(token)
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), '492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com')
-        print("THERE")
+        #print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
         userid = idinfo['sub']
         username = idinfo['name']
@@ -86,13 +84,12 @@ def account(userid):
 
 def temporary_prediction(text, parameters):
     output = [[['elre', '##lv'], 0.04347], [['erl', '##kpi'], 0.019174], [['erl', '##labe'], 0.0078557]]
-    pred = pred(text, parameters)
+    #pred = pred(text, parameters)
     return output
 
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
-
     if textid == "0":
         textname = ""
         uploaded = ""
@@ -104,7 +101,7 @@ def project(userid, textid):
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
     #prediction_array = get_predictions(textID=textid)
-    prediction_array = []
+    prediction_array = [{'prediction_name': 'joe', 'prediction': 'joemama'}]
 
     # parameters = {}
     # token_number = flask.request.args.get('token-number')
@@ -119,6 +116,14 @@ def project(userid, textid):
 
     return response
 
-@app.route('/predict/<text>', methods=['POST'])
-def predict(text):
-    pass
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = urllib.parse.unquote(flask.request.get_data())
+    data = urllib.parse.unquote_plus(data)
+    text = data.split("&")[0].split("=")[1]
+    num_tokens = data.split("&")[1].split("=")[1]
+    ret = temporary_prediction(text, num_tokens)
+    template = flask.render_template("prediction.html", predictions=ret)
+    response = flask.make_response(template)
+    return response

@@ -54,8 +54,8 @@ class predictions(base):
     prediction_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
     token_number = Column(Integer)
     text_id = Column(Integer)
-    prediction_name = Column(String, VARCHAR(length=8000))
-    prediction_output = Column(String, VARCHAR(length=8000))
+    prediction_name = Column(VARCHAR(length=8000))
+    prediction_output = Column(VARCHAR(length=8000))
     
     def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output):
         self.prediction_id = prediction_id

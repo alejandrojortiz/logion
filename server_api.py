@@ -37,8 +37,8 @@ class texts(base):
     
     text_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
     user_id = Column(Integer)
-    text_name = Column(String, VARCHAR(length=8000))
-    uploaded = Column(String, VARCHAR(length=8000))
+    text_name = Column(VARCHAR(length=8000))
+    uploaded = Column(VARCHAR(length=8000))
     
     def __init__(self, text_id, user_id, text_name, uploaded):
         self.text_id = text_id

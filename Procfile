@@ -1,2 +1,2 @@
-web: gunicorn app:flask_server
+web: gunicorn app:flask_methods
 

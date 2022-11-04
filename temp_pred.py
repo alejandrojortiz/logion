@@ -1,6 +1,6 @@
 # installing required dependencies
-import torch
-from transformers import BertTokenizer, BertForMaskedLM
+# import torch
+# from transformers import BertTokenizer, BertForMaskedLM
 # may need to do pip install transformers
 # may need to do pip install torch
 # files needed to do predictions.

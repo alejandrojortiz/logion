@@ -6,7 +6,7 @@ author: Jay White
 
 import flask
 import urllib.parse
-import server_api
+#import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 #from temp_pred import main as predict
@@ -46,10 +46,10 @@ def auth():
         args_dict['institution'] = ""
         args_dict['postition'] = ""
 
-        if server_api.confirm_user(userid):
-            pass
-        else:
-            server_api.add_account(args_dict)
+        #if server_api.confirm_user(userid):
+            #pass
+        #else:
+            #server_api.add_account(args_dict)
         temp = '''
         <html>
         <head></head>
@@ -84,7 +84,7 @@ def account(userid):
 #-----------------------------------------------------------------------
 
 def temporary_prediction(text, parameters):
-    output = [[['elre', '##lv'], 0.04347], [['erl', '##kpi'], 0.019174], [['erl', '##labe'], 0.0078557]]
+    output = [[['νόσφιν', '##ιν'], 0.04347], [['νίκης', '##κης'], 0.019174], [['εἵνεκα', '##νεκα'], 0.0078557]]
     #pred = pred(text, parameters)
     return output
 
@@ -102,7 +102,7 @@ def project(userid, textid):
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
     #prediction_array = get_predictions(textID=textid)
-    prediction_array = [{'prediction_name': 'joe', 'prediction': 'joemama'}]
+    prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
     # parameters = {}
     # token_number = flask.request.args.get('token-number')

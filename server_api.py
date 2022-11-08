@@ -5,8 +5,8 @@ authors: Eugene Liu
 
 '''
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Identity, VARCHAR
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, Integer, Identity, MetaData
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert
 
 db_string = "postgresql://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
@@ -15,47 +15,44 @@ engine = create_engine(db_string, echo=True)
 base = declarative_base()
 
 # declaring users table
-class users(base):
+class User(base):
     __tablename__ = "users"
     
-    user_id = Column(String, primary_key=True)
-    name = Column(String)
-    email = Column(String)
-    institution = Column(String)
-    position = Column(String)
+    user_id = Column(Integer, primary_key=True)
+    name = Column(String(500))
+    email = Column(String(500))
+    institution = Column(String(500))
+    position = Column(String(500))
+    ip_address = Column(String(500))
     
-    def __init__(self, user_id, name, email, institution, position):
-        self.user_id = user_id
-        self.name = name
-        self.email = email
-        self.institution = institution
-        self.position = position
 
 # declaring texts table
-class texts(base):
+class Text(base):
     __tablename__ = "texts"
     
     text_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
     user_id = Column(Integer)
-    text_name = Column(VARCHAR(length=8000))
-    uploaded = Column(VARCHAR(length=8000))
+    text_name = Column(String(8000))
+    uploaded = Column(String(8000))
+    time = Column(String(500))
     
-    def __init__(self, text_id, user_id, text_name, uploaded):
+    def __init__(self, text_id, user_id, text_name, uploaded, time):
         self.text_id = text_id
         self.user_id = user_id
         self.text_name = text_name
         self.uploaded = uploaded
+        self.time = time
 
 # declaring predictions table
-class predictions(base):
+class Prediction(base):
     
     __tablename__ = "predictions"
     
     prediction_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
     token_number = Column(Integer)
     text_id = Column(Integer)
-    prediction_name = Column(VARCHAR(length=8000))
-    prediction_output = Column(VARCHAR(length=8000))
+    prediction_name = Column(String(8000))
+    prediction_output = Column(String(8000))
     
     def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output):
         self.prediction_id = prediction_id
@@ -63,16 +60,14 @@ class predictions(base):
         self.token_number = token_number
         self.prediction_name = prediction_name
         self.prediction_output = prediction_output
-    
-    
-    
+
 base.metadata.create_all(engine)   
 
 def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
     conn = engine.connect()
     
-    stmt = users.select().where(users.user_id == userID)
+    stmt = User.select().where(User.user_id == userID)
     result = conn.execute(stmt)
     
     if result is None:
@@ -92,7 +87,7 @@ def add_account(parameter_dict: dict):
     
 
     # adding it to the users table
-    stmt = insert(users).values(user_id=ID, name=name, 
+    stmt = insert(User).values(user_id=ID, name=name, 
                                 email=email, 
                                 institution=institution, 
                                 position=position)
@@ -133,7 +128,7 @@ def get_text(userid:str):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = texts.select().where(texts.user_id == userid)
+    stmt = Text.select().where(Text.user_id == userid)
     result = conn.execute(stmt)
     
     
@@ -164,7 +159,7 @@ def get_predictions(textID: int):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = predictions.select().where(predictions.text_id == textID)
+    stmt = Prediction.select().where(Prediction.text_id == textID)
     result = conn.execute(stmt)
     
     
@@ -188,7 +183,7 @@ def get_predictions(textID: int):
 def upload_text(text: str, text_name: str, userid: str):
     '''uploads text'''
 
-    stmt = insert(texts).values(user_id=userid, text_name=text_name,
+    stmt = insert(Text).values(user_id=userid, text_name=text_name,
                                 uploaded=text)
 
     # execution of stmt
@@ -199,7 +194,7 @@ def upload_text(text: str, text_name: str, userid: str):
 def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str):
     '''Function that uploads prediction to database'''
     
-    stmt = insert(predictions).values(token_number=token_number, text_id=textid,
+    stmt = insert(Prediction).values(token_number=token_number, text_id=textid,
                                       prediction_name=prediction_name,
                                       prediction_output=prediction)
 

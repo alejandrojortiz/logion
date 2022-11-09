@@ -5,7 +5,7 @@ authors: Eugene Liu
 
 '''
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Identity
+from sqlalchemy import Column, String, Integer, Identity, BigInteger
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select
 
@@ -18,7 +18,7 @@ base = declarative_base()
 class User(base):
     __tablename__ = "users"
     
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
     name = Column(String(500))
     email = Column(String(500))
     institution = Column(String(500))
@@ -52,7 +52,6 @@ class Text(base):
 
 # declaring predictions table
 class Prediction(base):
-    
     __tablename__ = "predictions"
     
     prediction_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)

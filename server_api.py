@@ -10,7 +10,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select
 from sqlalchemy.sql import text
 
-db_string = "postgresql://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
+db_string = "postgres://gsbouuzayqpjre:d5fd5fcaa4eeed8266d6a411cc9104962045870cffa23ba8118cb9f4cb487bf1@ec2-54-85-56-210.compute-1.amazonaws.com:5432/d6giaa1c28o2lu"
 engine = create_engine(db_string, echo=True)
 
 base = declarative_base()
@@ -75,11 +75,10 @@ def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
     conn = engine.connect()
     
-    stmt = select(User).where(User.user_id == '108828299170592692439')
+    stmt = select(User).where(User.user_id == userID)
     result = conn.execute(stmt)
     
     print("we are getting a result")
-    print(result)
     if result is None:
         return False
     else:

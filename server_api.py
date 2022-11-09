@@ -7,7 +7,7 @@ authors: Eugene Liu
 from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Identity, MetaData
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
 db_string = "postgresql://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
 engine = create_engine(db_string, echo=True)
@@ -25,7 +25,14 @@ class User(base):
     position = Column(String(500))
     ip_address = Column(String(500))
     
-
+    def __init__(self, user_id, name, email, institution, position, ip_address):
+        self.user_id = user_id
+        self.name = name
+        self.email = email
+        self.time = institution
+        self.position = position
+        self.ip_address = ip_address
+        
 # declaring texts table
 class Text(base):
     __tablename__ = "texts"
@@ -67,7 +74,7 @@ def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
     conn = engine.connect()
     
-    stmt = User.select().where(User.user_id == userID)
+    stmt = select(User).where(User.user_id == userID)
     result = conn.execute(stmt)
     
     if result is None:

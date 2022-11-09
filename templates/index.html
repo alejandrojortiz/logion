@@ -4,22 +4,43 @@
     <meta charset="utf-16" />
     <title>Home Landing Page</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <div
-      id="g_id_onload"
-      data-client_id="492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com"
-      data-login_uri = "/auth"
-      data-auto_prompt = "false"
-    ></div>
-    
-    <div
-      class="g_id_signin"
-      data-type="standard"
-      data-size="large"
-      data-theme="outline"
-      data-text="sign_in_with"
-      data-shape="rectangular"
-      data-logo_alignment="left"
-    ></div>
+    <style>
+      body {
+        margin: 0;
+      }
+      #header {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+        box-shadow: 10px 10px 30px #c4c4c4;
+        margin-bottom: 2em;
+        padding-right: 1em;
+      }
+      #header img {
+        margin-right: auto;
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <div id="header">
+      <img src="../static/logo.png" style="max-height: 7em" />
+      <div
+        id="g_id_onload"
+        data-client_id="492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com"
+        data-login_uri="/auth"
+        data-auto_prompt="false"
+      ></div>
+
+      <div
+        class="g_id_signin"
+        data-type="standard"
+        data-size="medium"
+        data-theme="filled_black"
+        data-text="signin_with"
+        data-shape="pill"
+        data-logo_alignment="left"
+      ></div>
+    </div>
+  </body>
 </html>

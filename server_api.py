@@ -37,7 +37,7 @@ class Text(base):
     __tablename__ = "texts"
     
     text_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
-    user_id = Column(BigInteger)
+    user_id = Column(String(500))
     text_name = Column(String(8000))
     uploaded = Column(String(8000))
     time = Column(String(500))
@@ -70,13 +70,14 @@ base.metadata.create_all(engine)
 
 def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
-    
+    engine = create_engine(db_string, echo=True)
     conn = engine.connect()
-    
+
     stmt = select(User).where(User.user_id == userID)
     result = conn.execute(stmt)
     
     conn.close()
+    engine.dispose()
     
     print("we are getting a result")
     if result is None:

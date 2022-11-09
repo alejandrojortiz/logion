@@ -6,7 +6,7 @@ author: Jay White
 
 import flask
 import urllib.parse
-#import server_api
+import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 #from temp_pred import main as predict
@@ -36,7 +36,7 @@ def auth():
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), '492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com')
         #print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
-        userid = idinfo['sub']
+        userid = str(idinfo['sub'])
         username = idinfo['name']
         email = idinfo['email']
 
@@ -48,10 +48,10 @@ def auth():
         args_dict['institution'] = ""
         args_dict['postition'] = ""
 
-        #if server_api.confirm_user(userid):
-            #pass
-        #else:
-            #server_api.add_account(args_dict)
+        if server_api.confirm_user(userid):
+            pass
+        else:
+            server_api.add_account(args_dict)
         temp = '''
         <html>
         <head></head>
@@ -73,10 +73,10 @@ def account(userid):
 
         # text_array of dicts where each dict is a row of a text query
         # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
-        # if server_api.contains_user(userid):
-            # text_array = server_api.get_text(userid)
-        # else:
-    text_array = []
+    if server_api.confirm_user(userid):
+        text_array = server_api.get_text(userid)
+    else:
+        text_array = []
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array)
 
     response = flask.make_response(html_code)

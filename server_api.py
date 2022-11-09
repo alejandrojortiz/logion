@@ -78,6 +78,8 @@ def confirm_user(userID:str):
     stmt = select(User).where(User.user_id == userID)
     result = conn.execute(stmt)
     
+    print("we are getting a result")
+    print(result)
     if result is None:
         return False
     else:

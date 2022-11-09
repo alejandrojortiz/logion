@@ -11,7 +11,6 @@ from sqlalchemy import insert, select
 
 db_string = "postgresql://gsbouuzayqpjre:d5fd5fcaa4eeed8266d6a411cc9104962045870cffa23ba8118cb9f4cb487bf1@ec2-54-85-56-210.compute-1.amazonaws.com:5432/d6giaa1c28o2lu"
 engine = create_engine(db_string, echo=True)
-
 base = declarative_base()
 
 # declaring users table
@@ -71,17 +70,20 @@ base.metadata.create_all(engine)
 
 def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
+    
     conn = engine.connect()
     
     stmt = select(User).where(User.user_id == userID)
     result = conn.execute(stmt)
+    
+    conn.close()
     
     print("we are getting a result")
     if result is None:
         return False
     else:
         return True
-
+    
 def add_account(parameter_dict: dict):
     '''Function for updating account information'''
     
@@ -102,6 +104,9 @@ def add_account(parameter_dict: dict):
     # execution of stmt
     conn = engine.connect()
     result = conn.execute(stmt)
+    
+    # closing connection
+    conn.close()
 
 def update_account(parameter_to_update: dict, userID: int):
     
@@ -135,6 +140,8 @@ def get_text(userid:str):
     stmt = select(Text).where(Text.user_id == userid)
     result = conn.execute(stmt)
     
+    conn.close()
+    
     
     if result is None:
         return None
@@ -159,13 +166,13 @@ def get_predictions(textID: int):
     row/dict will have the following keys: "textid", "prediction_name", "token_number", 
     "prediction" (text). 
     '''
-    
     conn = engine.connect()
     
     # creating SQL statement
     stmt = select(Prediction).where(Prediction.text_id == textID)
     result = conn.execute(stmt)
     
+    conn.close()
     
     if result is None:
         return None
@@ -193,6 +200,7 @@ def upload_text(text: str, text_name: str, userid: str):
     # execution of stmt
     conn = engine.connect()
     result = conn.execute(stmt)
+    conn.close()
         
 
 def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str):
@@ -205,7 +213,7 @@ def upload_prediction(prediction: str, textid: int, token_number: int, predictio
     # execution of stmt
     conn = engine.connect()
     result = conn.execute(stmt)
-
+    conn.close()
 
 def update_text(update_dict: dict, textid):
     

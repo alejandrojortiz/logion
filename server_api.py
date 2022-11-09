@@ -18,7 +18,7 @@ base = declarative_base()
 class User(base):
     __tablename__ = "users"
     
-    user_id = Column(BigInteger, primary_key=True)
+    user_id = Column(String(500), primary_key=True)
     name = Column(String(500))
     email = Column(String(500))
     institution = Column(String(500))
@@ -38,7 +38,7 @@ class Text(base):
     __tablename__ = "texts"
     
     text_id = Column(Integer, Identity(start = 1, cycle=True), primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     text_name = Column(String(8000))
     uploaded = Column(String(8000))
     time = Column(String(500))

@@ -34,7 +34,7 @@ def auth():
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), '492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com')
         #print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
-        userid = idinfo['sub']
+        userid = str(idinfo['sub'])
         username = idinfo['name']
         email = idinfo['email']
 

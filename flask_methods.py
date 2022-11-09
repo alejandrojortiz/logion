@@ -29,7 +29,9 @@ def index():
 def auth():
     try:
         # Specify the CLIENT_ID of the app that accesses the backend:
-        token = flask.request.get_data().decode('utf-8').split("&")[0].split("=")[1]
+        #token = flask.request.get_data().decode('utf-8').split("&")[0].split("=")[1]
+        credential = urllib.parse.parse_qs(flask.request.get_data().decode('utf-8'))
+        token = dict(credential).get('credential')[0]
         #print(token)
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), '492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com')
         #print("THERE")

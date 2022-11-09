@@ -5,12 +5,11 @@ authors: Eugene Liu
 
 '''
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Identity, MetaData
+from sqlalchemy import Column, String, Integer, Identity
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select
-from sqlalchemy.sql import text
 
-db_string = "postgres://gsbouuzayqpjre:d5fd5fcaa4eeed8266d6a411cc9104962045870cffa23ba8118cb9f4cb487bf1@ec2-54-85-56-210.compute-1.amazonaws.com:5432/d6giaa1c28o2lu"
+db_string = "postgressql://gsbouuzayqpjre:d5fd5fcaa4eeed8266d6a411cc9104962045870cffa23ba8118cb9f4cb487bf1@ec2-54-85-56-210.compute-1.amazonaws.com:5432/d6giaa1c28o2lu"
 engine = create_engine(db_string, echo=True)
 
 base = declarative_base()

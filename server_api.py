@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Identity, MetaData
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select
+from sqlalchemy.sql import text
 
 db_string = "postgresql://rbznhpuoqfihai:7755e4bb18a45a4e91fe65fd666d149f32d5d0fded63197beafda1f9fb747fd0@ec2-54-160-200-167.compute-1.amazonaws.com:5432/de8u9na0up86s7"
 engine = create_engine(db_string, echo=True)
@@ -103,8 +104,6 @@ def add_account(parameter_dict: dict):
     conn = engine.connect()
     result = conn.execute(stmt)
 
-# needs to be updated to sqlalchemy
-'''
 def update_account(parameter_to_update: dict, userID: int):
     
     # getting all parameters to be updated
@@ -123,10 +122,9 @@ def update_account(parameter_to_update: dict, userID: int):
         else:
             SQL_str += ", " + parameter + "=" + str(parameter_to_update.get(parameter))
     
-    SQL_str += ";"
+    with engine.connect() as con:
+        rs = con.execute(SQL_str)
     
-    print("User account has been successfully updated")
-    '''
 def get_text(userid:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each
@@ -135,7 +133,7 @@ def get_text(userid:str):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = Text.select().where(Text.user_id == userid)
+    stmt = select(Text).where(Text.user_id == userid)
     result = conn.execute(stmt)
     
     
@@ -166,7 +164,7 @@ def get_predictions(textID: int):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = Prediction.select().where(Prediction.text_id == textID)
+    stmt = select(Prediction).where(Prediction.text_id == textID)
     result = conn.execute(stmt)
     
     
@@ -209,33 +207,20 @@ def upload_prediction(prediction: str, textid: int, token_number: int, predictio
     conn = engine.connect()
     result = conn.execute(stmt)
 
-'''
+
 def update_text(update_dict: dict, textid):
-    
-    SQL_str = "UPDATE texts SET "
     
     columns = update_dict.keys
     for i, col in enumerate(columns):
-        
         if i == 0:
             SQL_str += col + "=" + update_dict[col]
         else:
             SQL_str += ", " + col + "=" + update_dict[col]
     
-    SQL_str += "WHERE textid=" + str(textid) + ";"
+    SQL_str += "WHERE textid=" + str(textid)
 
-    try:
-        # creating connection to database
-        conn = __connect()
-        curr = conn.cursor()
-
-        # executing upload statement
-        curr.execute(SQL_str)
-
-        curr.close()
-        conn.close()
-    except (Exception, psycopg2.DatabaseError):
-        print(error)
+    with engine.connect() as con:
+        rs = con.execute(SQL_str)
 
 def update_prediction(update_dict: dict, predictionid: int):
     SQL_str = "UPDATE predictions SET "
@@ -248,22 +233,11 @@ def update_prediction(update_dict: dict, predictionid: int):
         else:
             SQL_str += ", " + col + "=" + update_dict[col]
     
-    SQL_str += "WHERE predictionid=" + str(predictionid) + ";"
+    SQL_str += "WHERE predictionid=" + str(predictionid)
 
+    with engine.connect() as con:
+        rs = con.execute(SQL_str)
 
-    try:
-        # creating connection to database
-        conn = __connect()
-        curr = conn.cursor()
-
-        # executing upload statement
-        curr.execute(SQL_str)
-
-        curr.close()
-        conn.close()
-    except (Exception, psycopg2.DatabaseError):
-        print(error)
-'''
     
     
 

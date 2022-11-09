@@ -75,7 +75,7 @@ def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
     conn = engine.connect()
     
-    stmt = select(User).where(User.user_id == userID)
+    stmt = select(User).where(User.user_id == '108828299170592692439')
     result = conn.execute(stmt)
     
     print("we are getting a result")

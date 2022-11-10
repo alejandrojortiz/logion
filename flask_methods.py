@@ -6,7 +6,7 @@ author: Jay White
 
 import flask
 import urllib.parse
-#import server_api
+import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -50,10 +50,10 @@ def auth():
         args_dict['institution'] = ""
         args_dict['postition'] = ""
 
-        #if server_api.confirm_user(userid):
-            #pass
-        #else:
-            #server_api.add_account(args_dict)
+        if server_api.confirm_user(userid):
+            pass
+        else:
+            server_api.add_account(args_dict)
         
         return flask.redirect(flask.url_for("account", userid=userid))
 

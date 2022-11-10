@@ -3,29 +3,20 @@
   <head>
     <meta charset="utf-16" />
     <title>Project Page</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=PT+Sans"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter"
+    />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Temporary inline style for barebone layout and spacing. 
         Will have external stylesheet later -->
     <style>
-      @font-face {
-        font-family: "Goldman-Sans-Black";
-        src: url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.woff")
-            format("woff"),
-          url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.svg#Goldman-Sans-Black")
-            format("svg"),
-          url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.eot"),
-          url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.eot?#iefix")
-            format("embedded-opentype");
-        font-weight: normal;
-        font-style: normal;
-      }
-      @font-face {
-        font-family: "Inter";
-        src: url(../static/fonts/inter-cyrillic-100-normal.woff2)
-          format("woff2");
-      }
       body {
-        font-family: Inter;
+        font-family: "PT Sans";
         margin: 0;
       }
       p {
@@ -102,6 +93,7 @@
         border-radius: 1em;
         min-height: 2em;
         padding: 0.75em 1.25em 0.75em 1.25em;
+        font-family: inherit;
       }
       #header img {
         margin-right: auto;
@@ -114,7 +106,6 @@
         min-width: 10em;
         border: 0px;
         border-radius: 30px;
-        font-family: Goldman-Sans-Black;
       }
       .box-label {
         align-self: flex-start;
@@ -129,8 +120,11 @@
   </head>
   <body>
     <div id="header">
-      <img src={{ url_for("static", filename="logo.png") }} style="max-height: 4em" />
-      <button type="button" id="log-out-button">Log Out</button>
+      <img src={{ url_for("static", filename="logo.png") }} style="max-height:
+      4em" />
+      <button type="button" id="log-out-button">
+        <strong>Log Out</strong>
+      </button>
     </div>
     <div id="main-content">
       <input

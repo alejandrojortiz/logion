@@ -7,6 +7,27 @@
     <!-- Temporary inline style for barebone layout and spacing. 
         Will have external stylesheet later -->
     <style>
+      @font-face {
+        font-family: "Goldman-Sans-Black";
+        src: url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.woff")
+            format("woff"),
+          url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.svg#Goldman-Sans-Black")
+            format("svg"),
+          url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.eot"),
+          url("../static/fonts/goldman-sans/Goldman-Sans-Black.ttf.eot?#iefix")
+            format("embedded-opentype");
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Inter";
+        src: url(../static/fonts/inter-cyrillic-100-normal.woff2)
+          format("woff2");
+      }
+      body {
+        font-family: Inter;
+        margin: 0;
+      }
       p {
         margin: 0;
       }
@@ -25,44 +46,92 @@
         background-color: rgb(196, 194, 194);
         border: none;
       }
-      #parameter-container {
-        margin-bottom: 1em;
-      }
       #textarea-container {
         width: 80%;
-        border: 1px black solid;
+        border: 1.5px #959595 solid;
+        border-radius: 10px;
         padding: 0.2em;
-        margin-bottom: 1em;
+        margin-bottom: 0.6em;
       }
       #textarea-container > textarea {
         width: 100%;
         height: 10em;
         resize: none;
         border: none;
+        border-bottom: 0.75px #959595 solid;
         padding: 0;
+        margin-bottom: 0.4em;
+      }
+      #parameter-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
       }
       #prediction-container {
         width: 80%;
-        border: 1px black solid;
+        border: 1.5px #959595 solid;
+        border-radius: 10px;
         padding: 0.2em;
-        margin-bottom: 1em;
+        margin-bottom: 0.6em;
       }
       #prediction-output {
         min-height: 4em;
       }
       #prev-predictions-container {
-        margin-bottom: 1em;
+        margin-bottom: 0.6em;
         min-height: 5em;
-        border: black 1px solid;
+        border: 1.5px #959595 solid;
+        border-radius: 10px;
         padding: 0.2em;
         width: 80%;
+      }
+      #header {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+        box-shadow: 10px 10px 30px #c4c4c4;
+        margin-bottom: 0.5em;
+        padding-right: 1em;
+      }
+      button {
+        background-color: black;
+        color: white;
+        border: 0px;
+        border-radius: 1em;
+        min-height: 2em;
+        padding: 0.75em 1.25em 0.75em 1.25em;
+      }
+      #header img {
+        margin-right: auto;
+      }
+      #log-out-button {
+        padding: 0;
+        background-color: black;
+        color: white;
+        min-height: 3em;
+        min-width: 10em;
+        border: 0px;
+        border-radius: 30px;
+        font-family: Goldman-Sans-Black;
+      }
+      .box-label {
+        align-self: flex-start;
+        margin-left: 10%;
+        font-size: 1.125em;
+      }
+      #save-prediction-button-container {
+        display: flex;
+        justify-content: end;
       }
     </style>
   </head>
   <body>
-    <header>
-      <h2>Logo</h2>
-    </header>
+    <div id="header">
+      <img src="../static/logo.png" style="max-height: 4em" />
+      <button type="button" id="log-out-button">Log Out</button>
+    </div>
     <div id="main-content">
       <input
         type="text"
@@ -71,24 +140,6 @@
         aria-label="Project Name"
         value="{{text_name}}"
       />
-      <div id="parameter-container">
-        <label>
-          Prefix:
-          <input type="text" disabled />
-        </label>
-        <label>
-          Suffix:
-          <input type="text" disabled />
-        </label>
-        <label for="token-number">
-          Number of Tokens:
-          <input type="num" id="token-number" />
-        </label>
-        <label>
-          Distance:
-          <input type="num" disabled />
-        </label>
-      </div>
       <script async defer>
         function debounce(fn, delay) {
           let timer = null;
@@ -111,21 +162,22 @@
           const editor = $("#editor");
           let text = editor.val();
           if (!text) return "";
-          if (editor.prop('selectionStart') == editor.prop('selectionEnd')) return "";
+          if (editor.prop("selectionStart") == editor.prop("selectionEnd"))
+            return "";
 
           // Replace selection with the appropriate number of tokens
           const numTokens = $("#token-number").val();
-          let ret = text.substring(0, editor.prop('selectionStart'));
+          let ret = text.substring(0, editor.prop("selectionStart"));
           for (let i = 0; i < numTokens; i++) {
             if (i == 0) ret += " {tok.mask_token} ";
             else ret += "{tok.mask_token} ";
           }
-          ret += text.substring(editor.prop('selectionEnd'));
+          ret += text.substring(editor.prop("selectionEnd"));
           return ret;
-        };
+        }
         function handlePredictResponse(response) {
           console.log("IN CALLBACK");
-          $('#prediction-output').html(response);
+          $("#prediction-output").html(response);
         }
         function handlePredictClick() {
           console.log("Clicked");
@@ -133,25 +185,53 @@
           if (!text) return;
           transfer = {
             text: text,
-            numTokens: $('#token-number').val()
-          }
-          request = $.post('/predict', transfer, handlePredictResponse)
+            numTokens: $("#token-number").val(),
+          };
+          request = $.post("/predict", transfer, handlePredictResponse);
         }
-        
       </script>
+      <p class="box-label">Input</p>
       <div id="textarea-container">
         <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
-        <button type="button" id="predict-button" onclick="handlePredictClick()">Predict</button>
+        <div id="parameter-container">
+          <label>
+            Prefix:
+            <input type="text" disabled />
+          </label>
+          <label>
+            Suffix:
+            <input type="text" disabled />
+          </label>
+          <label for="token-number">
+            Number of Tokens:
+            <input type="num" id="token-number" />
+          </label>
+          <label>
+            Distance:
+            <input type="num" disabled />
+          </label>
+          <button
+            type="button"
+            id="predict-button"
+            onclick="handlePredictClick()"
+          >
+            Predict
+          </button>
+        </div>
       </div>
+      <p class="box-label">Prediction</p>
+      <div id="prediction-container">
+        <input type="text" placeholder="Prediction Name:" />
+        <div id="prediction-output"></div>
+        <div id="save-prediction-button-container">
+          <button type="button">Save Prediction</button>
+        </div>
+      </div>
+      <p class="box-label">Saved Predictions</p>
       <div id="prev-predictions-container">
         {% for row in prediction_array: %}
         <p>{{"%s:" % row.prediction_name}} {{"%s" % row.prediction}}</p>
         {% endfor %}
-      </div>
-      <div id="prediction-container">
-        <input type="text" placeholder="Prediction Name:" />
-        <div id="prediction-output"></div>
-        <button type="button">Save Prediction</button>
       </div>
       <button type="button">Save Project</button>
     </div>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body, p {
+        margin: 0;
+      }
+      #header {
+        display: flex;
+        flex-direction: row;
+        justify-content: start;
+        align-items: center;
+        box-shadow: 10px 10px 30px #c4c4c4;
+        margin-bottom: 2em;
+      }
+      #register-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 1px black solid;
+        border-radius: 5px;
+        padding: 0.5em;
+      }
+      #register-form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .input-label {
+        display: block;
+        margin-bottom: 0.2em;
+      }
+      .input-label + input {
+        margin-bottom: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <img src="../static/logo.png" style="max-height: 7em" />
+    </div>
+    <div id="register-form-container">
+      <p>User Registration</p>
+      <form id="register-form">
+        <div>
+          <label class="input-label">Institution</label>
+          <input type="text" />
+        </div>
+        <div>
+          <label class="input-label">Position</label>
+          <input type="text" />
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

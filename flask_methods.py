@@ -17,7 +17,6 @@ from google.auth.transport import requests
 
 app = flask.Flask(__name__)
 
-
 #-----------------------------------------------------------------------
 
 @app.route('/', methods=['GET'])
@@ -104,25 +103,29 @@ def temporary_prediction(text, parameters):
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
-    textname = ""
-    uploaded = ""
-    
-    #else:
-        #textname = text_dict.get("textname")
-        #uploaded = text_dict.get("uploaded")
+    if (textid == 0):
+        textname = ""
+        uploaded = ""
+    else:
+        texts = server_api.get_text(userid)
+        for row in texts:
+            if row.get("textid") is textid:
+                textname = row.get("textname")
+                uploaded = row.get("uploaded")
+            else:
+                # ERROR
+                pass
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
-    #prediction_array = get_predictions(textID=textid)
+    # prediction_array = get_predictions(textID=textid)
     prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
-
     html_code = flask.render_template("project.html", text_name=textname, uploaded=uploaded,
-     prediction_array=prediction_array)
+                                      prediction_array=prediction_array)
     response = flask.make_response(html_code)
 
     return response
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -134,3 +137,13 @@ def predict():
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)
     return response
+
+@app.route('/saveProject', methods=['POST'])
+def save_project():
+    data = urllib.parse.unquote(flask.request.get_data())
+    data = urllib.pares.unquote_plus(data)
+    data = data.split("&")
+    user_id = data[0].split("=")[1]
+    text = data[0],split("=")[1]
+    text_name = data[0].split("=")[1]
+    server_api.upload_text(text, text_name, user_id)

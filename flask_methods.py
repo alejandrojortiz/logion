@@ -7,7 +7,7 @@ author: Jay White
 import flask
 import urllib.parse
 import random
-#import server_api
+import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -51,10 +51,10 @@ def auth():
         args_dict['institution'] = ""
         args_dict['postition'] = ""
 
-        #if server_api.confirm_user(userid):
-            #pass
-        #else:
-            #server_api.add_account(args_dict)
+        if server_api.confirm_user(userid):
+            pass
+        else:
+            server_api.add_account(args_dict)
         
         return flask.redirect(flask.url_for("account", userid=userid))
 
@@ -68,11 +68,11 @@ def account(userid):
 
         # text_array of dicts where each dict is a row of a text query
         # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
-    #if server_api.confirm_user(userid):
-        #text_array = server_api.get_text(userid)
-    #else:
-        #text_array= []
-    text_array = []
+    if server_api.confirm_user(userid):
+        text_array = server_api.get_text(userid)
+    else:
+        text_array= []
+    #text_array = []
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array, user_first_name='Alejandro')
 
     response = flask.make_response(html_code)
@@ -98,8 +98,6 @@ def temporary_prediction(text, parameters):
         ret.append(round(prob, 5))
         output.append(ret)
         cum_prob += prob
-    #output = [[['νόσφιν', '##ιν'], 0.04347], [['νίκης', '##κης'], 0.019174], [['εἵνεκα', '##νεκα'], 0.0078557]]
-    #pred = pred(text, parameters)
     output.sort(key= lambda x: -x[1])
     return output
 
@@ -118,12 +116,6 @@ def project(userid, textid):
     #prediction_array = get_predictions(textID=textid)
     prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
-    # parameters = {}
-    # token_number = flask.request.args.get('token-number')
-    # paramters["token_number"] = token_number
-
-    # if text_masked is not None:
-        # prediction = temporary_prediction(uploaded, parameters)
 
     html_code = flask.render_template("project.html", text_name=textname, uploaded=uploaded,
      prediction_array=prediction_array)

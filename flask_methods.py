@@ -103,19 +103,18 @@ def temporary_prediction(text, parameters):
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
-    if (int(textid) == 0):
-        textname = ""
-        uploaded = ""
-    else:
-        texts = server_api.get_text(userid)
-        for row in texts:
-            if row.get("textid") is textid:
-                textname = row.get("textname")
-                uploaded = row.get("uploaded")
-            else:
-                # ERROR
-                textname = ""
-                uploaded = ""
+    textname=""
+    uploaded = ""
+    
+    texts = server_api.get_text(userid)
+    for row in texts:
+        if row.get("textid") is textid:
+            textname = row.get("textname")
+            uploaded = row.get("uploaded")
+        else:
+            # ERROR
+            textname = ""
+            uploaded = ""
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)

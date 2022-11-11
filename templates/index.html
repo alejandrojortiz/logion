@@ -2,11 +2,23 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-16" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=PT+Sans"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter"
+    />
     <title>Home Landing Page</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
       body {
         margin: 0;
+        font-family: 'PT Sans';
+      }
+      button {
+        font-family: inherit;
       }
       #header {
         display: flex;
@@ -17,14 +29,19 @@
         margin-bottom: 2em;
         padding-right: 1em;
       }
-      #header img {
+      #logo-container {
         margin-right: auto;
+        display: flex;
+        max-height: 4em;
       }
     </style>
   </head>
   <body>
     <div id="header">
-      <img src={{ url_for("static", filename="logo.png") }} style="max-height: 4em" />
+      <div id="logo-container">
+        <img src={{ url_for("static", filename="laurel.png") }} style="max-height: 4em;"/>
+        <img src={{ url_for("static", filename="text.png") }} style="max-height: 4em;"/>
+      </div>
       <div
         id="g_id_onload"
         data-client_id="492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com"

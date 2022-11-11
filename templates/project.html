@@ -95,8 +95,10 @@
         padding: 0.75em 1.25em 0.75em 1.25em;
         font-family: inherit;
       }
-      #header img {
+      #logo-container {
         margin-right: auto;
+        display: flex;
+        max-height: 4em;
       }
       #log-out-button {
         padding: 0;
@@ -124,8 +126,13 @@
   </head>
   <body>
     <div id="header">
-      <img src={{ url_for("static", filename="logo.png") }} style="max-height:
-      4em" />
+      <div id="logo-container">
+        <a href="/">
+          <img src={{ url_for("static", filename="laurel.png") }}
+          style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="text.png") }} style="max-height: 4em;"/>
+        </a>
+      </div>
       <button type="button" id="log-out-button">
         <strong>Log Out</strong>
       </button>

@@ -141,7 +141,7 @@ def predict():
 @app.route('/saveProject', methods=['POST'])
 def save_project():
     data = urllib.parse.unquote(flask.request.get_data())
-    data = urllib.pares.unquote_plus(data)
+    data = urllib.parse.unquote_plus(data)
     data = data.split("&")
     user_id = data[0].split("=")[1]
     text = data[1].split("=")[1]

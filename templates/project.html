@@ -144,6 +144,7 @@
         name="project-name"
         aria-label="Project Name"
         value="{{text_name}}"
+        id="project-name-input"
       />
       <script async defer>
         function debounce(fn, delay) {
@@ -183,6 +184,21 @@
         function handlePredictResponse(response) {
           console.log("IN CALLBACK");
           $("#prediction-output").html(response);
+        }
+        function handleSaveProjectResponse(response) {
+          console.log("Project Saved")
+        }
+        function handleSaveProjectClick() {
+          textName = $("project-name-input").val()
+          text = $("#editor").val()
+          userID = window.location.pathname.split("/")
+          userID = userID[2]
+          transfer = {
+            user_id: userID,
+            text: text,
+            text_name: textName
+          }
+          request = $.post("/saveProject", transfer, handleSaveProjectResponse);
         }
         function handlePredictClick() {
           console.log("Clicked");
@@ -238,7 +254,7 @@
         <p>{{"%s:" % row.prediction_name}} {{"%s" % row.prediction}}</p>
         {% endfor %}
       </div>
-      <button type="button">Save Project</button>
+      <button type="button" onclick="handleSaveProjectClick()">Save Project</button>
     </div>
   </body>
 </html>

@@ -103,7 +103,7 @@ def temporary_prediction(text, parameters):
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
-    if (textid = 0):
+    if (textid == 0):
         textname = ""
         uploaded = ""
     else:

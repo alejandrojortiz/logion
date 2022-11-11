@@ -103,7 +103,7 @@ def temporary_prediction(text, parameters):
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
-    if (textid == 0):
+    if (int(textid) == 0):
         textname = ""
         uploaded = ""
     else:
@@ -114,7 +114,8 @@ def project(userid, textid):
                 uploaded = row.get("uploaded")
             else:
                 # ERROR
-                pass
+                textname = ""
+                uploaded = ""
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
@@ -144,6 +145,6 @@ def save_project():
     data = urllib.pares.unquote_plus(data)
     data = data.split("&")
     user_id = data[0].split("=")[1]
-    text = data[0],split("=")[1]
-    text_name = data[0].split("=")[1]
+    text = data[1].split("=")[1]
+    text_name = data[2].split("=")[1]
     server_api.upload_text(text, text_name, user_id)

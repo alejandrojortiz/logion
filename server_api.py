@@ -71,14 +71,12 @@ engine.dispose()
 
 def confirm_user(userID:str):
     '''Function that checks if user is in the database'''
-    engine = create_engine(db_string, echo=True)
     conn = engine.connect()
 
     stmt = select(User).where(User.user_id == userID)
     result = conn.execute(stmt)
     
     conn.close()
-    engine.dispose()
     
     print("we are getting a result")
     if result is None:
@@ -88,7 +86,6 @@ def confirm_user(userID:str):
     
 def add_account(parameter_dict: dict):
     '''Function for updating account information'''
-    engine = create_engine(db_string, echo=True)
     
     # unpacking dictionary items
     ID = parameter_dict.get("id")
@@ -110,11 +107,8 @@ def add_account(parameter_dict: dict):
     
     # closing connection
     conn.close()
-    engine.dispose()
     
 def update_account(parameter_to_update: dict, userID: int):
-    
-    engine = create_engine(db_string, echo=True)
     
     # getting all parameters to be updated
     parameters = parameter_to_update.keys
@@ -135,15 +129,13 @@ def update_account(parameter_to_update: dict, userID: int):
     with engine.connect() as con:
         rs = con.execute(SQL_str)
         con.close()
-    
-    engine.dispose()
+
     
 def get_text(userid:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each
     row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text). 
     '''
-    engine = create_engine(db_string, echo=True)
     conn = engine.connect()
     
     # creating SQL statement
@@ -151,7 +143,6 @@ def get_text(userid:str):
     result = conn.execute(stmt)
     
     conn.close()
-    engine.dispose()
     
     if result is None:
         return None
@@ -176,8 +167,7 @@ def get_predictions(textID: int):
     row/dict will have the following keys: "textid", "prediction_name", "token_number", 
     "prediction" (text). 
     '''
-    
-    engine = create_engine(db_string, echo=True)
+
     conn = engine.connect()
     
     
@@ -186,7 +176,6 @@ def get_predictions(textID: int):
     result = conn.execute(stmt)
     
     conn.close()
-    engine.dispose()
     
     if result is None:
         return None
@@ -212,11 +201,9 @@ def upload_text(text: str, text_name: str, userid: str):
                                 uploaded=text)
 
     # execution of stmt
-    engine = create_engine(db_string, echo=True)
     conn = engine.connect()
     result = conn.execute(stmt)
     conn.close()
-    engine.dispose()
         
 
 def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str):
@@ -227,11 +214,9 @@ def upload_prediction(prediction: str, textid: int, token_number: int, predictio
                                       prediction_output=prediction)
 
     # execution of stmt
-    engine = create_engine(db_string, echo=True)
     conn = engine.connect()
     result = conn.execute(stmt)
     conn.close()
-    engine.dispose()
 
 def update_text(update_dict: dict, textid):
     
@@ -244,12 +229,10 @@ def update_text(update_dict: dict, textid):
     
     SQL_str += "WHERE textid=" + str(textid)
 
-    engine = create_engine(db_string, echo=True)
     with engine.connect() as con:
         rs = con.execute(SQL_str)
         con.close()
-    
-    engine.dispose()
+
 
 def update_prediction(update_dict: dict, predictionid: int):
     SQL_str = "UPDATE predictions SET "
@@ -264,11 +247,9 @@ def update_prediction(update_dict: dict, predictionid: int):
     
     SQL_str += "WHERE predictionid=" + str(predictionid)
 
-    engine = create_engine(db_string, echo=True)
     with engine.connect() as con:
         rs = con.execute(SQL_str)
-    
-    engine.dispose()
+
 
     
     

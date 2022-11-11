@@ -5,6 +5,7 @@ author: Jay White
 '''
 
 import sys
+import os
 import argparse
 import flask_methods
 
@@ -23,6 +24,7 @@ def main():
     # calling args (error handles) and gets arguments
     arguments = args()
     port = arguments.port
+    port = os.environ.get("PORT", 3000)
 
     try:
         flask_methods.app.run(host="0.0.0.0", port = port, debug=True)

@@ -1,10 +1,63 @@
 <!DOCTYPE html>
 <html lang="en-us">
-    <head>
-        <meta charset="utf-8">
-        <title>Home Landing Page</title>
-    </head>
-    <body>
+  <head>
+    <meta charset="utf-16" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=PT+Sans"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter"
+    />
+    <title>Home Landing Page</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'PT Sans';
+      }
+      button {
+        font-family: inherit;
+      }
+      #header {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+        box-shadow: 10px 10px 30px #c4c4c4;
+        margin-bottom: 2em;
+        padding-right: 1em;
+      }
+      #logo-container {
+        margin-right: auto;
+        display: flex;
+        max-height: 4em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <div id="logo-container">
+        <img src={{ url_for("static", filename="laurel.png") }} style="max-height: 4em;"/>
+        <img src={{ url_for("static", filename="text.png") }} style="max-height: 4em;"/>
+      </div>
+      <div
+        id="g_id_onload"
+        data-client_id="492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com"
+        data-login_uri="/auth"
+        data-auto_prompt="false"
+      ></div>
 
-    </body>
+      <div
+        class="g_id_signin"
+        data-type="standard"
+        data-size="medium"
+        data-theme="filled_black"
+        data-text="signin_with"
+        data-shape="pill"
+        data-logo_alignment="left"
+      ></div>
+    </div>
+  </body>
 </html>

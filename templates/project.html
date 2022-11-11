@@ -11,6 +11,8 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js" async defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Temporary inline style for barebone layout and spacing. 
         Will have external stylesheet later -->
@@ -186,10 +188,12 @@
           $("#prediction-output").html(response);
         }
         function handleSaveProjectResponse(response) {
+          notyf = new Notyf()
+          notyf.success("Project Saved")
           console.log("Project Saved")
         }
         function handleSaveProjectClick() {
-          textName = $("project-name-input").val()
+          textName = $("#project-name-input").val()
           text = $("#editor").val()
           userID = window.location.pathname.split("/")
           userID = userID[2]

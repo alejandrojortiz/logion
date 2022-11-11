@@ -140,10 +140,12 @@ def predict():
 
 @app.route('/saveProject', methods=['POST'])
 def save_project():
-    data = urllib.parse.unquote(flask.request.get_data())
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = data.split("&")
+    print(data)
     user_id = data[0].split("=")[1]
     text = data[1].split("=")[1]
     text_name = data[2].split("=")[1]
     server_api.upload_text(text, text_name, user_id)
+    return ""

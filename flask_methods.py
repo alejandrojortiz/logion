@@ -94,7 +94,7 @@ def temporary_prediction(text, parameters):
         temp.append(word1)
         temp.append(word2)
         ret = [temp]
-        ret.append(round(prob, 5))
+        ret.append(round(prob * 100, 2))
         output.append(ret)
         cum_prob += prob
     output.sort(key= lambda x: -x[1])

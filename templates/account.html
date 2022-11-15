@@ -22,13 +22,14 @@
       p {
         margin: 0;
       }
-      .project-link-container {
+      #project-link-container {
         padding: 0.2em;
+        border: 1.5px #959595 solid;
+    border-radius: 10px;
+        width: 80%;
       }
       .project-link {
         margin: 0;
-      }
-      #new-project-link {
       }
       #header {
         display: flex;
@@ -67,7 +68,6 @@
         text-decoration: inherit;
         color: inherit;
       }
-
       #new-project-link:visited {
         text-decoration: inherit;
         color: inherit;
@@ -98,7 +98,7 @@
       <div id="project-link-container">
         {% for row in text_array: %}
         <p class="project-link">
-          <a href="/project/%s %row.userid/%s row.textid">{{row.textname}}</a>
+          <a href={{"/project/"}}{{"%s" % row['userid']}}{{"/"}}{{"%s" % row['text_id']}}>{{"%s" % row['text_name']}}</a>
         </p>
         {% endfor %}
       </div>

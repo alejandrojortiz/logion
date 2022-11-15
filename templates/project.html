@@ -11,118 +11,17 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
+    />
+    <link rel="stylesheet" href={{url_for("static", filename="project.css")}} />
+    <script
+      src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"
+      async
+      defer
+    ></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- Temporary inline style for barebone layout and spacing. 
-        Will have external stylesheet later -->
-    <style>
-      body {
-        font-family: "PT Sans";
-        margin: 0;
-      }
-      p {
-        margin: 0;
-      }
-      #parameter-container label {
-        display: inline-block;
-      }
-      #main-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      input[name="project-name"] {
-        margin: 1em;
-      }
-      input:disabled {
-        background-color: rgb(196, 194, 194);
-        border: none;
-      }
-      #textarea-container {
-        width: 80%;
-        border: 1.5px #959595 solid;
-        border-radius: 10px;
-        padding: 0.2em;
-        margin-bottom: 0.6em;
-      }
-      #textarea-container > textarea {
-        width: 100%;
-        height: 10em;
-        resize: none;
-        border: none;
-        border-bottom: 0.75px #959595 solid;
-        padding: 0;
-        margin-bottom: 0.4em;
-      }
-      #parameter-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
-      #prediction-container {
-        width: 80%;
-        border: 1.5px #959595 solid;
-        border-radius: 10px;
-        padding: 0.2em;
-        margin-bottom: 0.6em;
-      }
-      #prediction-output {
-        min-height: 4em;
-      }
-      #prev-predictions-container {
-        margin-bottom: 0.6em;
-        min-height: 5em;
-        border: 1.5px #959595 solid;
-        border-radius: 10px;
-        padding: 0.2em;
-        width: 80%;
-      }
-      #header {
-        display: flex;
-        flex-direction: row;
-        justify-content: end;
-        align-items: center;
-        box-shadow: 10px 10px 30px #c4c4c4;
-        margin-bottom: 0.5em;
-        padding-right: 1em;
-      }
-      button {
-        background-color: black;
-        color: white;
-        border: 0px;
-        border-radius: 1em;
-        min-height: 2em;
-        padding: 0.75em 1.25em 0.75em 1.25em;
-        font-family: inherit;
-      }
-      #logo-container {
-        margin-right: auto;
-        display: flex;
-        max-height: 4em;
-      }
-      #log-out-button {
-        padding: 0;
-        background-color: black;
-        color: white;
-        min-height: 3em;
-        min-width: 10em;
-        border: 0px;
-        border-radius: 30px;
-      }
-      .box-label {
-        align-self: flex-start;
-        margin-left: 10%;
-        font-size: 1.125em;
-      }
-      #save-prediction-button-container {
-        display: flex;
-        justify-content: end;
-      }
-      #prediction-output {
-        overflow-y: scroll;
-        max-height: 4em;
-      }
-    </style>
   </head>
   <body>
     <div id="header">
@@ -138,82 +37,15 @@
       </button>
     </div>
     <div id="main-content">
-      <input
-        type="text"
-        placeholder="Project Name"
-        name="project-name"
-        aria-label="Project Name"
-        value="{{text_name}}"
-        id="project-name-input"
-      />
-      <script async defer>
-        function debounce(fn, delay) {
-          let timer = null;
-          return function () {
-            var context = this,
-              args = arguments;
-            clearTimeout(timer);
-            timer = setTimeout(function () {
-              fn.apply(context, args);
-            }, delay);
-          };
-        }
-        const DEBOUNCE_DURATION = 100;
-        document.addEventListener(
-          "selectionchange",
-          debounce(getHighlight, DEBOUNCE_DURATION)
-        );
-        function getHighlight() {
-          // Get text
-          const editor = $("#editor");
-          let text = editor.val();
-          if (!text) return "";
-          if (editor.prop("selectionStart") == editor.prop("selectionEnd"))
-            return "";
-
-          // Replace selection with the appropriate number of tokens
-          const numTokens = $("#token-number").val();
-          let ret = text.substring(0, editor.prop("selectionStart"));
-          for (let i = 0; i < numTokens; i++) {
-            if (i == 0) ret += " {tok.mask_token} ";
-            else ret += "{tok.mask_token} ";
-          }
-          ret += text.substring(editor.prop("selectionEnd"));
-          return ret;
-        }
-        function handlePredictResponse(response) {
-          console.log("IN CALLBACK");
-          $("#prediction-output").html(response);
-        }
-        function handleSaveProjectResponse(response) {
-          console.log("Project Saved")
-        }
-        function handleSaveProjectClick() {
-          textName = $("project-name-input").val()
-          text = $("#editor").val()
-          userID = window.location.pathname.split("/")
-          userID = userID[2]
-          transfer = {
-            user_id: userID,
-            text: text,
-            text_name: textName
-          }
-          request = $.post("/saveProject", transfer, handleSaveProjectResponse);
-        }
-        function handlePredictClick() {
-          console.log("Clicked");
-          const text = getHighlight();
-          if (!text) return;
-          transfer = {
-            text: text,
-            numTokens: $("#token-number").val(),
-          };
-          request = $.post("/predict", transfer, handlePredictResponse);
-        }
-      </script>
-      <p class="box-label">Input</p>
-      <div id="textarea-container">
-        <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
+      <div id="prediction-area">
+        <div id="work-area">
+          <div id="textarea-container">
+            <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
+          </div>
+          <div id="prediction-container">
+            <div id="prediction-output"></div>
+          </div>
+        </div>
         <div id="parameter-container">
           <label>
             Prefix:
@@ -240,21 +72,18 @@
           </button>
         </div>
       </div>
-      <p class="box-label">Prediction</p>
-      <div id="prediction-container">
-        <input type="text" placeholder="Prediction Name:" />
-        <div id="prediction-output"></div>
-        <div id="save-prediction-button-container">
-          <button type="button">Save Prediction</button>
-        </div>
-      </div>
+
       <p class="box-label">Saved Predictions</p>
       <div id="prev-predictions-container">
         {% for row in prediction_array: %}
         <p>{{"%s:" % row.prediction_name}} {{"%s" % row.prediction}}</p>
         {% endfor %}
       </div>
-      <button type="button" onclick="handleSaveProjectClick()">Save Project</button>
+      <button type="button" onclick="handleSaveProjectClick()">
+        Save Project
+      </button>
     </div>
+    <script src={{url_for("static", filename="project.js")}} async defer>
+    </script>
   </body>
 </html>

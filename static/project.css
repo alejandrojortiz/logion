@@ -19,7 +19,7 @@ p {
     flex-direction: row;
     border-bottom: 0.75px #959595 solid;
     margin-bottom: 0.4em;
-    min-height: 22em;
+    height: 22em;
 }
 #prediction-area {
     width: 90%;
@@ -74,6 +74,9 @@ input:disabled {
     min-height: 2em;
     padding: 0;
     font-family: inherit;
+}
+.single-prediction-container:hover .prediction-button:hover {
+    color: white !important; /* X button has inline style to be red, need to overwrite*/
 }
 .single-prediction-container:hover {
     background-color: #e3e1e1;

@@ -10,8 +10,8 @@
             <p>{{"%s" % row[0]}}</p>
         </div>
         <div class="prediction-buttons-container">
-            <button class="prediction-button">Save</button>
-            <button class="prediction-button" style="color: red;">&#x2715</button>
+            <button type="button" class="prediction-button">Save</button>
+            <button type="button" class="prediction-button" style="color: red;" onclick="handleDeleteClick(event)">&#x2715</button>
         </div>
     </div>
 {% endfor %}

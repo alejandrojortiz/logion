@@ -71,7 +71,7 @@ def account(userid):
         #text_array = server_api.get_text(userid)
     #else:
         #text_array= []
-    text_array = []
+    text_array = temporary_saved_projects()
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array, user_first_name='Alejandro')
 
     response = flask.make_response(html_code)
@@ -100,6 +100,15 @@ def temporary_prediction(text, parameters):
     output.sort(key= lambda x: -x[1])
     return output
 
+def temporary_saved_projects():
+    projects = []
+    for i in range(10):
+        temp = {}
+        temp['userid'] = 1
+        temp['text_name'] = 'test'
+        temp['text_id'] = 1
+        projects.append(temp)
+    return projects
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''

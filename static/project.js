@@ -81,3 +81,9 @@ function handlePredictClick() {
   };
   request = $.post("/predict", transfer, handlePredictResponse);
 }
+function handleDeleteClick(event) {
+  // console.log("DELETE CLICKED");
+  const button = event.target;
+  const ancestor = button.closest(".single-prediction-container");
+  if (ancestor) ancestor.remove();
+}

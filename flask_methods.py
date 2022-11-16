@@ -7,7 +7,7 @@ author: Jay White
 import flask
 import urllib.parse
 import random
-import server_api
+#import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -50,10 +50,10 @@ def auth():
         args_dict['institution'] = ""
         args_dict['postition'] = ""
 
-        if server_api.confirm_user(userid):
-            pass
-        else:
-            server_api.add_account(args_dict)
+        # if server_api.confirm_user(userid):
+        #     pass
+        # else:
+        #     server_api.add_account(args_dict)
         
         return flask.redirect(flask.url_for("account", userid=userid))
 
@@ -115,15 +115,15 @@ def project(userid, textid):
     textname=""
     uploaded = ""
     
-    texts = server_api.get_text(userid)
-    for row in texts:
-        if row.get("textid") is textid:
-            textname = row.get("textname")
-            uploaded = row.get("uploaded")
-        else:
-            # ERROR
-            textname = ""
-            uploaded = ""
+    # texts = server_api.get_text(userid)
+    # for row in texts:
+    #     if row.get("textid") is textid:
+    #         textname = row.get("textname")
+    #         uploaded = row.get("uploaded")
+    #     else:
+    #         # ERROR
+    #         textname = ""
+    #         uploaded = ""
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
@@ -140,8 +140,9 @@ def project(userid, textid):
 def predict():
     data = urllib.parse.unquote(flask.request.get_data())
     data = urllib.parse.unquote_plus(data)
-    text = data.split("&")[0].split("=")[1]
-    num_tokens = data.split("&")[1].split("=")[1]
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    num_tokens = data.get('num_tokens', 1)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)
@@ -151,9 +152,9 @@ def predict():
 def save_project():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
-    data = data.split("&")
-    user_id = data[0].split("=")[1]
-    text = data[1].split("=")[1]
-    text_name = data[2].split("=")[1]
-    server_api.upload_text(text, text_name, user_id)
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    user_id = data['user_id'][0]
+    num_tokens = data.get('num_tokens', 1)
+    # server_api.upload_text(text, text_name, user_id)
     return ""

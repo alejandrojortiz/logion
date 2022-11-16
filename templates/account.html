@@ -98,7 +98,7 @@
       <div id="project-link-container">
         {% for row in text_array: %}
         <p class="project-link">
-          <a href={{"/project/"}}{{"%s" % row['userid']}}{{"/"}}{{"%s" % row['text_id']}}>{{"%s" % row['text_name']}}</a>
+          <a href={{url_for('project', userid=row['user_id'], textid=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
         </p>
         {% endfor %}
       </div>

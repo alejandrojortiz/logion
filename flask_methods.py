@@ -10,6 +10,7 @@ import random
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
+import string
 
 #from temp_pred import main as predict
 
@@ -39,22 +40,23 @@ def auth():
         #print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
         userid = str(idinfo['sub'])
-        username = idinfo['name']
         email = idinfo['email']
+        name = idinfo['name']
 
         args_dict = {}
 
-        args_dict['username'] = username
         args_dict['email'] = email
         args_dict['userid'] = userid
         args_dict['institution'] = ""
         args_dict['postition'] = ""
+        args_dict['name'] = name
 
         if server_api.confirm_user(userid):
             pass
         else:
             server_api.add_account(args_dict)
-        
+            #return flask.make_response(flask.render_template("register.html"))
+
         return flask.redirect(flask.url_for("account", userid=userid))
 
     except ValueError:
@@ -104,17 +106,18 @@ def temporary_saved_projects():
     projects = []
     for i in range(10):
         temp = {}
-        temp['userid'] = 1
+        temp['user_id'] = 1
         temp['text_name'] = 'test'
         temp['text_id'] = 1
         projects.append(temp)
     return projects
+
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
     textname=""
     uploaded = ""
-    
+
     texts = server_api.get_text(userid)
     for row in texts:
         if row.get("textid") is textid:
@@ -142,6 +145,10 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     text = data.split("&")[0].split("=")[1]
     num_tokens = data.split("&")[1].split("=")[1]
+    text = text.replace("-\n", "")
+    for c in string.whitespace:
+        text = text.replace(c, " ")
+    print(text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)
@@ -157,3 +164,17 @@ def save_project():
     text_name = data[2].split("=")[1]
     server_api.upload_text(text, text_name, user_id)
     return ""
+
+@app.route('/register/<userid>', methods=['POST'])
+def register_user(userid):
+    args_dict = {}
+    # decodes instituion and position
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = data.split("&")
+    institution = data[0].split("=")[1]
+    position = data[1].split("=")[1]
+    args_dict['institution'] = institution if institution else ""
+    args_dict['postition'] = position if position else ""
+    server_api.update_account(parameter_to_update=args_dict, userid=userid)
+    return flask.redirect(flask.url_for("account", userid=userid))

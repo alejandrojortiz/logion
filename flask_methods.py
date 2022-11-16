@@ -55,8 +55,7 @@ def auth():
             pass
         else:
             server_api.add_account(args_dict)
-            #return flask.make_response(flask.render_template("register.html"))
-
+        
         return flask.redirect(flask.url_for("account", userid=userid))
 
     except ValueError:
@@ -117,7 +116,7 @@ def project(userid, textid):
     '''Page containing main project interface'''
     textname=""
     uploaded = ""
-
+    
     texts = server_api.get_text(userid)
     for row in texts:
         if row.get("textid") is textid:
@@ -145,10 +144,6 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     text = data.split("&")[0].split("=")[1]
     num_tokens = data.split("&")[1].split("=")[1]
-    text = text.replace("-\n", "")
-    for c in string.whitespace:
-        text = text.replace(c, " ")
-    print(text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)
@@ -158,11 +153,11 @@ def predict():
 def save_project():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
-    data = data.split("&")
-    user_id = data[0].split("=")[1]
-    text = data[1].split("=")[1]
-    text_name = data[2].split("=")[1]
-    server_api.upload_text(text, text_name, user_id)
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    user_id = data['user_id'][0]
+    num_tokens = data.get('num_tokens', 1)
+    # server_api.upload_text(text, text_name, user_id)
     return ""
 
 @app.route('/register/<userid>', methods=['POST'])

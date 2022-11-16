@@ -1,0 +1,8 @@
+/__pycache__
+/.vscode
+.env
+*.json
+flask_methods_login.py
+*local.py
+*old.html
+*test.html

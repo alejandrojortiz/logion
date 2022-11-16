@@ -2,18 +2,34 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-16" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=PT+Sans"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter"
+    />
     <title>Account Page</title>
     <style>
-        p {
-            margin: 0;
-        }
-      .project-link-container {
+      body {
+        margin: 0;
+        font-family: "PT Sans";
+      }
+      button {
+        font-family: inherit;
+      }
+      p {
+        margin: 0;
+      }
+      #project-link-container {
         padding: 0.2em;
+        border: 1.5px #959595 solid;
+    border-radius: 10px;
+        width: 80%;
       }
       .project-link {
         margin: 0;
-      }
-      #new-project-link {
       }
       #header {
         display: flex;
@@ -24,8 +40,10 @@
         margin-bottom: 0.5em;
         padding-right: 1em;
       }
-      #header img {
+      #logo-container {
         margin-right: auto;
+        display: flex;
+        max-height: 4em;
       }
       #log-out-button {
         padding: 0;
@@ -43,20 +61,44 @@
         align-items: center;
         justify-content: center;
       }
+      #main-content > p {
+        margin-bottom: 1em;
+      }
+      #new-project-link {
+        text-decoration: inherit;
+        color: inherit;
+      }
+      #new-project-link:visited {
+        text-decoration: inherit;
+        color: inherit;
+      }
     </style>
   </head>
   <body>
     <div id="header">
-      <img src="../static/logo.png" style="max-height: 4em" />
-      <button type="button" id="log-out-button">Log Out</button>
+      <div id="logo-container">
+        <a href="/">
+          <img src={{ url_for("static", filename="laurel.png") }}
+          style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="text.png") }} style="max-height: 4em;"/>
+        </a>
+      </div>
+      <button type="button" id="log-out-button">
+        <strong>Log Out</strong>
+      </button>
     </div>
     <div id="main-content">
-        <p>Welcome, {{"%s" % user_first_name}}</p>
-      <a href="/project/%s userid/0" id="new-project-link"><img src="../static/plus.svg" style="max-width: 5em; display: block;">New Project</a>
+      <h1>Welcome, {{"%s" % user_first_name}}</h1>
+      <a href="/project/%s userid/0" id="new-project-link"
+        ><img
+          src="../static/plus.svg"
+          style="max-width: 5em; display: block"
+        />New Project</a
+      >
       <div id="project-link-container">
         {% for row in text_array: %}
         <p class="project-link">
-          <a href="/project/%s %row.userid/%s row.textid">{{row.textname}}</a>
+          <a href={{url_for('project', userid=row['user_id'], textid=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
         </p>
         {% endfor %}
       </div>

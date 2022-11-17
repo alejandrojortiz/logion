@@ -5,7 +5,7 @@ authors: Eugene Liu
 
 '''
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Identity, BLOB
+from sqlalchemy import Column, String, Integer, Identity, LargeBinary
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select
 
@@ -61,7 +61,7 @@ class Prediction(base):
     prediction_name = Column(String(8000))
     prediction_output = Column(String(8000))
     save_time = Column(String(100))
-    prediction_blob = Column(BLOB)
+    prediction_blob = Column(LargeBinary)
     
     def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output, save_time, prediction_blob):
         self.prediction_id = prediction_id
@@ -223,7 +223,7 @@ def upload_text(text: str, text_name: str, userid: str, save_time: str):
         
 
 def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str,
-                      save_time:str, prediction_blob: BLOB):
+                      save_time:str, prediction_blob: LargeBinary):
     '''Function that uploads prediction to database'''
 
     stmt = insert(Prediction).values(token_number=token_number, text_id=textid,

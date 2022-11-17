@@ -7,10 +7,10 @@ author: Jay White
 import flask
 import urllib.parse
 import random
+import re
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
-import string
 
 #from temp_pred import main as predict
 
@@ -145,6 +145,9 @@ def predict():
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
     num_tokens = data.get('num_tokens', -1)
+    text = text.replace("-\n", "")
+    text = re.sub(r'\s+', ' ', text)
+    print(text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)

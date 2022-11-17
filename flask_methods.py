@@ -8,7 +8,7 @@ import flask
 import urllib.parse
 import random
 import re
-#import server_api
+import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -52,10 +52,10 @@ def auth():
         args_dict['name'] = name
         args_dict['ip_address'] = ""
 
-        # if server_api.confirm_user(user_id):
-        #     pass
-        # else:
-        #     server_api.add_account(args_dict)
+        if server_api.confirm_user(user_id):
+            pass
+        else:
+            server_api.add_account(args_dict)
         
         return flask.redirect(flask.url_for("account", user_id=user_id))
 
@@ -69,12 +69,12 @@ def account(user_id):
 
         # text_array of dicts where each dict is a row of a text query
         # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
-    # if server_api.confirm_user(user_id):
-    #     text_array = server_api.get_text(user_id)
-    # else:
-    #     text_array= []
-    # if (text_array == None):
-    #     text_array = []
+    if server_api.confirm_user(user_id):
+        text_array = server_api.get_text(user_id)
+    else:
+        text_array= []
+    if (text_array == None):
+        text_array = []
     
     text_array = []
     user_id = flask.request.path.split("/")[2]
@@ -123,15 +123,15 @@ def project(user_id, text_id):
     text_name=""
     uploaded = ""
     
-    # texts = server_api.get_text(user_id)
-    # for row in texts:
-    #     if row.get("text_id") == text_id:
-    #         text_name = row.get("text_name")
-    #         uploaded = row.get("uploaded")
-    #     else:
-    #         # ERROR
-    #         text_name = ""
-    #         uploaded = ""
+    texts = server_api.get_text(user_id)
+    for row in texts:
+        if row.get("text_id") == text_id:
+            text_name = row.get("text_name")
+            uploaded = row.get("uploaded")
+        else:
+            # ERROR
+            text_name = ""
+            uploaded = ""
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
@@ -167,7 +167,7 @@ def save_project():
     user_id = data['user_id'][0]
     text_name = data['text_name'][0]
     time = "11:11:11am"
-    # server_api.upload_text(text, text_name, user_id, time)
+    server_api.upload_text(text, text_name, user_id, time)
     return ""
 
 @app.route('/register/<user_id>', methods=['POST'])
@@ -181,5 +181,5 @@ def register_user(user_id):
     position = data['position'][0]
     args_dict['institution'] = institution if institution else ""
     args_dict['postition'] = position if position else ""
-    # server_api.update_account(parameter_to_update=args_dict, userid=user_id)
+    server_api.update_account(parameter_to_update=args_dict, userid=user_id)
     return flask.redirect(flask.url_for("account", userid=user_id))

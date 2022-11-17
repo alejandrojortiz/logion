@@ -8,6 +8,7 @@ import flask
 import urllib.parse
 import random
 import re
+# import requests as req
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -148,6 +149,8 @@ def predict():
     num_tokens = data.get('num_tokens', -1)
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
+    # temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
+    # print("TEMP:", temp.text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)

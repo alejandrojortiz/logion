@@ -13,7 +13,6 @@ body {
     border: 1.5px #959595 solid;
 border-radius: 10px;
     width: 80%;
-    margin-top: 1em;
   }
   .project-link-row {
     margin: 0;
@@ -66,4 +65,10 @@ border-radius: 10px;
   #new-project-link:visited {
     text-decoration: inherit;
     color: inherit;
+  }
+  .box-label {
+    margin: 0;
+    align-self: flex-start;
+    margin-left: 10%;
+    font-weight: 200;
   }

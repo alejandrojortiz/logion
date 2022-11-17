@@ -5,11 +5,13 @@ authors: Eugene Liu
 
 '''
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Identity, BigInteger
+from sqlalchemy import Column, String, Integer, Identity, LargeBinary
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select
 
-db_string = "postgresql://gsbouuzayqpjre:d5fd5fcaa4eeed8266d6a411cc9104962045870cffa23ba8118cb9f4cb487bf1@ec2-54-85-56-210.compute-1.amazonaws.com:5432/d6giaa1c28o2lu"
+# uncomment for local
+#db_string = "sqlite:////database.db"
+db_string = "postgresql://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
 engine = create_engine(db_string, echo=True)
 base = declarative_base()
 
@@ -40,14 +42,14 @@ class Text(base):
     user_id = Column(String(500))
     text_name = Column(String(8000))
     uploaded = Column(String(8000))
-    time = Column(String(500))
+    save_time = Column(String(500))
     
-    def __init__(self, text_id, user_id, text_name, uploaded, time):
+    def __init__(self, text_id, user_id, text_name, uploaded, save_time):
         self.text_id = text_id
         self.user_id = user_id
         self.text_name = text_name
         self.uploaded = uploaded
-        self.time = time
+        self.save_time = save_time
 
 # declaring predictions table
 class Prediction(base):
@@ -58,14 +60,18 @@ class Prediction(base):
     text_id = Column(Integer)
     prediction_name = Column(String(8000))
     prediction_output = Column(String(8000))
+    save_time = Column(String(100))
+    prediction_blob = Column(LargeBinary)
     
-    def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output):
+    def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output, save_time, prediction_blob):
         self.prediction_id = prediction_id
         self.text_id = text_id
         self.token_number = token_number
         self.prediction_name = prediction_name
         self.prediction_output = prediction_output
-
+        self.save_time = save_time
+        self.prediction_blob = prediction_blob
+        
 base.metadata.create_all(engine)
 engine.dispose()
 
@@ -85,7 +91,9 @@ def confirm_user(userID:str):
         return True
     
 def add_account(parameter_dict: dict):
-    '''Function for updating account information'''
+    '''Function for adding account information: takes in a dictionary 
+        with the following key and value pairs
+    '''
     
     # unpacking dictionary items
     ID = parameter_dict.get("id")
@@ -93,13 +101,15 @@ def add_account(parameter_dict: dict):
     email = parameter_dict.get("email")
     institution = parameter_dict.get("institution")
     position = parameter_dict.get("position")
+    ip_address = parameter_dict.get("ip_address")
     
 
     # adding it to the users table
     stmt = insert(User).values(user_id=ID, name=name, 
                                 email=email, 
                                 institution=institution, 
-                                position=position)
+                                position=position,
+                                ip_address=ip_address)
 
     # execution of stmt
     conn = engine.connect()
@@ -109,7 +119,9 @@ def add_account(parameter_dict: dict):
     conn.close()
     
 def update_account(parameter_to_update: dict, userID: int):
-    
+    '''Function that updates user accounts with dictonary of parameters to update using the same
+       key/value pairs in the users table and userID of user to be updated.
+    '''
     # getting all parameters to be updated
     parameters = parameter_to_update.keys
     
@@ -126,6 +138,7 @@ def update_account(parameter_to_update: dict, userID: int):
         else:
             SQL_str += ", " + parameter + "=" + str(parameter_to_update.get(parameter))
     
+    SQL_str += " WHERE user_id=" + str(userID)
     with engine.connect() as con:
         rs = con.execute(SQL_str)
         con.close()
@@ -134,7 +147,7 @@ def update_account(parameter_to_update: dict, userID: int):
 def get_text(userid:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each
-    row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text). 
+    row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text), "save_time". 
     '''
     conn = engine.connect()
     
@@ -152,10 +165,11 @@ def get_text(userid:str):
         text = list(text)
         text_dict = {}
         
-        text_dict["textid"] = text[0]
-        text_dict["userid"] = text[1]
-        text_dict["textname"] = text[2]
+        text_dict["text_id"] = text[0]
+        text_dict["user_id"] = text[1]
+        text_dict["text_name"] = text[2]
         text_dict["uploaded"] = text[3]
+        text_dict["save_time"] = text[4]
         
         text_array.append(text_dict)
 
@@ -165,7 +179,7 @@ def get_predictions(textID: int):
     ''''
     Function that returns arrays of dicts where each dict is a row of prediction query. Each
     row/dict will have the following keys: "textid", "prediction_name", "token_number", 
-    "prediction" (text). 
+    "prediction_output" (text), "save_time", "prediction_blob". 
     '''
 
     conn = engine.connect()
@@ -189,16 +203,18 @@ def get_predictions(textID: int):
         prediction_dict["token_number"] = prediction[1]
         prediction_dict["text_id"] = prediction[2]
         prediction_dict["prediction_name"] = prediction[3]
-        prediction_dict["prediction_output"] = prediction[4]       
+        prediction_dict["prediction_output"] = prediction[4]
+        prediction_dict["save_time"] = prediction[5]
+        prediction_dict["prediction_blob"]       
         prediction_array.append(prediction_dict)
 
     return prediction_array
 
-def upload_text(text: str, text_name: str, userid: str):
+def upload_text(text: str, text_name: str, userid: str, save_time: str):
     '''uploads text'''
 
     stmt = insert(Text).values(user_id=userid, text_name=text_name,
-                                uploaded=text)
+                                uploaded=text, save_time=save_time)
 
     # execution of stmt
     conn = engine.connect()
@@ -206,20 +222,26 @@ def upload_text(text: str, text_name: str, userid: str):
     conn.close()
         
 
-def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str):
+def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str,
+                      save_time:str, prediction_blob: LargeBinary):
     '''Function that uploads prediction to database'''
-    
+
     stmt = insert(Prediction).values(token_number=token_number, text_id=textid,
                                       prediction_name=prediction_name,
-                                      prediction_output=prediction)
+                                      prediction_output=prediction, 
+                                      save_time=save_time,
+                                      prediction_blob=prediction_blob)
 
+    
     # execution of stmt
     conn = engine.connect()
     result = conn.execute(stmt)
     conn.close()
 
 def update_text(update_dict: dict, textid):
-    
+    '''Updates text by passing in a dictionary of values and columns to modify
+       as well as a textid
+    '''
     columns = update_dict.keys
     for i, col in enumerate(columns):
         if i == 0:
@@ -235,6 +257,9 @@ def update_text(update_dict: dict, textid):
 
 
 def update_prediction(update_dict: dict, predictionid: int):
+    '''Updates text by passing in a dictionary of values and columns to modify
+       as well as a predictionid
+    '''
     SQL_str = "UPDATE predictions SET "
     
     columns = update_dict.keys

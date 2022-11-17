@@ -60,7 +60,8 @@ function handleSavePredictionClick() {
   request = $.post("/savePrediction", transfer, handleSavePredictionResponse);
 }
 function handleSaveProjectClick() {
-  textName = $("#project-name-input").val();
+  textName = prompt("Enter text name");
+  if (!textName) return;
   text = $("#editor").val();
   userID = window.location.pathname.split("/");
   userID = userID[2];
@@ -86,4 +87,19 @@ function handleDeleteClick(event) {
   const button = event.target;
   const ancestor = button.closest(".single-prediction-container");
   if (ancestor) ancestor.remove();
+}
+function getPageState(event) {
+  const button = event.target;
+  const ancestor = button.closest(".single-prediction-container");
+  const prediction = ancestor.querySelector('.prediction-text-container');
+  let obj = {
+    text: $('#editor').val(),
+    numTokens: $('#token-number').val(),
+    prediction: prediction,
+    prefix: "",
+    suffix: "",
+    distance: "",
+    highlightStart: $('#editor').prop('predictionStart'),
+    highlightEnd: $('#editor').prop('predictionEnd')
+  }
 }

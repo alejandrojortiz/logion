@@ -7,10 +7,10 @@ author: Jay White
 import flask
 import urllib.parse
 import random
+import re
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
-import string
 
 #from temp_pred import main as predict
 
@@ -55,8 +55,7 @@ def auth():
             pass
         else:
             server_api.add_account(args_dict)
-            #return flask.make_response(flask.render_template("register.html"))
-
+        
         return flask.redirect(flask.url_for("account", userid=userid))
 
     except ValueError:
@@ -69,10 +68,12 @@ def account(userid):
 
         # text_array of dicts where each dict is a row of a text query
         # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
-    #if server_api.confirm_user(userid):
-        #text_array = server_api.get_text(userid)
-    #else:
-        #text_array= []
+    if server_api.confirm_user(userid):
+        text_array = server_api.get_text(userid)
+    else:
+        text_array= []
+    if (text_array == None):
+        text_array = []
     text_array = temporary_saved_projects()
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array, user_first_name='Alejandro')
 
@@ -117,7 +118,7 @@ def project(userid, textid):
     '''Page containing main project interface'''
     textname=""
     uploaded = ""
-
+    
     texts = server_api.get_text(userid)
     for row in texts:
         if row.get("textid") is textid:
@@ -143,11 +144,11 @@ def project(userid, textid):
 def predict():
     data = urllib.parse.unquote(flask.request.get_data())
     data = urllib.parse.unquote_plus(data)
-    text = data.split("&")[0].split("=")[1]
-    num_tokens = data.split("&")[1].split("=")[1]
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    num_tokens = data.get('num_tokens', -1)
     text = text.replace("-\n", "")
-    for c in string.whitespace:
-        text = text.replace(c, " ")
+    text = re.sub(r'\s+', ' ', text)
     print(text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
@@ -158,11 +159,12 @@ def predict():
 def save_project():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
-    data = data.split("&")
-    user_id = data[0].split("=")[1]
-    text = data[1].split("=")[1]
-    text_name = data[2].split("=")[1]
-    server_api.upload_text(text, text_name, user_id)
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    user_id = data['user_id'][0]
+    text_name = data['text_name'][0]
+    time = "11:11:11am"
+    server_api.upload_text(text, text_name, user_id, time)
     return ""
 
 @app.route('/register/<userid>', methods=['POST'])
@@ -171,9 +173,9 @@ def register_user(userid):
     # decodes instituion and position
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
-    data = data.split("&")
-    institution = data[0].split("=")[1]
-    position = data[1].split("=")[1]
+    data = urllib.parse.parse_qs(data)
+    institution = data['institution'][0]
+    position = data['position'][0]
     args_dict['institution'] = institution if institution else ""
     args_dict['postition'] = position if position else ""
     server_api.update_account(parameter_to_update=args_dict, userid=userid)

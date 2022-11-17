@@ -31,7 +31,7 @@
     </div>
     <div id="main-content">
       <h1 style="font-weight: 300;font-style: normal;">Welcome, {{"%s" % user_first_name}}</h1>
-      <a href={{url_for('project', user_id=user_id, text_id=newProject)}} id="new-project-link"
+      <a href={{url_for('project', user_id=user_id, text_id='newProject')}} id="new-project-link"
         ><img
           src="../static/plus.svg"
           style="max-width: 5em; display: block"

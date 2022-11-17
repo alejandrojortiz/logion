@@ -11,7 +11,7 @@ from sqlalchemy import insert, select
 
 # uncomment for local
 #db_string = "sqlite:////database.db"
-db_string = "postgres://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
+db_string = "postgresql://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
 engine = create_engine(db_string, echo=True)
 base = declarative_base()
 

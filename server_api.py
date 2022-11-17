@@ -165,9 +165,9 @@ def get_text(userid:str):
         text = list(text)
         text_dict = {}
         
-        text_dict["textid"] = text[0]
-        text_dict["userid"] = text[1]
-        text_dict["textname"] = text[2]
+        text_dict["text_id"] = text[0]
+        text_dict["user_id"] = text[1]
+        text_dict["text_name"] = text[2]
         text_dict["uploaded"] = text[3]
         text_dict["save_time"] = text[4]
         

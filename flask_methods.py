@@ -124,11 +124,7 @@ def project(user_id, text_id):
     
     texts = server_api.get_text(user_id)
     for row in texts:
-        print(row.get("text_id"), " | ", text_id)
-        print(str(row.get("text_id")) == str(text_id))
         if str(row.get("text_id")) == str(text_id):
-            print("NAMe:", row.get("text_name"))
-            print("UPLOADED", row.get("uploaded"))
             text_name = row.get("text_name")
             uploaded = row.get("uploaded")
 

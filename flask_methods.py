@@ -126,15 +126,11 @@ def project(user_id, text_id):
     for row in texts:
         print(row.get("text_id"), " | ", text_id)
         print(str(row.get("text_id")) == str(text_id))
-        if row.get("text_id") == text_id:
+        if str(row.get("text_id")) == str(text_id):
             print("NAMe:", row.get("text_name"))
             print("UPLOADED", row.get("uploaded"))
             text_name = row.get("text_name")
             uploaded = row.get("uploaded")
-        else:
-            # ERROR
-            text_name = ""
-            uploaded = ""
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)

@@ -77,7 +77,7 @@ def account(user_id):
     #     text_array = []
     
     text_array = []
-    print("PATH:", flask.request.path.split("/")[0])
+    user_id = flask.request.path.split("/")[2]
     #text_array = temporary_saved_projects()
     html_code = flask.render_template("account.html", user_id=user_id, text_array=text_array, user_first_name='Andrew')
 

@@ -31,7 +31,7 @@
     </div>
     <div id="main-content">
       <h1 style="font-weight: 300;font-style: normal;">Welcome, {{"%s" % user_first_name}}</h1>
-      <a href="/project/%s userid/0" id="new-project-link"
+      <a href={{url_for('project', user_id=user_id, text_id=2)}} id="new-project-link"
         ><img
           src="../static/plus.svg"
           style="max-width: 5em; display: block"
@@ -40,7 +40,7 @@
       <div id="project-link-container">
         {% for row in text_array: %}
         <div class="project-link-row">
-          <a class="project-link" href={{url_for('project', userid=row['user_id'], textid=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
+          <a class="project-link" href={{url_for('project', user_id=row['user_id'], text_id=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
           <p class="date">{{"%s" % row['date']}}</p>
         </div>
         {% endfor %}

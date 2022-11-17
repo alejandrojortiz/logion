@@ -68,10 +68,12 @@ def account(userid):
 
         # text_array of dicts where each dict is a row of a text query
         # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
-    #if server_api.confirm_user(userid):
-        #text_array = server_api.get_text(userid)
-    #else:
-        #text_array= []
+    if server_api.confirm_user(userid):
+        text_array = server_api.get_text(userid)
+    else:
+        text_array= []
+    if (text_array == None):
+        text_array = []
     text_array = temporary_saved_projects()
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array, user_first_name='Alejandro')
 

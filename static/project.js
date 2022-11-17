@@ -60,7 +60,8 @@ function handleSavePredictionClick() {
   request = $.post("/savePrediction", transfer, handleSavePredictionResponse);
 }
 function handleSaveProjectClick() {
-  textName = $("#project-name-input").val();
+  textName = prompt("Enter text name");
+  if (!textName) return;
   text = $("#editor").val();
   userID = window.location.pathname.split("/");
   userID = userID[2];

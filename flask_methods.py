@@ -7,6 +7,7 @@ author: Jay White
 import flask
 import urllib.parse
 import random
+import re
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -144,6 +145,8 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     text = data.split("&")[0].split("=")[1]
     num_tokens = data.split("&")[1].split("=")[1]
+    text = text.replace("-\n", "")
+    text = re.sub(r'\s+', ' ', text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)

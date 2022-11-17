@@ -147,6 +147,7 @@ def predict():
     num_tokens = data.split("&")[1].split("=")[1]
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
+    print(text)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)

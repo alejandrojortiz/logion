@@ -221,9 +221,9 @@ def upload_text(text: str, text_name: str, userid: str, save_time: str):
         
 
 def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str,
-                      save_time:str, prediction_blob: BLOB ):
+                      save_time:str, prediction_blob: BLOB):
     '''Function that uploads prediction to database'''
-    
+
     stmt = insert(Prediction).values(token_number=token_number, text_id=textid,
                                       prediction_name=prediction_name,
                                       prediction_output=prediction, 

@@ -142,8 +142,9 @@ def project(userid, textid):
 def predict():
     data = urllib.parse.unquote(flask.request.get_data())
     data = urllib.parse.unquote_plus(data)
-    text = data.split("&")[0].split("=")[1]
-    num_tokens = data.split("&")[1].split("=")[1]
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    num_tokens = data.get('num_tokens', -1)
     ret = temporary_prediction(text, num_tokens)
     template = flask.render_template("prediction.html", predictions=ret)
     response = flask.make_response(template)
@@ -156,8 +157,8 @@ def save_project():
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
     user_id = data['user_id'][0]
-    num_tokens = data.get('num_tokens', 1)
-    # server_api.upload_text(text, text_name, user_id)
+    text_name = data['text_name'][0]
+    server_api.upload_text(text, text_name, user_id)
     return ""
 
 @app.route('/register/<userid>', methods=['POST'])
@@ -166,9 +167,9 @@ def register_user(userid):
     # decodes instituion and position
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
-    data = data.split("&")
-    institution = data[0].split("=")[1]
-    position = data[1].split("=")[1]
+    data = urllib.parse.parse_qs(data)
+    institution = data['institution'][0]
+    position = data['position'][0]
     args_dict['institution'] = institution if institution else ""
     args_dict['postition'] = position if position else ""
     server_api.update_account(parameter_to_update=args_dict, userid=userid)

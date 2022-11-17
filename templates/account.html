@@ -10,69 +10,11 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter"
     />
+    <link
+      rel="stylesheet"
+      href={{url_for("static", filename="account.css")}}
+    />
     <title>Account Page</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: "PT Sans";
-      }
-      button {
-        font-family: inherit;
-      }
-      p {
-        margin: 0;
-      }
-      #project-link-container {
-        padding: 0.2em;
-        border: 1.5px #959595 solid;
-    border-radius: 10px;
-        width: 80%;
-      }
-      .project-link {
-        margin: 0;
-      }
-      #header {
-        display: flex;
-        flex-direction: row;
-        justify-content: end;
-        align-items: center;
-        box-shadow: 10px 10px 30px #c4c4c4;
-        margin-bottom: 0.5em;
-        padding-right: 1em;
-      }
-      #logo-container {
-        margin-right: auto;
-        display: flex;
-        max-height: 4em;
-      }
-      #log-out-button {
-        padding: 0;
-        background-color: black;
-        color: white;
-        min-height: 3em;
-        min-width: 10em;
-        border: 0px;
-        border-radius: 30px;
-        font-family: Goldman-Sans-Black;
-      }
-      #main-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-      #main-content > p {
-        margin-bottom: 1em;
-      }
-      #new-project-link {
-        text-decoration: inherit;
-        color: inherit;
-      }
-      #new-project-link:visited {
-        text-decoration: inherit;
-        color: inherit;
-      }
-    </style>
   </head>
   <body>
     <div id="header">
@@ -88,7 +30,7 @@
       </button>
     </div>
     <div id="main-content">
-      <h1>Welcome, {{"%s" % user_first_name}}</h1>
+      <h1 style="font-weight: 300;font-style: normal;">Welcome, {{"%s" % user_first_name}}</h1>
       <a href="/project/%s userid/0" id="new-project-link"
         ><img
           src="../static/plus.svg"
@@ -97,9 +39,10 @@
       >
       <div id="project-link-container">
         {% for row in text_array: %}
-        <p class="project-link">
-          <a href={{url_for('project', userid=row['user_id'], textid=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
-        </p>
+        <div class="project-link-row">
+          <a class="project-link" href={{url_for('project', userid=row['user_id'], textid=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
+          <p class="date">{{"%s" % row['date']}}</p>
+        </div>
         {% endfor %}
       </div>
     </div>

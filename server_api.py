@@ -63,14 +63,14 @@ class Prediction(base):
     save_time = Column(String(100))
     prediction_blob = Column(BLOB)
     
-    def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output, save_time, blob):
+    def __init__(self, prediction_id, token_number, text_id, prediction_name, prediction_output, save_time, prediction_blob):
         self.prediction_id = prediction_id
         self.text_id = text_id
         self.token_number = token_number
         self.prediction_name = prediction_name
         self.prediction_output = prediction_output
         self.save_time = save_time
-        self.prediction_blob = blob
+        self.prediction_blob = prediction_blob
         
 base.metadata.create_all(engine)
 engine.dispose()

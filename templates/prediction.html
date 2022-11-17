@@ -1,3 +1,17 @@
 {% for row in predictions %}
-    <p>{{"%s" % row[0]}} {{"%s" % row[1]}}</p>
+    <div class="single-prediction-container">
+        <div class="progress-bar-wrapper">
+            {{"%s" % row[1]}}{{"%"}}
+            <div class="progress-bar">
+				<span class="progress-bar-fill" {{"style="}}{{"width:"}}{{"%s" % row[1]}}{{"%;"}}></span>
+			</div>
+        </div>
+        <div class="prediction-text-container">
+            <p>{{"%s" % row[0]}}</p>
+        </div>
+        <div class="prediction-buttons-container">
+            <button type="button" class="prediction-button">Save</button>
+            <button type="button" class="prediction-button" style="color: red;" onclick="handleDeleteClick(event)">&#x2715</button>
+        </div>
+    </div>
 {% endfor %}

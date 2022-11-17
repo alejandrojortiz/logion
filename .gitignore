@@ -2,4 +2,7 @@
 /.vscode
 .env
 *.json
-*login.py
+flask_methods_login.py
+*local.py
+*old.html
+*test.html

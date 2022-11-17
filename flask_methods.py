@@ -10,6 +10,7 @@ import random
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
+import string
 
 #from temp_pred import main as predict
 
@@ -39,16 +40,16 @@ def auth():
         #print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
         userid = str(idinfo['sub'])
-        username = idinfo['name']
         email = idinfo['email']
+        name = idinfo['name']
 
         args_dict = {}
 
-        args_dict['username'] = username
         args_dict['email'] = email
         args_dict['userid'] = userid
         args_dict['institution'] = ""
         args_dict['postition'] = ""
+        args_dict['name'] = name
 
         if server_api.confirm_user(userid):
             pass
@@ -71,7 +72,7 @@ def account(userid):
         #text_array = server_api.get_text(userid)
     #else:
         #text_array= []
-    text_array = []
+    text_array = temporary_saved_projects()
     html_code = flask.render_template("account.html", userid=userid, text_array=text_array, user_first_name='Alejandro')
 
     response = flask.make_response(html_code)
@@ -94,27 +95,37 @@ def temporary_prediction(text, parameters):
         temp.append(word1)
         temp.append(word2)
         ret = [temp]
-        ret.append(round(prob, 5))
+        ret.append(round(prob * 100, 2))
         output.append(ret)
         cum_prob += prob
     output.sort(key= lambda x: -x[1])
     return output
 
+def temporary_saved_projects():
+    projects = []
+    for i in range(10):
+        temp = {}
+        temp['user_id'] = 1
+        temp['text_name'] = 'test'
+        temp['text_id'] = 1
+        projects.append(temp)
+    return projects
+
 @app.route('/project/<userid>/<textid>', methods=['GET'])
 def project(userid, textid):
     '''Page containing main project interface'''
-    if (textid == 0):
-        textname = ""
-        uploaded = ""
-    else:
-        texts = server_api.get_text(userid)
-        for row in texts:
-            if row.get("textid") is textid:
-                textname = row.get("textname")
-                uploaded = row.get("uploaded")
-            else:
-                # ERROR
-                pass
+    textname=""
+    uploaded = ""
+    
+    texts = server_api.get_text(userid)
+    for row in texts:
+        if row.get("textid") is textid:
+            textname = row.get("textname")
+            uploaded = row.get("uploaded")
+        else:
+            # ERROR
+            textname = ""
+            uploaded = ""
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
@@ -140,10 +151,25 @@ def predict():
 
 @app.route('/saveProject', methods=['POST'])
 def save_project():
-    data = urllib.parse.unquote(flask.request.get_data())
-    data = urllib.pares.unquote_plus(data)
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    text = data['text'][0]
+    user_id = data['user_id'][0]
+    num_tokens = data.get('num_tokens', 1)
+    # server_api.upload_text(text, text_name, user_id)
+    return ""
+
+@app.route('/register/<userid>', methods=['POST'])
+def register_user(userid):
+    args_dict = {}
+    # decodes instituion and position
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
     data = data.split("&")
-    user_id = data[0].split("=")[1]
-    text = data[0],split("=")[1]
-    text_name = data[0].split("=")[1]
-    server_api.upload_text(text, text_name, user_id)
+    institution = data[0].split("=")[1]
+    position = data[1].split("=")[1]
+    args_dict['institution'] = institution if institution else ""
+    args_dict['postition'] = position if position else ""
+    server_api.update_account(parameter_to_update=args_dict, userid=userid)
+    return flask.redirect(flask.url_for("account", userid=userid))

@@ -163,7 +163,8 @@ def save_project():
     text = data['text'][0]
     user_id = data['user_id'][0]
     text_name = data['text_name'][0]
-    server_api.upload_text(text, text_name, user_id, "")
+    time = "11:11:11am"
+    server_api.upload_text(text, text_name, user_id, time)
     return ""
 
 @app.route('/register/<userid>', methods=['POST'])

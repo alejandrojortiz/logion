@@ -68,7 +68,7 @@ def account(user_id):
     '''account landing page'''
 
         # text_array of dicts where each dict is a row of a text query
-        # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
+        # Each row/dict has keys: "text_id", "user_id", "text_name", "uploaded" (text), "save_time"
     if server_api.confirm_user(user_id):
         text_array = server_api.get_text(user_id)
     else:
@@ -125,6 +125,8 @@ def project(user_id, text_id):
     texts = server_api.get_text(user_id)
     for row in texts:
         if row.get("text_id") == text_id:
+            print("NAMe:", row.get("text_name"))
+            print("UPLOADED", row.get("uploaded"))
             text_name = row.get("text_name")
             uploaded = row.get("uploaded")
         else:

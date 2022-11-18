@@ -76,6 +76,7 @@ def account(user_id):
         text_array= []
     if (text_array == None):
         text_array = []
+    # text_array = []
     
     user_id = flask.request.path.split("/")[2]
     #text_array = temporary_saved_projects()
@@ -146,7 +147,7 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
-    num_tokens = data.get('num_tokens', -1)
+    num_tokens = data.get('num_tokens', 2)
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
     # temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})

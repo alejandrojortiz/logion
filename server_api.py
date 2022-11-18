@@ -75,11 +75,11 @@ class Prediction(base):
 base.metadata.create_all(engine)
 engine.dispose()
 
-def confirm_user(userID:str):
+def confirm_user(user_id:str):
     '''Function that checks if user is in the database'''
     conn = engine.connect()
 
-    stmt = select(User).where(User.user_id == userID)
+    stmt = select(User).where(User.user_id == user_id)
     result = conn.execute(stmt)
     
     conn.close()
@@ -96,7 +96,7 @@ def add_account(parameter_dict: dict):
     '''
     
     # unpacking dictionary items
-    ID = parameter_dict.get("id")
+    user_id = parameter_dict.get("user_id")
     name = parameter_dict.get("name")
     email = parameter_dict.get("email")
     institution = parameter_dict.get("institution")
@@ -105,7 +105,7 @@ def add_account(parameter_dict: dict):
     
 
     # adding it to the users table
-    stmt = insert(User).values(user_id=ID, name=name, 
+    stmt = insert(User).values(user_id=user_id, name=name, 
                                 email=email, 
                                 institution=institution, 
                                 position=position,
@@ -118,9 +118,9 @@ def add_account(parameter_dict: dict):
     # closing connection
     conn.close()
     
-def update_account(parameter_to_update: dict, userID: int):
+def update_account(parameter_to_update: dict, user_id: int):
     '''Function that updates user accounts with dictonary of parameters to update using the same
-       key/value pairs in the users table and userID of user to be updated.
+       key/value pairs in the users table and user_id of user to be updated.
     '''
     # getting all parameters to be updated
     parameters = parameter_to_update.keys
@@ -138,36 +138,36 @@ def update_account(parameter_to_update: dict, userID: int):
         else:
             SQL_str += ", " + parameter + "=" + str(parameter_to_update.get(parameter))
     
-    SQL_str += " WHERE user_id=" + str(userID)
+    SQL_str += " WHERE user_id=" + str(user_id)
     with engine.connect() as con:
         rs = con.execute(SQL_str)
         con.close()
 
     
-def get_text(userid:str):
+def get_text(user_id:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each
-    row/dict will have the following keys: "textid", "userid", "textname", "uploaded" (text), "save_time". 
+    row/dict will have the following keys: "text_id", "user_id", "text_name", "uploaded" (text), "save_time". 
     '''
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = select(Text).where(Text.user_id == userid)
+    stmt = select(Text).where(Text.user_id == user_id)
     result = conn.execute(stmt)
     
     conn.close()
     
     if result is None:
-        return None
+        return []
     
     text_array = []
     for text in result:
         text = list(text)
         text_dict = {}
         
-        text_dict["textid"] = text[0]
-        text_dict["userid"] = text[1]
-        text_dict["textname"] = text[2]
+        text_dict["text_id"] = text[0]
+        text_dict["user_id"] = text[1]
+        text_dict["text_name"] = text[2]
         text_dict["uploaded"] = text[3]
         text_dict["save_time"] = text[4]
         
@@ -175,10 +175,10 @@ def get_text(userid:str):
 
     return text_array
 
-def get_predictions(textID: int):
+def get_predictions(text_id: int):
     ''''
     Function that returns arrays of dicts where each dict is a row of prediction query. Each
-    row/dict will have the following keys: "textid", "prediction_name", "token_number", 
+    row/dict will have the following keys: "text_id", "prediction_name", "token_number", 
     "prediction_output" (text), "save_time", "prediction_blob". 
     '''
 
@@ -186,13 +186,13 @@ def get_predictions(textID: int):
     
     
     # creating SQL statement
-    stmt = select(Prediction).where(Prediction.text_id == textID)
+    stmt = select(Prediction).where(Prediction.text_id == text_id)
     result = conn.execute(stmt)
     
     conn.close()
     
     if result is None:
-        return None
+        return []
     
     prediction_array = []
     for prediction in result:
@@ -210,10 +210,10 @@ def get_predictions(textID: int):
 
     return prediction_array
 
-def upload_text(text: str, text_name: str, userid: str, save_time: str):
+def upload_text(text: str, text_name: str, user_id: str, save_time: str):
     '''uploads text'''
 
-    stmt = insert(Text).values(user_id=userid, text_name=text_name,
+    stmt = insert(Text).values(user_id=user_id, text_name=text_name,
                                 uploaded=text, save_time=save_time)
 
     # execution of stmt
@@ -222,11 +222,11 @@ def upload_text(text: str, text_name: str, userid: str, save_time: str):
     conn.close()
         
 
-def upload_prediction(prediction: str, textid: int, token_number: int, prediction_name: str,
+def upload_prediction(prediction: str, text_id: int, token_number: int, prediction_name: str,
                       save_time:str, prediction_blob: LargeBinary):
     '''Function that uploads prediction to database'''
 
-    stmt = insert(Prediction).values(token_number=token_number, text_id=textid,
+    stmt = insert(Prediction).values(token_number=token_number, text_id=text_id,
                                       prediction_name=prediction_name,
                                       prediction_output=prediction, 
                                       save_time=save_time,
@@ -238,9 +238,9 @@ def upload_prediction(prediction: str, textid: int, token_number: int, predictio
     result = conn.execute(stmt)
     conn.close()
 
-def update_text(update_dict: dict, textid):
+def update_text(update_dict: dict, text_id):
     '''Updates text by passing in a dictionary of values and columns to modify
-       as well as a textid
+       as well as a text_id
     '''
     columns = update_dict.keys
     for i, col in enumerate(columns):
@@ -249,16 +249,16 @@ def update_text(update_dict: dict, textid):
         else:
             SQL_str += ", " + col + "=" + update_dict[col]
     
-    SQL_str += "WHERE textid=" + str(textid)
+    SQL_str += "WHERE text_id=" + str(text_id)
 
     with engine.connect() as con:
         rs = con.execute(SQL_str)
         con.close()
 
 
-def update_prediction(update_dict: dict, predictionid: int):
+def update_prediction(update_dict: dict, prediction_id: int):
     '''Updates text by passing in a dictionary of values and columns to modify
-       as well as a predictionid
+       as well as a prediction_id
     '''
     SQL_str = "UPDATE predictions SET "
     
@@ -270,7 +270,7 @@ def update_prediction(update_dict: dict, predictionid: int):
         else:
             SQL_str += ", " + col + "=" + update_dict[col]
     
-    SQL_str += "WHERE predictionid=" + str(predictionid)
+    SQL_str += "WHERE prediction_id=" + str(prediction_id)
 
     with engine.connect() as con:
         rs = con.execute(SQL_str)

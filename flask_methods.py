@@ -162,12 +162,19 @@ def save_project():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
-    text = data['text'][0]
-    user_id = data['user_id'][0]
     text_name = data['text_name'][0]
-    time = "11:11:11am"
-    server_api.upload_text(text, text_name, user_id, time)
-    return ""
+    
+    # checking if text_name already exists in the database
+    if server_api.confirm_text(text_name):
+        text = data['text'][0]
+        user_id = data['user_id'][0]
+        time = "11:11:11am"
+        server_api.upload_text(text, text_name, user_id, time)
+        return ""
+    else:
+        '''
+        insert code for override (use server_api.update_text with proper documentation)
+        '''
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):

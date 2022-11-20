@@ -7,7 +7,7 @@ authors: Eugene Liu
 from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Identity, LargeBinary
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, delete
 
 # uncomment for local
 #db_string = "sqlite:////database.db"
@@ -89,12 +89,71 @@ def confirm_user(user_id:str):
         return False
     else:
         return True
-    
-def add_account(parameter_dict: dict):
-    '''Function for adding account information: takes in a dictionary 
-        with the following key and value pairs
+
+def confirm_prediction(prediction_name:str):
+    '''
+    Function that checks if prediciton name is in the database. Returns true if name is not in database, false if
+    prediction name already exists
     '''
     
+    stmt = select(Prediction).where(Prediction.prediction_name==prediction_name)
+    
+    conn = engine.connect()
+    result = conn.execute(stmt)
+    
+    conn.close()
+    
+    if result is None:
+        return True
+    else:
+        return False
+    
+def confirm_text(text_name:str):
+    '''
+    Function that checks if text name is in the database. Returns true if name is not in database, false if
+    text name already exists
+    '''
+
+    stmt = select(Text).where(Text.text_name==text_name)
+    
+    conn = engine.connect()
+    result = conn.execute(stmt)
+    
+    conn.close()
+    
+    if result is None:
+        return True
+    else:
+        return False
+    
+def delete_text(text_name:str):
+    '''
+    Function that deletes text from the database based off text name
+    '''
+    
+    stmt = delete(Text).where(Text.text_name == text_name)
+    
+    conn = engine.connect(engine)
+    result = conn.execute(stmt)
+    conn.close()
+
+def delete_prediction(prediction_name:str):
+    '''
+    Function that deletes prediction from the database based off prediction name
+    '''
+    
+    stmt = delete(Prediction).where(Prediction.prediction_name == prediction_name)
+    
+    conn = engine.connect(engine)
+    result = conn.execute(stmt)
+    conn.close()
+    
+def add_account(parameter_dict: dict):
+    '''
+    Function for adding account information: takes in a dictionary 
+    with the following key and value pairs
+    '''
+
     # unpacking dictionary items
     user_id = parameter_dict.get("user_id")
     name = parameter_dict.get("name")

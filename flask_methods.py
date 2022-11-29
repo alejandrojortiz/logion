@@ -153,7 +153,7 @@ def predict():
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
     print("TEMP:", temp.text)
     #ret = temporary_prediction(text, num_tokens)
-    template = flask.render_template("prediction.html", predictions=temp.text)
+    template = flask.render_template("prediction.html", predictions=temp)
     response = flask.make_response(template)
     return response
 

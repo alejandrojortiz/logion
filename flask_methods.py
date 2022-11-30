@@ -79,8 +79,10 @@ def account(user_id):
     # text_array = []
     
     user_id = flask.request.path.split("/")[2]
+    user_array = server_api.get_user(user_id)
+    user_first_name = user_array["name"].split(" ")[0]
     #text_array = temporary_saved_projects()
-    html_code = flask.render_template("account.html", user_id=user_id, text_array=text_array, user_first_name='Andrew')
+    html_code = flask.render_template("account.html", user_id=user_id, text_array=text_array, user_first_name=user_first_name)
 
     response = flask.make_response(html_code)
 
@@ -172,9 +174,48 @@ def save_project():
         server_api.upload_text(text, text_name, user_id, time)
         return ""
     else:
-        '''
-        insert code for override (use server_api.update_text with proper documentation)
-        '''
+        dict = {}
+        dict['text'] = data['text'][0]
+        dict['user_id'] = data['user_id'][0]
+        dict['text_name'] = data['text_name'][0]
+        dict['time'] = "11:11:11am"
+        text_id = 0
+        for row in server_api.get_text(data['user_id'][0]):
+            if row['text_name'] == data['text_name'][0]:
+                text_id = row['text_id']
+        server_api.update_text(dict, text_id)
+        return ""
+
+@app.route('/savePrediction', methods=['POST'])
+def save_prediction():
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    prediction_name = data['prediction_name'][0]
+    
+    # checking if prediction_name already exists in the database
+    if server_api.confirm_prediction(prediction_name):
+        prediction = data['prediction'][0]
+        text_id = data['text_id'][0]
+        token_number = data['token_number'][0]
+        save_time = "11:11:11am"
+        prediction_blob = data['prediction_blob'][0]
+        server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
+                      save_time, prediction_blob)
+        return ""
+    else:
+        dict = {}
+        dict['prediction'] = data['prediction'][0]
+        dict['text_id'] = data['text_id'][0]
+        dict['token_number'] = data['token_number'][0]
+        dict['save_time'] = '11:11:11am'
+        dict['prediction_blob'] = data['prediction_blob'][0]
+        prediction_id = 0
+        for row in server_api.get_prediction(data['text_id'][0]):
+            if row['prediction_name'] == data['prediction_name'][0]:
+                text_id = row['prediction_id']
+        server_api.update_text(dict, prediction_id)
+        return ""
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):

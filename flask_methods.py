@@ -151,9 +151,9 @@ def predict():
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
-    print("TEMP:", temp)
+    #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
-    template = flask.render_template("prediction.html", predictions=temp)
+    template = flask.render_template("prediction.html", predictions=temp.json())
     response = flask.make_response(template)
     return response
 

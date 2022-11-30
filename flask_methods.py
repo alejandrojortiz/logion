@@ -8,7 +8,8 @@ import flask
 import urllib.parse
 import random
 import re
-#import server_api
+import requests as req
+import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -52,10 +53,10 @@ def auth():
         args_dict['name'] = name
         args_dict['ip_address'] = ""
 
-        # if server_api.confirm_user(user_id):
-        #     pass
-        # else:
-        #     server_api.add_account(args_dict)
+        if server_api.confirm_user(user_id):
+            pass
+        else:
+            server_api.add_account(args_dict)
         
         return flask.redirect(flask.url_for("account", user_id=user_id))
 
@@ -68,16 +69,16 @@ def account(user_id):
     '''account landing page'''
 
         # text_array of dicts where each dict is a row of a text query
-        # Each row/dict has keys: "textid", "userid", "textname", "uploaded" (text)
-    # if server_api.confirm_user(user_id):
-    #     text_array = server_api.get_text(user_id)
-    # else:
-    #     text_array= []
-    # if (text_array == None):
-    #     text_array = []
+        # Each row/dict has keys: "text_id", "user_id", "text_name", "uploaded" (text), "save_time"
+    if server_api.confirm_user(user_id):
+        text_array = server_api.get_text(user_id)
+    else:
+        text_array= []
+    if (text_array == None):
+        text_array = []
+    # text_array = []
     
-    text_array = []
-    print("PATH:", flask.request.path.split("/")[0])
+    user_id = flask.request.path.split("/")[2]
     #text_array = temporary_saved_projects()
     html_code = flask.render_template("account.html", user_id=user_id, text_array=text_array, user_first_name='Andrew')
 
@@ -123,15 +124,11 @@ def project(user_id, text_id):
     text_name=""
     uploaded = ""
     
-    # texts = server_api.get_text(user_id)
-    # for row in texts:
-    #     if row.get("text_id") == text_id:
-    #         text_name = row.get("text_name")
-    #         uploaded = row.get("uploaded")
-    #     else:
-    #         # ERROR
-    #         text_name = ""
-    #         uploaded = ""
+    texts = server_api.get_text(user_id)
+    for row in texts:
+        if str(row.get("text_id")) == str(text_id):
+            text_name = row.get("text_name")
+            uploaded = row.get("uploaded")
 
     # prediction_array of returns arrays of dicts where each dict is a row of prediction query
     # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
@@ -150,11 +147,13 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
-    num_tokens = data.get('num_tokens', -1)
+    num_tokens = data.get('num_tokens', 2)
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
-    ret = temporary_prediction(text, num_tokens)
-    template = flask.render_template("prediction.html", predictions=ret)
+    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
+    #print("TEMP:", temp.json())
+    #ret = temporary_prediction(text, num_tokens)
+    template = flask.render_template("prediction.html", predictions=temp.json())
     response = flask.make_response(template)
     return response
 
@@ -163,12 +162,19 @@ def save_project():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
-    text = data['text'][0]
-    user_id = data['user_id'][0]
     text_name = data['text_name'][0]
-    time = "11:11:11am"
-    # server_api.upload_text(text, text_name, user_id, time)
-    return ""
+    
+    # checking if text_name already exists in the database
+    if server_api.confirm_text(text_name):
+        text = data['text'][0]
+        user_id = data['user_id'][0]
+        time = "11:11:11am"
+        server_api.upload_text(text, text_name, user_id, time)
+        return ""
+    else:
+        '''
+        insert code for override (use server_api.update_text with proper documentation)
+        '''
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):
@@ -181,5 +187,5 @@ def register_user(user_id):
     position = data['position'][0]
     args_dict['institution'] = institution if institution else ""
     args_dict['postition'] = position if position else ""
-    # server_api.update_account(parameter_to_update=args_dict, userid=user_id)
+    server_api.update_account(parameter_to_update=args_dict, userid=user_id)
     return flask.redirect(flask.url_for("account", userid=user_id))

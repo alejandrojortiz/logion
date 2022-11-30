@@ -7,7 +7,7 @@ authors: Eugene Liu
 from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Identity, LargeBinary
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, delete
 
 # uncomment for local
 #db_string = "sqlite:////database.db"
@@ -30,7 +30,7 @@ class User(base):
         self.user_id = user_id
         self.name = name
         self.email = email
-        self.time = institution
+        self.institution = institution
         self.position = position
         self.ip_address = ip_address
         
@@ -89,12 +89,71 @@ def confirm_user(user_id:str):
         return False
     else:
         return True
-    
-def add_account(parameter_dict: dict):
-    '''Function for adding account information: takes in a dictionary 
-        with the following key and value pairs
+
+def confirm_prediction(prediction_name:str):
+    '''
+    Function that checks if prediciton name is in the database. Returns true if name is not in database, false if
+    prediction name already exists
     '''
     
+    stmt = select(Prediction).where(Prediction.prediction_name==prediction_name)
+    
+    conn = engine.connect()
+    result = conn.execute(stmt)
+    
+    conn.close()
+    
+    if result is None:
+        return True
+    else:
+        return False
+    
+def confirm_text(text_name:str):
+    '''
+    Function that checks if text name is in the database. Returns true if name is not in database, false if
+    text name already exists
+    '''
+
+    stmt = select(Text).where(Text.text_name==text_name)
+    
+    conn = engine.connect()
+    result = conn.execute(stmt)
+    
+    conn.close()
+    
+    if result is None:
+        return True
+    else:
+        return False
+    
+def delete_text(text_name:str):
+    '''
+    Function that deletes text from the database based off text name
+    '''
+    
+    stmt = delete(Text).where(Text.text_name == text_name)
+    
+    conn = engine.connect(engine)
+    result = conn.execute(stmt)
+    conn.close()
+
+def delete_prediction(prediction_name:str):
+    '''
+    Function that deletes prediction from the database based off prediction name
+    '''
+    
+    stmt = delete(Prediction).where(Prediction.prediction_name == prediction_name)
+    
+    conn = engine.connect(engine)
+    result = conn.execute(stmt)
+    conn.close()
+    
+def add_account(parameter_dict: dict):
+    '''
+    Function for adding account information: takes in a dictionary 
+    with the following key and value pairs
+    '''
+
     # unpacking dictionary items
     user_id = parameter_dict.get("user_id")
     name = parameter_dict.get("name")
@@ -143,7 +202,37 @@ def update_account(parameter_to_update: dict, user_id: int):
         rs = con.execute(SQL_str)
         con.close()
 
+def get_user(user_id:str):
+    '''
+    Function that get user information from user_id. Returns in the format of a single dictionary
+    '''
     
+    conn = engine.connect()
+    
+    # creating SQL statement
+    stmt = select(Text).where(Text.user_id == user_id)
+    result = conn.execute(stmt)
+    
+    conn.close()
+    
+    if result is None:
+        return []
+    
+    text_array = []
+    for user in result:
+        user = list(user)
+        user_dict = {}
+        
+        user_dict["user_id"] = user[0]
+        user_dict["name"] = user[1]
+        user_dict["email"] = user[2]
+        user_dict["institution"] = user[3]
+        user_dict["position"] = user[4]
+        user_dict["ip_address"] = user[5]
+        text_array.append(user_dict)
+        
+    return text_array[0]
+
 def get_text(user_id:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each

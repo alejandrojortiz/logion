@@ -1,9 +1,9 @@
 {% for row in predictions %}
     <div class="single-prediction-container">
         <div class="progress-bar-wrapper">
-            {{"%s" % row[1]}}{{"%"}}
+            {{"%s" % (row[1] * 100)|round(2)}}{{"%"}}
             <div class="progress-bar">
-				<span class="progress-bar-fill" {{"style="}}{{"width:"}}{{"%s" % row[1]}}{{"%;"}}></span>
+				<span class="progress-bar-fill" {{"style="}}{{"width:"}}{{"%s" % (row[1] * 100)}}{{"%;"}}></span>
 			</div>
         </div>
         <div class="prediction-text-container">

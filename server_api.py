@@ -30,7 +30,7 @@ class User(base):
         self.user_id = user_id
         self.name = name
         self.email = email
-        self.time = institution
+        self.institution = institution
         self.position = position
         self.ip_address = ip_address
         
@@ -202,7 +202,37 @@ def update_account(parameter_to_update: dict, user_id: int):
         rs = con.execute(SQL_str)
         con.close()
 
+def get_user(user_id:str):
+    '''
+    Function that get user information from user_id. Returns in the format of a single dictionary
+    '''
     
+    conn = engine.connect()
+    
+    # creating SQL statement
+    stmt = select(Text).where(Text.user_id == user_id)
+    result = conn.execute(stmt)
+    
+    conn.close()
+    
+    if result is None:
+        return []
+    
+    text_array = []
+    for user in result:
+        user = list(user)
+        user_dict = {}
+        
+        user_dict["user_id"] = user[0]
+        user_dict["name"] = user[1]
+        user_dict["email"] = user[2]
+        user_dict["institution"] = user[3]
+        user_dict["position"] = user[4]
+        user_dict["ip_address"] = user[5]
+        text_array.append(user_dict)
+        
+    return text_array[0]
+
 def get_text(user_id:str):
     '''
     Function that returns arrays of dicts where each dict is a row of a text query. Each

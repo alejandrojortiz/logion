@@ -95,7 +95,7 @@ def confirm_user(user_id:str):
     conn.close()
     
     print("we are getting a result")
-    if len(result):
+    if len(result) == 0:
         return False
     else:
         return True

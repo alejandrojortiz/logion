@@ -168,6 +168,7 @@ def save_project():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
+    print("DATAAAAAAAAAAAAAAAAA:", data)
     text_name = data['text_name'][0]
 
     # checking if text_name already exists in the database
@@ -179,7 +180,9 @@ def save_project():
         return ""
     else:
         dict = {}
-        dict['text'] = data['text'][0]
+        dict['text'] = data.get("text")
+        if not dict["text"]:
+            dict["text"] = ""
         dict['user_id'] = data['user_id'][0]
         dict['text_name'] = data['text_name'][0]
         dict['time'] = '11:11:11am'

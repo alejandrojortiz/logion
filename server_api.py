@@ -91,7 +91,9 @@ def confirm_user(user_id:str):
 
     stmt = select(User).where(User.user_id == user_id)
     result = conn.execute(stmt)
-    
+    print("RESULT")
+    print(result)
+    print(type(result))
     conn.close()
     
     print("we are getting a result")

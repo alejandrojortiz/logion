@@ -13,7 +13,7 @@ from sqlalchemy import insert, select, delete
 
 # FOR LOCAL TESTING:
 from sqlalchemy_utils import database_exists, create_database
-db_string = "sqlite:///~testDB.db"
+db_string = "sqlite:///testDB.db"
 engine = create_engine(db_string)
 
 if not database_exists(engine.url):

@@ -128,17 +128,18 @@ def project(user_id, text_id):
     '''Page containing main project interface'''
     text_name=""
     uploaded = ""
-    
-    texts = server_api.get_text(user_id)
-    for row in texts:
-        if str(row.get("text_id")) == str(text_id):
-            text_name = row.get("text_name")
-            uploaded = row.get("uploaded")
+    prediction_array = []
+    if text_id != "newProject":
+        texts = server_api.get_text(user_id)
+        for row in texts:
+            if str(row.get("text_id")) == str(text_id):
+                text_name = row.get("text_name")
+                uploaded = row.get("uploaded")
 
-    # prediction_array of returns arrays of dicts where each dict is a row of prediction query
-    # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
-    prediction_array = server_api.get_predictions(text_id=text_id)
-    #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
+        # prediction_array of returns arrays of dicts where each dict is a row of prediction query
+        # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
+        prediction_array = server_api.get_predictions(text_id=text_id)
+        #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
     html_code = flask.render_template("project.html", text_name=text_name, uploaded=uploaded,
                                       prediction_array=prediction_array)

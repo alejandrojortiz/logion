@@ -90,14 +90,14 @@ def confirm_user(user_id:str):
     conn = engine.connect()
 
     stmt = select(User).where(User.user_id == user_id)
-    result = conn.execute(stmt)
-    print("RESULT")
+    result = conn.execute(stmt).first()
+    print("RESULT---------------------------------------")
     print(result)
     print(type(result))
     conn.close()
     
     print("we are getting a result")
-    if len(result) == 0:
+    if (not result):
         return False
     else:
         return True

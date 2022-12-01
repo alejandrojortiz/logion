@@ -220,7 +220,7 @@ def get_user(user_id:str):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = select(Text).where(Text.user_id == user_id)
+    stmt = select(User).where(User.user_id == user_id)
     result = conn.execute(stmt)
     
     conn.close()

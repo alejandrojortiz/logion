@@ -84,7 +84,6 @@ class Prediction(base):
         self.prediction_blob = prediction_blob
         
 base.metadata.create_all(engine)
-engine.dispose()
 
 def confirm_user(user_id:str):
     '''Function that checks if user is in the database'''

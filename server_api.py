@@ -341,7 +341,7 @@ def update_text(update_dict: dict, text_id):
     '''Updates text by passing in a dictionary of values and columns to modify
        as well as a text_id
     '''
-    columns = update_dict.keys
+    columns = update_dict.keys()
     for i, col in enumerate(columns):
         if i == 0:
             SQL_str += col + "=" + update_dict[col]
@@ -361,7 +361,7 @@ def update_prediction(update_dict: dict, prediction_id: int):
     '''
     SQL_str = "UPDATE predictions SET "
     
-    columns = update_dict.keys
+    columns = update_dict.keys()
     for i, col in enumerate(columns):
         
         if i == 0:

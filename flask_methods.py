@@ -180,7 +180,7 @@ def save_project():
     else:
         dict = {}
         if data.get("text"):
-            dict['text'] = data.get("text")[0]
+            dict['uploaded'] = data.get("text")[0]
         if data.get("user_id"):
             dict['text'] = data.get("user_id")[0]
         if data.get("text_name"):

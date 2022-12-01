@@ -341,12 +341,14 @@ def update_text(update_dict: dict, text_id):
     '''Updates text by passing in a dictionary of values and columns to modify
        as well as a text_id
     '''
+
+    print("TEXT ID:", text_id)
     columns = update_dict.keys()
     
     SQL_str = "UPDATE texts SET "
     for i, col in enumerate(columns):
         if i == 0:
-            SQL_str += col + "=" + update_dict[col]
+            SQL_str += col + "=" + '\"' + update_dict[col] + '\"'
         else:
             SQL_str += ", " + col + "=" + update_dict[col] + " "
     

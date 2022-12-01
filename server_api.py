@@ -20,7 +20,7 @@ from sqlalchemy import insert, select, delete
 #     create_database(engine.url)
     
 #FOR HOSTING
-db_string = "postgresql://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
+db_string = "postgresql://puycmyesqupjqt:329837e3a18d72b5b7dcbd08b3073831b3c1621e71fbca46f767a9691fe4b311@ec2-54-159-175-38.compute-1.amazonaws.com:5432/d32u7f4lie15tr"
 engine = create_engine(db_string, echo=True)
 
 

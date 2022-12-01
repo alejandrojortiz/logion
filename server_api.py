@@ -13,7 +13,7 @@ from sqlalchemy import insert, select, delete
 
 # FOR LOCAL TESTING:
 from sqlalchemy_utils import database_exists, create_database
-db_string = "sqlite:///~testDB.db"
+db_string = "sqlite:///testDB.db"
 engine = create_engine(db_string)
 
 if not database_exists(engine.url):
@@ -84,7 +84,6 @@ class Prediction(base):
         self.prediction_blob = prediction_blob
         
 base.metadata.create_all(engine)
-engine.dispose()
 
 def confirm_user(user_id:str):
     '''Function that checks if user is in the database'''

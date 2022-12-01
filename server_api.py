@@ -228,10 +228,9 @@ def get_user(user_id:str):
     if result is None:
         return []
     
-    text_array = []
+    user_dict = {}
     for user in result:
         user = list(user)
-        user_dict = {}
         
         user_dict["user_id"] = user[0]
         user_dict["name"] = user[1]
@@ -239,9 +238,8 @@ def get_user(user_id:str):
         user_dict["institution"] = user[3]
         user_dict["position"] = user[4]
         user_dict["ip_address"] = user[5]
-        text_array.append(user_dict)
         
-    return text_array[0]
+    return user_dict
 
 def get_text(user_id:str):
     '''

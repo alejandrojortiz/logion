@@ -12,16 +12,16 @@ from sqlalchemy import insert, select, delete
 
 
 # FOR LOCAL TESTING:
-from sqlalchemy_utils import database_exists, create_database
-db_string = "sqlite:///testDB.db"
-engine = create_engine(db_string)
+# from sqlalchemy_utils import database_exists, create_database
+# db_string = "sqlite:///testDB.db"
+# engine = create_engine(db_string)
 
-if not database_exists(engine.url):
-    create_database(engine.url)
+# if not database_exists(engine.url):
+#     create_database(engine.url)
     
-# FOR HOSTING
-# db_string = "postgresql://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
-# engine = create_engine(db_string, echo=True)
+#FOR HOSTING
+db_string = "postgresql://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
+engine = create_engine(db_string, echo=True)
 
 
 base = declarative_base()

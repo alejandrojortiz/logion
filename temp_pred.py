@@ -60,6 +60,21 @@ Path("/workspace/pytorch_model.bin").rename("/workspace/three/pytorch_model.bin"
 blob = bucket.blob('3spanreal/config.json')
 blob.download_to_filename('config.json')
 Path("/workspace/config.json").rename("/workspace/three/config.json")
+blob = bucket.blob('3spanreal/optimizer.pt')
+blob.download_to_filename('optimizer.pt')
+Path("/workspace/optimizer.pt").rename("/workspace/three/optimizer.pt")
+blob = bucket.blob('3spanreal/rng_state.pth')
+blob.download_to_filename('rng_state.pth')
+Path("/workspace/rng_state.pth").rename("/workspace/three/rng_state.pth")
+blob = bucket.blob('3spanreal/scheduler.pt')
+blob.download_to_filename('scheduler.pt')
+Path("/workspace/scheduler.pt").rename("/workspace/three/scheduler.pt")
+blob = bucket.blob('3spanreal/trainer_state.json')
+blob.download_to_filename('trainer_state.json')
+Path("/workspace/trainer_state.json").rename("/workspace/three/trainer_state.json")
+blob = bucket.blob('3spanreal/training_args.bin')
+blob.download_to_filename('training_args.bin')
+Path("/workspace/training_args.bin").rename("/workspace/three/training_args.bin")
 greekbert3 = BertForMaskedLM.from_pretrained("/workspace/three")
 
 blob = bucket.blob('4spanreal/pytorch_model.bin')
@@ -68,6 +83,18 @@ Path("/workspace/pytorch_model.bin").rename("/workspace/four/pytorch_model.bin")
 blob = bucket.blob('4spanreal/config.json')
 blob.download_to_filename('config.json')
 Path("/workspace/config.json").rename("/workspace/four/config.json")
+blob = bucket.blob('4spanreal/rng_state.pth')
+blob.download_to_filename('rng_state.pth')
+Path("/workspace/rng_state.pth").rename("/workspace/four/rng_state.pth")
+blob = bucket.blob('4spanreal/scheduler.pt')
+blob.download_to_filename('scheduler.pt')
+Path("/workspace/scheduler.pt").rename("/workspace/four/scheduler.pt")
+blob = bucket.blob('4spanreal/trainer_state.json')
+blob.download_to_filename('trainer_state.json')
+Path("/workspace/trainer_state.json").rename("/workspace/four/trainer_state.json")
+blob = bucket.blob('4spanreal/training_args.bin')
+blob.download_to_filename('training_args.bin')
+Path("/workspace/training_args.bin").rename("/workspace/four/training_args.bin")
 greekbert4 = BertForMaskedLM.from_pretrained("/workspace/four")
 
 blob = bucket.blob('5spanreal/pytorch_model.bin')
@@ -76,12 +103,25 @@ Path("/workspace/pytorch_model.bin").rename("/workspace/five/pytorch_model.bin")
 blob = bucket.blob('5spanreal/config.json')
 blob.download_to_filename('config.json')
 Path("/workspace/config.json").rename("/workspace/five/config.json")
+blob = bucket.blob('5spanreal/optimizer.pt')
+blob.download_to_filename('optimizer.pt')
+Path("/workspace/optimizer.pt").rename("/workspace/five/optimizer.pt")
+blob = bucket.blob('5spanreal/rng_state.pth')
+blob.download_to_filename('rng_state.pth')
+Path("/workspace/rng_state.pth").rename("/workspace/five/rng_state.pth")
+blob = bucket.blob('5spanreal/scheduler.pt')
+blob.download_to_filename('scheduler.pt')
+Path("/workspace/scheduler.pt").rename("/workspace/five/scheduler.pt")
+blob = bucket.blob('5spanreal/trainer_state.json')
+blob.download_to_filename('trainer_state.json')
+Path("/workspace/trainer_state.json").rename("/workspace/five/trainer_state.json")
+blob = bucket.blob('5spanreal/training_args.bin')
+blob.download_to_filename('training_args.bin')
+Path("/workspace/training_args.bin").rename("/workspace/five/training_args.bin")
 greekbert5 = BertForMaskedLM.from_pretrained("/workspace/five")
 
 greekberts = [greekbert1, greekbert2, greekbert3, greekbert4, greekbert5]
 
-sm = torch.nn.Softmax(dim=1) # In order to construct word probabilities, we will employ softmax.
-torch.set_grad_enabled(False) # Since we are not training, we disable gradient calculation.
 sm = torch.nn.Softmax(dim=1) # In order to construct word probabilities, we will employ softmax.
 torch.set_grad_enabled(False) # Since we are not training, we disable gradient calculation.
 
@@ -89,11 +129,10 @@ torch.set_grad_enabled(False) # Since we are not training, we disable gradient c
 @functions_framework.http
 def classicspred(request):
      request_json = request.get_json(silent=True)
-     request_args = request.args
      # request json parsing
      if request_json and 'text' in request_json:
           text = request_json['text']
-          text = text.decode("utf-16")
+          text = text.replace("{tok.mask_token}", tok.mask_token)
      else:
           text = 'return valid text'
           return text
@@ -109,39 +148,19 @@ def classicspred(request):
           num_pred = request_json['num_pred']
      else:
           num_pred = 5
-     
-     # request args 
-     if request_args and 'text' in request_args:
-          text = request_args['text']
-          text = text.decode("utf-16")
-     else:
-          text = 'return valid text'
-          return text
-     if request_args and 'suffix' in request_args:
-          suffix = request_args['suffix']
-     else:
-          suffix = ""
-     if request_args and 'prefix' in request_args:
-          prefix = request_args['prefix']
-     else:
-          prefix = ""
-     if request_args and 'num_pred' in request_args:
-          num_pred = request_args['num_pred']
 
-     else:
-          num_pred = 5
      parameters = {
         'prefix' : prefix,
         'suffix' : suffix,
-        'num_pred' : num_pred,
+        'num_pred' : num_pred
         }
      
      # parameters = {
      #      'prefix' : 'ε',
      #      'suffix' : None,
-     #      'num_pred' : 5,
+     #      'num_pred' : 5
      # }
-     # text = f'Πρῶτον {tok.mask_token} περὶ τί καὶ τίνος ἐστὶν ἡ σκέψις, ὅτι περὶ ἀπόδειξιν καὶ ἐπιστήμης ἀποδεικτικῆς· εἶτα διορίσαι τί ἐστι πρότασις καὶ τί ὅρος καὶ τί συλλογισμός, καὶ ποῖος τέλειος καὶ ποῖος ἀτελής, μετὰ δὲ ταῦτα τί τὸ ἐν ὅλῳ εἶναι ἢ μὴ εἶναι τόδε τῷδε, καὶ τί λέγομεν τὸ κατὰ παντὸς ἢ μηδενὸς κατηγορεῖσθαι.'
+     #text = f'Πρῶτον {tok.mask_token} {tok.mask_token} περὶ τί καὶ τίνος ἐστὶν ἡ σκέψις, ὅτι περὶ ἀπόδειξιν καὶ ἐπιστήμης ἀποδεικτικῆς· εἶτα διορίσαι τί ἐστι πρότασις καὶ τί ὅρος καὶ τί συλλογισμός, καὶ ποῖος τέλειος καὶ ποῖος ἀτελής, μετὰ δὲ ταῦτα τί τὸ ἐν ὅλῳ εἶναι ἢ μὴ εἶναι τόδε τῷδε, καὶ τί λέγομεν τὸ κατὰ παντὸς ἢ μηδενὸς κατηγορεῖσθαι.'
 #    return list_files()
      # wrapper method to call the model
      ret = main(text, parameters)
@@ -152,22 +171,30 @@ def main(text, parameters):
      suffix = parameters['suffix']
      prefix = parameters['prefix']
      num_pred = parameters['num_pred']
-     if suffix and prefix is None:
-          return
+     ret = []
+
+     if text is "":
+          text = "text is empty"
+          return text
      # Defaults to suffix prediction first (if both are filled out)
-     if suffix is not None:
+     if suffix is not None and suffix != "":
           tokens = tok.encode(text, return_tensors = 'pt')
           results = beam_search_right(tokens, num_pred, suffix)
+          #ret.append("Hello")
      else:
           tokens = tok.encode(text, return_tensors = 'pt')
           results = beam_search(tokens, num_pred, prefix)
-     ret = []
+          #ret.append("As Always")
      for row in results:
           # row[0] stores the token_id
           temp = tok.convert_ids_to_tokens(row[0])
           # row[1] stores the probability
           row_format = [temp, row[1]]
           ret.append(row_format)
+     # ret.append(suffix)
+     # ret.append(prefix)
+     # ret.append(num_pred)
+     # ret.append(text)
      return ret
 
 # def list_files():
@@ -212,9 +239,9 @@ def argkmax(array, k, prefix='', dim=0): # Return indices of the 1st through kth
           if prefix != '':
                cur_tok = tok.convert_ids_to_tokens(val[0]).replace('##', '')
                trunc_prefix = prefix[:min(len(prefix), len(cur_tok))]
-          if not cur_tok.startswith(trunc_prefix):
-               ind += 1
-               continue
+               if not cur_tok.startswith(trunc_prefix):
+                    ind += 1
+                    continue
           else:
                cur_tok = ''
           indices.append(val)

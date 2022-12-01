@@ -111,14 +111,14 @@ def confirm_prediction(prediction_name:str):
     stmt = select(Prediction).where(Prediction.prediction_name==prediction_name)
     
     conn = engine.connect()
-    result = conn.execute(stmt)
+    result = conn.execute(stmt).first()
     
     conn.close()
     
     if result is None:
-        return True
-    else:
         return False
+    else:
+        return True
     
 def confirm_text(text_name:str):
     '''
@@ -129,14 +129,14 @@ def confirm_text(text_name:str):
     stmt = select(Text).where(Text.text_name==text_name)
     
     conn = engine.connect()
-    result = conn.execute(stmt)
+    result = conn.execute(stmt).first()
     
     conn.close()
     
     if result is None:
-        return True
-    else:
         return False
+    else:
+        return True
     
 def delete_text(text_name:str):
     '''
@@ -348,7 +348,7 @@ def update_text(update_dict: dict, text_id):
         if i == 0:
             SQL_str += col + "=" + update_dict[col]
         else:
-            SQL_str += ", " + col + "=" + update_dict[col]
+            SQL_str += ", " + col + "=" + update_dict[col] + " "
     
     SQL_str += "WHERE text_id=" + str(text_id)
 

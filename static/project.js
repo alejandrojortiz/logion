@@ -94,6 +94,11 @@ function handleSaveProjectClick() {
   textName = prompt("Enter text name");
   if (!textName) return; // User must enter a text name to save a project
   text = $("#editor").val();
+  if (text == "") {
+    let notyf = new Notyf();
+    notyf.error("Can't save empty text");
+    return;
+  }
   userID = window.location.pathname.split("/");
   userID = userID[2];
   transfer = {

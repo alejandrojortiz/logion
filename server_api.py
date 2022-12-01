@@ -342,6 +342,8 @@ def update_text(update_dict: dict, text_id):
        as well as a text_id
     '''
     columns = update_dict.keys()
+    
+    SQL_str = "UPDATE texts SET "
     for i, col in enumerate(columns):
         if i == 0:
             SQL_str += col + "=" + update_dict[col]

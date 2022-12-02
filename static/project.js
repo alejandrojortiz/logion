@@ -117,6 +117,7 @@ function handleSaveProjectClick() {
     user_id: userID,
     text: text,
     text_name: textName,
+    time: new Date().toLocaleString(),
   };
   request = $.post("/saveProject", transfer, handleSaveProjectResponse);
 }

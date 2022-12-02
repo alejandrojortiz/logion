@@ -135,10 +135,13 @@ def project(user_id, text_id):
             if str(row.get("text_id")) == str(text_id):
                 text_name = row.get("text_name")
                 uploaded = row.get("uploaded")
+                uploaded = urllib.parse.unquote(uploaded)
+                uploaded = urllib.parse.unquote_plus(uploaded)
 
         # prediction_array of returns arrays of dicts where each dict is a row of prediction query
-        # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
+        # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction_output" (text)
         prediction_array = server_api.get_predictions(text_id=text_id)
+        print("ARRAY:", prediction_array)
         #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
     html_code = flask.render_template("project.html", text_name=text_name, uploaded=uploaded,
@@ -174,13 +177,15 @@ def save_project():
     # checking if text_name already exists in the database
     if not server_api.confirm_text(text_name, user_id):
         text = data['text'][0]
-        time = '11:11:11am'
+        text = urllib.parse.quote(text)
+        time = data['time'][0]
         server_api.upload_text(text, text_name, user_id, time)
         return ""
     else:
         dict = {}
         if data.get("text"):
-            dict['uploaded'] = data.get("text")[0]
+            temp_text = urllib.parse.quote(data.get('text')[0])
+            dict['uploaded'] = temp_text
         if data.get("text_name"):
             dict['text_name'] = data.get("text_name")[0]
         if data.get("time"):
@@ -223,7 +228,7 @@ def save_prediction():
                 prediction_id = row['prediction_id']
 
         server_api.update_text(update_dict, prediction_id)
-        return ""
+        return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
     else:
         prediction = data['prediction'][0]
         token_number = data['token_number'][0]
@@ -232,7 +237,7 @@ def save_prediction():
         
         server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
                       save_time, prediction_blob)
-        return ""
+        return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):
@@ -247,3 +252,13 @@ def register_user(user_id):
     args_dict['postition'] = position if position else ""
     server_api.update_account(parameter_to_update=args_dict, userid=user_id)
     return flask.redirect(flask.url_for("account", userid=user_id))
+
+@app.route('/deleteProject', methods=['POST'])
+def delete_project():
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    text_name = data['text_name'][0]
+    user_id = data['user_id'][0]
+    server_api.delete_text(text_name=text_name, user_id=user_id)
+    return ""

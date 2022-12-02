@@ -62,6 +62,7 @@ function handleSavePredictionResponse(response) {
   notyf = new Notyf();
   notyf.success("Prediction Saved!");
   console.log("Prediction Saved");
+  $('#prev-predictions-container').html(response);
 }
 
 // Handles a click on a save prediction button

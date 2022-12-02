@@ -15,6 +15,7 @@
       href={{url_for("static", filename="account.css")}}
     />
     <title>Account Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   </head>
   <body>
     <div id="header">
@@ -43,9 +44,12 @@
         <div class="project-link-row">
           <a class="project-link" href={{url_for('project', user_id=row['user_id'], text_id=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
           <p class="date">{{"%s" % row['date']}}</p>
+          <button type="button" class="delete-project-button" style="color: red; font-size: 1.2em;" onclick="handleDeleteClick(event)">&#x2715</button>
         </div>
         {% endfor %}
       </div>
     </div>
+    <script src={{url_for("static", filename="account.js")}} async defer>
+    </script>
   </body>
 </html>

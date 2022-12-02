@@ -16,6 +16,11 @@ border-radius: 10px;
   }
   .project-link-row {
     margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
   }
   .project-link {
     text-decoration: underline;
@@ -72,3 +77,12 @@ border-radius: 10px;
     margin-left: 10%;
     font-weight: 200;
   }
+  .delete-project-button {
+    background-color: inherit;
+    border: none;
+    margin: 0;
+    display: inline-block;
+  }
+  .delete-project-button:hover {
+    color: black !important; /* X button has inline style to be red, need to overwrite*/
+}

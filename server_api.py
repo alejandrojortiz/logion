@@ -4,6 +4,7 @@ functions responsible for all query interactions with the logion database
 authors: Eugene Liu
 
 '''
+from sqlalchemy import text as esc_text
 from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Identity, LargeBinary
 from sqlalchemy.orm import declarative_base
@@ -92,11 +93,8 @@ def confirm_user(user_id:str):
     stmt = select(User).where(User.user_id == user_id)
     result = conn.execute(stmt).first()
     print("RESULT---------------------------------------")
-    print(result)
-    print(type(result))
     conn.close()
     
-    print("we are getting a result")
     if (not result):
         return False
     else:
@@ -138,23 +136,23 @@ def confirm_text(text_name:str, user_id:str):
     else:
         return True
     
-def delete_text(text_name:str):
+def delete_text(text_name:str, user_id:str):
     '''
     Function that deletes text from the database based off text name
     '''
     
-    stmt = delete(Text).where(Text.text_name == text_name)
+    stmt = delete(Text).where(Text.text_name == text_name).where(Text.user_id==user_id)
     
     conn = engine.connect(engine)
     result = conn.execute(stmt)
     conn.close()
 
-def delete_prediction(prediction_name:str):
+def delete_prediction(prediction_name:str, text_id:str):
     '''
     Function that deletes prediction from the database based off prediction name
     '''
     
-    stmt = delete(Prediction).where(Prediction.prediction_name == prediction_name)
+    stmt = delete(Prediction).where(Prediction.prediction_name == prediction_name).where(Prediction.text_id==text_id)
     
     conn = engine.connect(engine)
     result = conn.execute(stmt)
@@ -317,7 +315,7 @@ def upload_text(text: str, text_name: str, user_id: str, save_time: str):
 
     # execution of stmt
     conn = engine.connect()
-    result = conn.execute(stmt)
+    result = conn.execute(esc_text(stmt))
     conn.close()
         
 
@@ -355,7 +353,7 @@ def update_text(update_dict: dict, text_id):
     SQL_str += "WHERE text_id=" + str(text_id)
 
     with engine.connect() as con:
-        rs = con.execute(SQL_str)
+        rs = con.execute(esc_text(SQL_str))
         con.close()
 
 

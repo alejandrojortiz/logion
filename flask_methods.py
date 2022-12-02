@@ -189,7 +189,7 @@ def save_project():
         if data.get("text_name"):
             dict['text_name'] = data.get("text_name")[0]
         if data.get("time"):
-            dict['time'] = data.get("time")[0]
+            dict['save_time'] = data.get("time")[0]
         text_id = 0
         for row in server_api.get_text(data['user_id'][0]):
             if row['text_name'] == data['text_name'][0]:

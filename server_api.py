@@ -315,7 +315,7 @@ def upload_text(text: str, text_name: str, user_id: str, save_time: str):
 
     # execution of stmt
     conn = engine.connect()
-    result = conn.execute(esc_text(stmt))
+    result = conn.execute(stmt) # no need for text escape when using insert
     conn.close()
         
 

@@ -11,8 +11,10 @@ body {
   #project-link-container {
     padding: 0.2em;
     border: 1.5px #959595 solid;
-border-radius: 10px;
+    border-radius: 10px;
     width: 80%;
+    height: 15em;
+    overflow-y: auto;
   }
   .project-link-row {
     margin: 0;

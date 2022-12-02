@@ -5,12 +5,14 @@ function handleDeleteClick(event) {
   const button = event.target;
   const ancestor = button.closest(".project-link-row");
   let user_id = window.location.pathname.split("/");
-  user_id = user_id[2]
+  user_id = user_id[2];
   const textName = ancestor.querySelector(".project-link").innerText;
   const transfer = {
     user_id: user_id,
-    text_name: textName
-  }
-  request = $.post("/deleteProject", transfer, (response) => {console.log("received");});
+    text_name: textName,
+  };
+  request = $.post("/deleteProject", transfer, (response) => {
+    console.log("received");
+  });
   if (ancestor) ancestor.remove();
 }

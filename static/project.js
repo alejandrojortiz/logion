@@ -62,14 +62,16 @@ function handleSavePredictionResponse(response) {
   notyf = new Notyf();
   notyf.success("Prediction Saved!");
   console.log("Prediction Saved");
-  $('#prev-predictions-container').html(response);
+  $("#prev-predictions-container").html(response);
 }
 
 // Handles a click on a save prediction button
 function handleSavePredictionClick(event) {
   const button = event.target;
-  const ancestor =  button.closest(".single-prediction-container");
-  const prediction = ancestor.querySelector(".prediction-text-container").innerText;
+  const ancestor = button.closest(".single-prediction-container");
+  const prediction = ancestor.querySelector(
+    ".prediction-text-container"
+  ).innerText;
   console.log("CLICKED PREDICTION SAVE");
   const predictionName = prompt("Enter prediction name");
   if (!predictionName) return; // Client must enter a name to save a prediction
@@ -97,11 +99,10 @@ function handleSavePredictionClick(event) {
 
 // Handles a click of the save project button
 function handleSaveProjectClick() {
-  console.log($("#text-name").prop('innerText'))
-  if ($("#text-name").prop('innerText')) {
-    textName = $("#text-name").prop('innerText');
-  }
-  else {
+  console.log($("#text-name").prop("innerText"));
+  if ($("#text-name").prop("innerText")) {
+    textName = $("#text-name").prop("innerText");
+  } else {
     textName = prompt("Enter text name");
   }
   if (!textName) return; // User must enter a text name to save a project
@@ -148,15 +149,15 @@ function handleDeleteClick(event) {
 function getPageState(event) {
   const button = event.target;
   const ancestor = button.closest(".single-prediction-container");
-  const prediction = ancestor.querySelector('.prediction-text-container');
+  const prediction = ancestor.querySelector(".prediction-text-container");
   let obj = {
-    text: $('#editor').val(),
-    numTokens: $('#token-number').val(),
+    text: $("#editor").val(),
+    numTokens: $("#token-number").val(),
     prediction: prediction,
     prefix: "",
     suffix: "",
     distance: "",
-    highlightStart: $('#editor').prop('predictionStart'),
-    highlightEnd: $('#editor').prop('predictionEnd')
-  }
+    highlightStart: $("#editor").prop("predictionStart"),
+    highlightEnd: $("#editor").prop("predictionEnd"),
+  };
 }

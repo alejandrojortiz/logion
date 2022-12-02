@@ -65,16 +65,19 @@ function handleSavePredictionResponse(response) {
 }
 
 // Handles a click on a save prediction button
-function handleSavePredictionClick() {
-  return;
+function handleSavePredictionClick(event) {
+  const button = event.target;
+  const ancestor =  button.closest(".single-prediction-container");
+  const prediction = ancestor.querySelector(".prediction-text-container").innerText;
+  console.log("CLICKED PREDICTION SAVE");
   const predictionName = prompt("Enter prediction name");
   if (!predictionName) return; // Client must enter a name to save a prediction
 
   // Get prediction info
   const tokenNum = $("#token-number").val();
-  const prediction = "";
-  const textID = "";
   const time = new Date().toLocaleDateString();
+  let textID = window.location.pathname.split("/");
+  textID = textID[3];
 
   // Get page state
 
@@ -84,14 +87,22 @@ function handleSavePredictionClick() {
     prediction: prediction,
     prediction_name: predictionName,
     text_id: textID,
-    time: time,
+    save_time: time,
+    prediction_blob: "TEST",
   };
+  console.log("TRANSFER", transfer);
   request = $.post("/savePrediction", transfer, handleSavePredictionResponse);
 }
 
 // Handles a click of the save project button
 function handleSaveProjectClick() {
-  textName = prompt("Enter text name");
+  console.log($("#text-name").prop('innerText'))
+  if ($("#text-name").prop('innerText')) {
+    textName = $("#text-name").prop('innerText');
+  }
+  else {
+    textName = prompt("Enter text name");
+  }
   if (!textName) return; // User must enter a text name to save a project
   text = $("#editor").val();
   if (text == "") {

@@ -19,7 +19,7 @@ p {
     flex-direction: row;
     border-bottom: 0.75px #959595 solid;
     margin-bottom: 0.4em;
-    height: 22em;
+    height: 20em;
 }
 #prediction-area {
     width: 90%;
@@ -32,7 +32,7 @@ input:disabled {
     border: none;
 }
 #textarea-container {
-    margin-bottom: 0.6em;
+    margin-bottom: 0.2em;
     flex: 1.75;
     border-right: 0.75px #959595 solid;
 }
@@ -156,5 +156,12 @@ button {
 .box-label {
     align-self: flex-start;
     margin-left: 10%;
-    font-size: 1.125em;
+    font-size: 1em;
+}
+#text-name {
+    margin: 0.2em;
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.2em;
+    height: 1.2em;
 }

@@ -169,11 +169,11 @@ def save_project():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     text_name = data['text_name'][0]
+    user_id = data['user_id'][0]
 
     # checking if text_name already exists in the database
-    if not server_api.confirm_text(text_name):
+    if not server_api.confirm_text(text_name, user_id):
         text = data['text'][0]
-        user_id = data['user_id'][0]
         time = '11:11:11am'
         server_api.upload_text(text, text_name, user_id, time)
         return ""
@@ -181,8 +181,6 @@ def save_project():
         dict = {}
         if data.get("text"):
             dict['uploaded'] = data.get("text")[0]
-        if data.get("user_id"):
-            dict['text'] = data.get("user_id")[0]
         if data.get("text_name"):
             dict['text_name'] = data.get("text_name")[0]
         if data.get("time"):
@@ -200,29 +198,40 @@ def save_prediction():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     prediction_name = data['prediction_name'][0]
+    text_id = data['text_id'][0]
+    
 
     # checking if prediction_name already exists in the database
-    if server_api.confirm_prediction(prediction_name):
-        prediction = data['prediction'][0]
-        text_id = data['text_id'][0]
-        token_number = data['token_number'][0]
-        save_time = '11:11:11am'
-        prediction_blob = data['prediction_blob'][0]
-        server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
-                      save_time, prediction_blob)
-        return ""
-    else:
-        dict = {}
-        dict['prediction'] = data['prediction'][0]
-        dict['text_id'] = data['text_id'][0]
-        dict['token_number'] = data['token_number'][0]
-        dict['save_time'] = '11:11:11am'
-        dict['prediction_blob'] = data['prediction_blob'][0]
+    if server_api.confirm_prediction(prediction_name, text_id):
+        update_dict = {}
+        if data.get("prediction"):
+            update_dict['prediction'] = data.get("prediction")[0]
+        if data.get("text_id"):
+            update_dict['text_id'] = data.get("text_id")[0]
+        if data.get("token_number"):
+            update_dict['token_number'] = data.get("token_number")[0]
+        if data.get("save_time"):
+            update_dict['save_time'] = data.get('save_time')[0]
+        if data.get("prediction_blob"):
+            prediction_blob = bytes(data.get("prediction_blob")[0], 'utf-8')
+            update_dict['prediction_blob'] = prediction_blob
+        print("BLOB:", prediction_blob)
+
         prediction_id = 0
         for row in server_api.get_prediction(data['text_id'][0]):
             if row['prediction_name'] == data['prediction_name'][0]:
-                text_id = row['prediction_id']
-        server_api.update_text(dict, prediction_id)
+                prediction_id = row['prediction_id']
+
+        server_api.update_text(update_dict, prediction_id)
+        return ""
+    else:
+        prediction = data['prediction'][0]
+        token_number = data['token_number'][0]
+        save_time = data['save_time'][0]
+        prediction_blob = bytes(data['prediction_blob'][0], 'utf-8')
+        
+        server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
+                      save_time, prediction_blob)
         return ""
 
 @app.route('/register/<user_id>', methods=['POST'])

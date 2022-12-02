@@ -7,10 +7,10 @@
 			</div>
         </div>
         <div class="prediction-text-container">
-            <p>{{"%s" % row[0]}}</p>
+            {{"%s" % row[0]}}
         </div>
         <div class="prediction-buttons-container">
-            <button type="button" class="prediction-button">Save</button>
+            <button type="button" class="prediction-button" onclick="handleSavePredictionClick(event)">Save</button>
             <button type="button" class="prediction-button" style="color: red;" onclick="handleDeleteClick(event)">&#x2715</button>
         </div>
     </div>

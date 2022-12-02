@@ -102,13 +102,13 @@ def confirm_user(user_id:str):
     else:
         return True
 
-def confirm_prediction(prediction_name:str):
+def confirm_prediction(prediction_name:str, text_id:int):
     '''
     Function that checks if prediciton name is in the database. Returns true if name is not in database, false if
     prediction name already exists
     '''
     
-    stmt = select(Prediction).where(Prediction.prediction_name==prediction_name)
+    stmt = select(Prediction).where(Prediction.prediction_name==prediction_name).where(Prediction.text_id==text_id)
     
     conn = engine.connect()
     result = conn.execute(stmt).first()
@@ -120,13 +120,13 @@ def confirm_prediction(prediction_name:str):
     else:
         return True
     
-def confirm_text(text_name:str):
+def confirm_text(text_name:str, user_id:str):
     '''
     Function that checks if text name is in the database. Returns true if name is not in database, false if
     text name already exists
     '''
 
-    stmt = select(Text).where(Text.text_name==text_name)
+    stmt = select(Text).where(Text.text_name==text_name).where(Text.user_id==user_id)
     
     conn = engine.connect()
     result = conn.execute(stmt).first()
@@ -299,12 +299,12 @@ def get_predictions(text_id: int):
         prediction_dict = {}
         
         prediction_dict["prediction_id"] = prediction[0]
-        prediction_dict["token_number"] = prediction[1]
-        prediction_dict["text_id"] = prediction[2]
+        prediction_dict["text_id"] = prediction[1]
+        prediction_dict["token_number"] = prediction[2]
         prediction_dict["prediction_name"] = prediction[3]
         prediction_dict["prediction_output"] = prediction[4]
         prediction_dict["save_time"] = prediction[5]
-        prediction_dict["prediction_blob"]       
+        prediction_dict["prediction_blob"] = prediction[6]  
         prediction_array.append(prediction_dict)
 
     return prediction_array
@@ -348,9 +348,9 @@ def update_text(update_dict: dict, text_id):
     SQL_str = "UPDATE texts SET "
     for i, col in enumerate(columns):
         if i == 0:
-            SQL_str += col + "=" + '\"' + update_dict[col] + '\"'
+            SQL_str += col + "=" + "\'"  + update_dict[col] + "\'"
         else:
-            SQL_str += ", " + col + "=" + update_dict[col] + " "
+            SQL_str += ", " + col + "=" + "\'" + update_dict[col] + "\'" + " "
     
     SQL_str += "WHERE text_id=" + str(text_id)
 
@@ -369,9 +369,9 @@ def update_prediction(update_dict: dict, prediction_id: int):
     for i, col in enumerate(columns):
         
         if i == 0:
-            SQL_str += col + "=" + update_dict[col]
+            SQL_str += col + "=" + "\'" + update_dict[col] + "\'"
         else:
-            SQL_str += ", " + col + "=" + update_dict[col]
+            SQL_str += ", " + col + "=" + "\'" + update_dict[col] + "\'"
     
     SQL_str += "WHERE prediction_id=" + str(prediction_id)
 

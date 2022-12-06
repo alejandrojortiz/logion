@@ -24,6 +24,12 @@ body {
     margin-top: 0.2em;
     margin-bottom: 0.2em;
   }
+  .project-link-row:hover {
+    background-color: #e3e1e1;
+  }
+  .project-link-row button:hover {
+    color: white !important;
+  }
   .project-link {
     text-decoration: underline;
     color: inherit;

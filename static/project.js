@@ -44,19 +44,6 @@ function getHighlight() {
   return ret;
 }
 
-// Handles the response from generating a model prediction
-function handlePredictResponse(response) {
-  console.log("PREDICTED");
-  $("#prediction-output").html(response);
-}
-
-// Handles the response from saving a project
-function handleSaveProjectResponse(response) {
-  notyf = new Notyf();
-  notyf.success("Project Saved");
-  console.log("Project Saved");
-}
-
 // Handles the response from saving a prediction
 function handleSavePredictionResponse(response) {
   notyf = new Notyf();
@@ -97,23 +84,39 @@ function handleSavePredictionClick(event) {
   request = $.post("/savePrediction", transfer, handleSavePredictionResponse);
 }
 
+// Handles the response from saving a project
+function handleSaveProjectResponse(response) {
+  notyf = new Notyf();
+  notyf.success("Project Saved");
+  console.log("Project Saved");
+}
+
 // Handles a click of the save project button
 function handleSaveProjectClick() {
-  console.log($("#text-name").prop("innerText"));
+  // console.log($("#text-name").prop("innerText"));
+
+  // Check if there is already a text name (true for projects that have
+  // already been saved) or prompt user to enter one if not
   if ($("#text-name").prop("innerText")) {
     textName = $("#text-name").prop("innerText");
   } else {
     textName = prompt("Enter text name");
   }
   if (!textName) return; // User must enter a text name to save a project
+
+  // Get text content of the textarea
   text = $("#editor").val();
   if (text == "") {
     let notyf = new Notyf();
     notyf.error("Can't save empty text");
     return;
   }
+
+  // Get user id
   userID = window.location.pathname.split("/");
   userID = userID[2];
+
+  // Send data to server
   transfer = {
     user_id: userID,
     text: text,
@@ -121,6 +124,12 @@ function handleSaveProjectClick() {
     time: new Date().toLocaleString(),
   };
   request = $.post("/saveProject", transfer, handleSaveProjectResponse);
+}
+
+// Handles the response from generating a model prediction
+function handlePredictResponse(response) {
+  console.log("PREDICTED");
+  $("#prediction-output").html(response);
 }
 
 // Handles a click of the prediction button
@@ -133,6 +142,7 @@ function handlePredictClick() {
     numTokens: $("#token-number").val(),
   };
   request = $.post("/predict", transfer, handlePredictResponse);
+  document.getElementById("editor").focus();
 }
 
 // Handles a click of a delete button for a prediction

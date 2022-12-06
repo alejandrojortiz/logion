@@ -171,3 +171,6 @@ function getPageState(event) {
     highlightEnd: $("#editor").prop("predictionEnd"),
   };
 }
+function refocus() {
+  document.getElementById('editor').focus();
+}

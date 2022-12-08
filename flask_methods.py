@@ -157,10 +157,12 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
+    prefix = data.get('prefix', "")
+    suffix = data.get('suffix', "")
     num_tokens = data.get('num_tokens', 2)
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
-    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
+    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 5})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
     temp = temp.json()
@@ -171,14 +173,14 @@ def predict():
                 temp_string = temp_string[:-1]
                 temp_string += i.replace('##', '')
                 temp_string += ' '
-            elif i is '.':
+            elif i == '.':
                 temp_string = temp_string[:-1]
                 temp_string += '.'
                 temp_string += ' '
-            elif i is '-':
+            elif i == '-':
                 temp_string = temp_string[:-1]
                 temp_string += '-'
-            elif i is ',':
+            elif i == ',':
                 temp_string = temp_string[:-1]
                 temp_string += ','
                 temp_string += ' '

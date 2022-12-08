@@ -140,6 +140,8 @@ function handlePredictClick() {
   transfer = {
     text: text,
     numTokens: $("#token-number").val(),
+    prefix: $("#prefix").val(),
+    suffix: $("#suffix").val()
   };
   request = $.post("/predict", transfer, handlePredictResponse);
   document.getElementById("editor").focus();

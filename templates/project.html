@@ -52,20 +52,20 @@
         <div id="parameter-container">
           <label>
             Prefix:
-            <input type="text" disabled />
+            <input type="text" id="prefix" />
           </label>
           <label>
             Suffix:
-            <input type="text" disabled />
+            <input type="text" id="suffix" />
           </label>
           <label for="token-number">
             Number of Tokens:
             <input type="num" id="token-number" value="2" onblur="refocus()"/>
           </label>
-          <label>
+          <!-- <label>
             Distance:
             <input type="num" disabled />
-          </label>
+          </label> -->
           <button
             type="button"
             id="predict-button"

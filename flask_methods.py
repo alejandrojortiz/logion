@@ -158,11 +158,15 @@ def predict():
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
     prefix = data.get('prefix', "")
+    if (prefix != ""):
+        prefix = prefix[0]
     suffix = data.get('suffix', "")
+    if (suffix != ""):
+        suffix = suffix[0]
     num_tokens = data.get('num_tokens', 2)
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
-    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 5})
+    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': num_tokens})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
     temp = temp.json()
@@ -188,8 +192,9 @@ def predict():
                 temp_string += i
                 temp_string += ' '
         pred[0] = temp_string
-    template = flask.render_template("prediction.html", predictions=temp.json())
+    template = flask.render_template("prediction.html", predictions=temp)
     response = flask.make_response(template)
+    print("HERE")
     return response
 
 @app.route('/saveProject', methods=['POST'])

@@ -12,6 +12,7 @@ import requests as req
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
+import string
 
 #from temp_pred import main as predict
 
@@ -162,6 +163,29 @@ def predict():
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
+    temp = temp.json()
+    for pred in temp:
+        temp_string = ''
+        for i in pred[0]:
+            if '##' in i:
+                temp_string = temp_string[:-1]
+                temp_string += i.replace('##', '')
+                temp_string += ' '
+            elif i is '.':
+                temp_string = temp_string[:-1]
+                temp_string += '.'
+                temp_string += ' '
+            elif i is '-':
+                temp_string = temp_string[:-1]
+                temp_string += '-'
+            elif i is ',':
+                temp_string = temp_string[:-1]
+                temp_string += ','
+                temp_string += ' '
+            else:
+                temp_string += i
+                temp_string += ' '
+        pred[0] = temp_string
     template = flask.render_template("prediction.html", predictions=temp.json())
     response = flask.make_response(template)
     return response
@@ -205,7 +229,6 @@ def save_prediction():
     prediction_name = data['prediction_name'][0]
     text_id = data['text_id'][0]
     
-
     # checking if prediction_name already exists in the database
     if server_api.confirm_prediction(prediction_name, text_id):
         update_dict = {}

@@ -142,7 +142,7 @@ button {
 #logo-container {
     margin-right: auto;
     display: flex;
-    max-height: 4em;
+    max-height: 5em;
 }
 #log-out-button {
     padding: 0;

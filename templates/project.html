@@ -34,8 +34,11 @@
           filename="logion-greek.svg") }} style="max-height: 4em;"/>
         </a>
       </div>
+      <div id="project-nav-bar">
+        <a href={{ url_for('account', user_id=user_id) }}>Account</a>
       <button type="button" id="log-out-button">
         <strong>Log Out</strong>
+      </div>
       </button>
     </div>
     <p id="text-name">{{text_name}}</p>

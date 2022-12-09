@@ -117,6 +117,8 @@ function handleSavePredictionClick(event) {
       };
       request = $.post("/savePrediction", transfer, (response) => {
         window.location.href = response;
+        let lastNotyf = new Notyf();
+        lastNotyf.success("Prediction saved!")
       });
     });
     return;

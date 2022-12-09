@@ -146,7 +146,7 @@ def project(user_id, text_id):
         #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
     html_code = flask.render_template("project.html", text_name=text_name, uploaded=uploaded,
-                                      prediction_array=prediction_array)
+                                      prediction_array=prediction_array, user_id = user_id)
     response = flask.make_response(html_code)
 
     return response

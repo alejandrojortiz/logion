@@ -194,7 +194,7 @@ function handlePredictClick() {
   console.log("Clicked");
   const text = getHighlight();
   const numTokens = $("#token-number").val();
-  if (numTokens >= 3) {
+  if (numTokens >= 2) {
     let notyf = new Notyf();
     notyf.success("Prediction queued");
   }

@@ -60,18 +60,73 @@ function handleSavePredictionClick(event) {
     ".prediction-text-container"
   ).innerText;
   console.log("CLICKED PREDICTION SAVE");
-  const predictionName = prompt("Enter prediction name");
-  if (!predictionName) return; // Client must enter a name to save a prediction
 
   // Get prediction info
   const tokenNum = $("#token-number").val();
   const time = new Date().toLocaleDateString();
+
   let textID = window.location.pathname.split("/");
   textID = textID[3];
+  // When saving a prediction on the new project page,
+  // must prompt user for a project name and save the project
+  // first, then go through the steps of saving the prediction
+  // and redirect user to saved project page
+  if (textID === "newProject") {
+    const textName = prompt("Enter a name for this text:");
+    if (!textName) {
+      let notyf = new Notyf();
+      notyf.error("Must enter a text name to save");
+      return;
+    }
+    const predictionName = prompt("Enter prediction name");
+    if (!predictionName) {
+      let predNotyf = new Notyf();
+      predNotyf.error("Must enter prediction name");
+      return; // Client must enter a name to save a prediction
+    }
+    // Get text content of the textarea
+    text = $("#editor").val();
+    if (text == "") {
+      let notyf = new Notyf();
+      notyf.error("Can't save empty text");
+      return;
+    }
+    userID = window.location.pathname.split("/");
+    userID = userID[2];
+
+    // Send data to server
+    const saveTransfer = {
+      user_id: userID,
+      text: text,
+      text_name: textName,
+      time: new Date().toLocaleString(),
+      new: "true",
+    };
+    request = $.post("/saveProject", saveTransfer, (response) => {
+      textID = Number(response);
+      // Save prediction
+      const transfer = {
+        token_number: tokenNum,
+        prediction: prediction,
+        prediction_name: predictionName,
+        text_id: textID,
+        save_time: time,
+        prediction_blob: "TEST",
+        redirect: "true",
+        user_id: userID,
+      };
+      request = $.post("/savePrediction", transfer, (response) => {
+        window.location.href = response;
+      });
+    });
+    return;
+  }
 
   // Get page state
 
   // Save prediction
+  const predictionName = prompt("Enter prediction name");
+  if (!predictionName) return; // Client must enter a name to save a prediction
   const transfer = {
     token_number: tokenNum,
     prediction: prediction,
@@ -141,7 +196,7 @@ function handlePredictClick() {
     text: text,
     numTokens: $("#token-number").val(),
     prefix: $("#prefix").val(),
-    suffix: $("#suffix").val()
+    suffix: $("#suffix").val(),
   };
   request = $.post("/predict", transfer, handlePredictResponse);
   document.getElementById("editor").focus();
@@ -174,5 +229,5 @@ function getPageState(event) {
   };
 }
 function refocus() {
-  document.getElementById('editor').focus();
+  document.getElementById("editor").focus();
 }

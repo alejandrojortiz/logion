@@ -272,6 +272,19 @@ def get_text(user_id:str):
 
     return text_array
 
+def get_text_id(user_id, text_name):
+    conn = engine.connect()
+    stmt = select(Text).where(Text.text_name==text_name).where(Text.user_id==user_id)
+    
+    conn = engine.connect()
+    result = conn.execute(stmt).first()
+    print(result)
+    if result is None:
+        return False
+    else:
+        return result.text_id
+
+
 def get_predictions(text_id: int):
     ''''
     Function that returns arrays of dicts where each dict is a row of prediction query. Each

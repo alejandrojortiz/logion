@@ -204,6 +204,16 @@ def save_project():
     data = urllib.parse.parse_qs(data)
     text_name = data['text_name'][0]
     user_id = data['user_id'][0]
+    is_new = data.get("new", "false")
+    if (is_new != "false"):
+        print("HI")
+        text = data['text'][0]
+        text = urllib.parse.quote(text)
+        time = data['time'][0]
+        server_api.upload_text(text, text_name, user_id, time)
+        text_id = server_api.get_text_id(user_id, text_name)
+        return str(text_id)
+
 
     # checking if text_name already exists in the database
     if not server_api.confirm_text(text_name, user_id):
@@ -253,12 +263,19 @@ def save_prediction():
         print("BLOB:", prediction_blob)
 
         prediction_id = 0
-        for row in server_api.get_prediction(data['text_id'][0]):
+        for row in server_api.get_predictions(data['text_id'][0]):
             if row['prediction_name'] == data['prediction_name'][0]:
                 prediction_id = row['prediction_id']
 
         server_api.update_text(update_dict, prediction_id)
-        return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+        if (data.get('redirect', 'false') != 'false'):
+            print("URL--------------------------------------")
+            print(flask.url_for('project', user_id = data['user_id'][0], text_id= text_id))
+            print("------------------------------------------")
+            return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
+        else:
+            print("WHY HERE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaa")
+            return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
     else:
         prediction = data['prediction'][0]
         token_number = data['token_number'][0]
@@ -267,7 +284,15 @@ def save_prediction():
         
         server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
                       save_time, prediction_blob)
-        return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+        if (data.get('redirect', 'false') != 'false'):
+            print("URL--------------------------------------")
+            print(flask.url_for('project', user_id = data['user_id'][0], text_id= text_id))
+            print("------------------------------------------")
+            return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
+        else:
+            print("WHY HERE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaa")
+            return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+        # return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):

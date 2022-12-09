@@ -26,14 +26,12 @@
   </head>
   <body>
     <div id="header">
-      <div id="logo-container">
-        <a href="/">
+        <a href="/" id="logo-container">
           <img src={{ url_for("static", filename="logo13pt.svg") }}
           style="max-height: 4em;"/><img src={{ url_for("static",
           filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
           filename="logion-greek.svg") }} style="max-height: 5.1em;"/>
         </a>
-      </div>
       <div id="project-nav-bar">
         <a href={{ url_for('account', user_id=user_id) }}>Account</a>
       <button type="button" id="log-out-button">

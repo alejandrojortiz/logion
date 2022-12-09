@@ -20,14 +20,22 @@
   </head>
   <body>
     <div id="header">
-      <div id="logo-container">
+      <!-- <div id="logo-container">
         <a href="/">
+          <img src={{ url_for("static", filename="logo13pt.svg") }}
+          style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="logion-greek.svg") }} style="max-height: 4em;"/>
+        </a>
+      </div> -->
+  
+        <a href="/" id="logo-container">
           <img src={{ url_for("static", filename="logo13pt.svg") }}
           style="max-height: 4em;"/><img src={{ url_for("static",
           filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
           filename="logion-greek.svg") }} style="max-height: 5.1em;"/>
         </a>
-      </div>
+  
       <button type="button" id="log-out-button">
         <strong>Log Out</strong>
       </button>

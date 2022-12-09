@@ -193,10 +193,15 @@ function handlePredictResponse(response) {
 function handlePredictClick() {
   console.log("Clicked");
   const text = getHighlight();
+  const numTokens = $("#token-number").val();
+  if (numTokens >= 3) {
+    let notyf = new Notyf();
+    notyf.success("Prediction queued");
+  }
   if (!text) return;
   transfer = {
     text: text,
-    numTokens: $("#token-number").val(),
+    numTokens: numTokens,
     prefix: $("#prefix").val(),
     suffix: $("#suffix").val(),
   };

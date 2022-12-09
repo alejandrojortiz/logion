@@ -1,12 +1,17 @@
 '''
 Entire file is meant to be hosted on google's cloud storage platform,
 no need to install these dependencies.
+
+Recently edited for Greek presentation on 12/9
+changes: commented out the 5 models and currently using the 1 token model for all token sizes
 '''
 # installing required dependencies.
 import functions_framework
 import torch
+import unicodedata
 from transformers import BertTokenizer, BertForMaskedLM
 from google.cloud import storage
+from flask import jsonify
 import os
 from os import path
 from pathlib import Path
@@ -29,99 +34,119 @@ bucket = storage_client.get_bucket('classicsbucket')
 # creates virtual directorys in memory
 root = path.dirname(path.abspath(__file__))
 os.mkdir("one")
-os.mkdir("two")
-os.mkdir("three")
-os.mkdir("four")
-os.mkdir("five")
+# os.mkdir("two")
+# os.mkdir("three")
+# os.mkdir("four")
+# os.mkdir("five")
 
 tok = BertTokenizer.from_pretrained("pranaydeeps/Ancient-Greek-BERT")
 
 # download models and configs from GCS and store them in their respective folders
 # calls the model pretrained function
-blob = bucket.blob('1spanpsellos/pytorch_model.bin')
+blob = bucket.blob('tlg-ft-psellos/pytorch_model.bin')
 blob.download_to_filename('pytorch_model.bin')
 Path("/workspace/pytorch_model.bin").rename("/workspace/one/pytorch_model.bin")
-blob = bucket.get_blob('1spanpsellos/config.json')
+blob = bucket.get_blob('tlg-ft-psellos/config.json')
 blob.download_to_filename('config.json')
 Path("/workspace/config.json").rename("/workspace/one/config.json")
+blob = bucket.get_blob('tlg-ft-psellos/rng_state.pth')
+blob.download_to_filename('rng_state.pth')
+Path("/workspace/rng_state.pth").rename("/workspace/one/rng_state.pth")
+blob = bucket.get_blob('tlg-ft-psellos/scheduler.pt')
+blob.download_to_filename('scheduler.pt')
+Path("/workspace/scheduler.pt").rename("/workspace/one/scheduler.pt")
+blob = bucket.get_blob('tlg-ft-psellos/trainer_state.json')
+blob.download_to_filename('trainer_state.json')
+Path("/workspace/trainer_state.json").rename("/workspace/one/trainer_state.json")
+blob = bucket.get_blob('tlg-ft-psellos/training_args.bin')
+blob.download_to_filename('training_args.bin')
+Path("/workspace/training_args.bin").rename("/workspace/one/training_args.bin")
 greekbert1 = BertForMaskedLM.from_pretrained("/workspace/one")
 
-blob = bucket.blob('3span_ft/pytorch_model.bin')
-blob.download_to_filename('pytorch_model.bin')
-Path("/workspace/pytorch_model.bin").rename("/workspace/two/pytorch_model.bin")
-blob = bucket.blob('3span_ft/config.json')
-blob.download_to_filename('config.json')
-Path("/workspace/config.json").rename("/workspace/two/config.json")
-greekbert2 = BertForMaskedLM.from_pretrained("/workspace/two")
+# blob = bucket.blob('1spanpsellos/pytorch_model.bin')
+# blob.download_to_filename('pytorch_model.bin')
+# Path("/workspace/pytorch_model.bin").rename("/workspace/one/pytorch_model.bin")
+# blob = bucket.get_blob('1spanpsellos/config.json')
+# blob.download_to_filename('config.json')
+# Path("/workspace/config.json").rename("/workspace/one/config.json")
+# greekbert1 = BertForMaskedLM.from_pretrained("/workspace/one")
 
-blob = bucket.blob('3spanreal/pytorch_model.bin')
-blob.download_to_filename('pytorch_model.bin')
-Path("/workspace/pytorch_model.bin").rename("/workspace/three/pytorch_model.bin")
-blob = bucket.blob('3spanreal/config.json')
-blob.download_to_filename('config.json')
-Path("/workspace/config.json").rename("/workspace/three/config.json")
-blob = bucket.blob('3spanreal/optimizer.pt')
-blob.download_to_filename('optimizer.pt')
-Path("/workspace/optimizer.pt").rename("/workspace/three/optimizer.pt")
-blob = bucket.blob('3spanreal/rng_state.pth')
-blob.download_to_filename('rng_state.pth')
-Path("/workspace/rng_state.pth").rename("/workspace/three/rng_state.pth")
-blob = bucket.blob('3spanreal/scheduler.pt')
-blob.download_to_filename('scheduler.pt')
-Path("/workspace/scheduler.pt").rename("/workspace/three/scheduler.pt")
-blob = bucket.blob('3spanreal/trainer_state.json')
-blob.download_to_filename('trainer_state.json')
-Path("/workspace/trainer_state.json").rename("/workspace/three/trainer_state.json")
-blob = bucket.blob('3spanreal/training_args.bin')
-blob.download_to_filename('training_args.bin')
-Path("/workspace/training_args.bin").rename("/workspace/three/training_args.bin")
-greekbert3 = BertForMaskedLM.from_pretrained("/workspace/three")
+# blob = bucket.blob('3span_ft/pytorch_model.bin')
+# blob.download_to_filename('pytorch_model.bin')
+# Path("/workspace/pytorch_model.bin").rename("/workspace/two/pytorch_model.bin")
+# blob = bucket.blob('3span_ft/config.json')
+# blob.download_to_filename('config.json')
+# Path("/workspace/config.json").rename("/workspace/two/config.json")
+# greekbert2 = BertForMaskedLM.from_pretrained("/workspace/two")
 
-blob = bucket.blob('4spanreal/pytorch_model.bin')
-blob.download_to_filename('pytorch_model.bin')
-Path("/workspace/pytorch_model.bin").rename("/workspace/four/pytorch_model.bin")
-blob = bucket.blob('4spanreal/config.json')
-blob.download_to_filename('config.json')
-Path("/workspace/config.json").rename("/workspace/four/config.json")
-blob = bucket.blob('4spanreal/rng_state.pth')
-blob.download_to_filename('rng_state.pth')
-Path("/workspace/rng_state.pth").rename("/workspace/four/rng_state.pth")
-blob = bucket.blob('4spanreal/scheduler.pt')
-blob.download_to_filename('scheduler.pt')
-Path("/workspace/scheduler.pt").rename("/workspace/four/scheduler.pt")
-blob = bucket.blob('4spanreal/trainer_state.json')
-blob.download_to_filename('trainer_state.json')
-Path("/workspace/trainer_state.json").rename("/workspace/four/trainer_state.json")
-blob = bucket.blob('4spanreal/training_args.bin')
-blob.download_to_filename('training_args.bin')
-Path("/workspace/training_args.bin").rename("/workspace/four/training_args.bin")
-greekbert4 = BertForMaskedLM.from_pretrained("/workspace/four")
+# blob = bucket.blob('3spanreal/pytorch_model.bin')
+# blob.download_to_filename('pytorch_model.bin')
+# Path("/workspace/pytorch_model.bin").rename("/workspace/three/pytorch_model.bin")
+# blob = bucket.blob('3spanreal/config.json')
+# blob.download_to_filename('config.json')
+# Path("/workspace/config.json").rename("/workspace/three/config.json")
+# blob = bucket.blob('3spanreal/optimizer.pt')
+# blob.download_to_filename('optimizer.pt')
+# Path("/workspace/optimizer.pt").rename("/workspace/three/optimizer.pt")
+# blob = bucket.blob('3spanreal/rng_state.pth')
+# blob.download_to_filename('rng_state.pth')
+# Path("/workspace/rng_state.pth").rename("/workspace/three/rng_state.pth")
+# blob = bucket.blob('3spanreal/scheduler.pt')
+# blob.download_to_filename('scheduler.pt')
+# Path("/workspace/scheduler.pt").rename("/workspace/three/scheduler.pt")
+# blob = bucket.blob('3spanreal/trainer_state.json')
+# blob.download_to_filename('trainer_state.json')
+# Path("/workspace/trainer_state.json").rename("/workspace/three/trainer_state.json")
+# blob = bucket.blob('3spanreal/training_args.bin')
+# blob.download_to_filename('training_args.bin')
+# Path("/workspace/training_args.bin").rename("/workspace/three/training_args.bin")
+# greekbert3 = BertForMaskedLM.from_pretrained("/workspace/three")
 
-blob = bucket.blob('5spanreal/pytorch_model.bin')
-blob.download_to_filename('pytorch_model.bin')
-Path("/workspace/pytorch_model.bin").rename("/workspace/five/pytorch_model.bin")
-blob = bucket.blob('5spanreal/config.json')
-blob.download_to_filename('config.json')
-Path("/workspace/config.json").rename("/workspace/five/config.json")
-blob = bucket.blob('5spanreal/optimizer.pt')
-blob.download_to_filename('optimizer.pt')
-Path("/workspace/optimizer.pt").rename("/workspace/five/optimizer.pt")
-blob = bucket.blob('5spanreal/rng_state.pth')
-blob.download_to_filename('rng_state.pth')
-Path("/workspace/rng_state.pth").rename("/workspace/five/rng_state.pth")
-blob = bucket.blob('5spanreal/scheduler.pt')
-blob.download_to_filename('scheduler.pt')
-Path("/workspace/scheduler.pt").rename("/workspace/five/scheduler.pt")
-blob = bucket.blob('5spanreal/trainer_state.json')
-blob.download_to_filename('trainer_state.json')
-Path("/workspace/trainer_state.json").rename("/workspace/five/trainer_state.json")
-blob = bucket.blob('5spanreal/training_args.bin')
-blob.download_to_filename('training_args.bin')
-Path("/workspace/training_args.bin").rename("/workspace/five/training_args.bin")
-greekbert5 = BertForMaskedLM.from_pretrained("/workspace/five")
+# blob = bucket.blob('4spanreal/pytorch_model.bin')
+# blob.download_to_filename('pytorch_model.bin')
+# Path("/workspace/pytorch_model.bin").rename("/workspace/four/pytorch_model.bin")
+# blob = bucket.blob('4spanreal/config.json')
+# blob.download_to_filename('config.json')
+# Path("/workspace/config.json").rename("/workspace/four/config.json")
+# blob = bucket.blob('4spanreal/rng_state.pth')
+# blob.download_to_filename('rng_state.pth')
+# Path("/workspace/rng_state.pth").rename("/workspace/four/rng_state.pth")
+# blob = bucket.blob('4spanreal/scheduler.pt')
+# blob.download_to_filename('scheduler.pt')
+# Path("/workspace/scheduler.pt").rename("/workspace/four/scheduler.pt")
+# blob = bucket.blob('4spanreal/trainer_state.json')
+# blob.download_to_filename('trainer_state.json')
+# Path("/workspace/trainer_state.json").rename("/workspace/four/trainer_state.json")
+# blob = bucket.blob('4spanreal/training_args.bin')
+# blob.download_to_filename('training_args.bin')
+# Path("/workspace/training_args.bin").rename("/workspace/four/training_args.bin")
+# greekbert4 = BertForMaskedLM.from_pretrained("/workspace/four")
 
-greekberts = [greekbert1, greekbert2, greekbert3, greekbert4, greekbert5]
+# blob = bucket.blob('5spanreal/pytorch_model.bin')
+# blob.download_to_filename('pytorch_model.bin')
+# Path("/workspace/pytorch_model.bin").rename("/workspace/five/pytorch_model.bin")
+# blob = bucket.blob('5spanreal/config.json')
+# blob.download_to_filename('config.json')
+# Path("/workspace/config.json").rename("/workspace/five/config.json")
+# blob = bucket.blob('5spanreal/optimizer.pt')
+# blob.download_to_filename('optimizer.pt')
+# Path("/workspace/optimizer.pt").rename("/workspace/five/optimizer.pt")
+# blob = bucket.blob('5spanreal/rng_state.pth')
+# blob.download_to_filename('rng_state.pth')
+# Path("/workspace/rng_state.pth").rename("/workspace/five/rng_state.pth")
+# blob = bucket.blob('5spanreal/scheduler.pt')
+# blob.download_to_filename('scheduler.pt')
+# Path("/workspace/scheduler.pt").rename("/workspace/five/scheduler.pt")
+# blob = bucket.blob('5spanreal/trainer_state.json')
+# blob.download_to_filename('trainer_state.json')
+# Path("/workspace/trainer_state.json").rename("/workspace/five/trainer_state.json")
+# blob = bucket.blob('5spanreal/training_args.bin')
+# blob.download_to_filename('training_args.bin')
+# Path("/workspace/training_args.bin").rename("/workspace/five/training_args.bin")
+# greekbert5 = BertForMaskedLM.from_pretrained("/workspace/five")
 
+# # greekberts = [greekbert1, greekbert2, greekbert3, greekbert4, greekbert5]
+greekberts = [greekbert1, greekbert1, greekbert1, greekbert1, greekbert1]
 sm = torch.nn.Softmax(dim=1) # In order to construct word probabilities, we will employ softmax.
 torch.set_grad_enabled(False) # Since we are not training, we disable gradient calculation.
 
@@ -164,6 +189,7 @@ def classicspred(request):
 #    return list_files()
      # wrapper method to call the model
      ret = main(text, parameters)
+     # ret = tuple(ret)
      return ret
 
 # Wrapper method 
@@ -172,22 +198,36 @@ def main(text, parameters):
      prefix = parameters['prefix']
      num_pred = parameters['num_pred']
      ret = []
+     needConv = False
+     # development testing block
+     #text = f"""Πρῶτον {tok.mask_token} {tok.mask_token} περὶ τί καὶ τίνος ἐστὶν ἡ σκέψις, ὅτι περὶ ἀπόδειξιν καὶ ἐπιστήμης ἀποδεικτικῆς· εἶτα διορίσαι τί ἐστι πρότασις καὶ τί ὅρος καὶ τί συλλογισμός, καὶ ποῖος τέλειος καὶ ποῖος ἀτελής, μετὰ δὲ ταῦτα τί τὸ ἐν ὅλῳ εἶναι ἢ μὴ εἶναι τόδε τῷδε, καὶ τί λέγομεν τὸ κατὰ παντὸς ἢ μηδενὸς κατηγορεῖσθαι."""
+     # prefix = "ε"
+     #suffix = "ῖν"
 
-     if text is "":
+     def remove_accents(input_str):
+          nfkd_form = unicodedata.normalize('NFKD', input_str)
+          return u"".join( [c for c in nfkd_form if not unicodedata.combining(c)])
+
+     if text == "":
           text = "text is empty"
           return text
      # Defaults to suffix prediction first (if both are filled out)
      if suffix is not None and suffix != "":
+          needConv = True
+          suffix = remove_accents(suffix)
           tokens = tok.encode(text, return_tensors = 'pt')
           results = beam_search_right(tokens, num_pred, suffix)
-          #ret.append("Hello")
+          # ret.append("Hello")
      else:
+          prefix = remove_accents(prefix)
           tokens = tok.encode(text, return_tensors = 'pt')
           results = beam_search(tokens, num_pred, prefix)
-          #ret.append("As Always")
+          # ret.append("As Always")
      for row in results:
           # row[0] stores the token_id
           temp = tok.convert_ids_to_tokens(row[0])
+          if (needConv):
+               temp.reverse()
           # row[1] stores the probability
           row_format = [temp, row[1]]
           ret.append(row_format)

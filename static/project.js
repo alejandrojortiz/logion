@@ -191,6 +191,8 @@ function handlePredictResponse(response) {
 
 // Handles a click of the prediction button
 function handlePredictClick() {
+  let lastNotyf = new Notyf();
+  lastNotyf.success("Prediction Queued...")
   console.log("Clicked");
   const text = getHighlight();
   if (!text) return;

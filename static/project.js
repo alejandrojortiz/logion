@@ -3,6 +3,8 @@ Functions and event handlers to provide the client side functionality
 for a project page.
 */
 
+//----------------------------------------------------------------------
+
 /* 
 Generic debounce function
 Used in the selectionchange event listener to limit the number of 
@@ -33,13 +35,15 @@ function getHighlight() {
   if (!text) return "";
   if (editor.prop("selectionStart") == editor.prop("selectionEnd")) return "";
 
-  // Replace selection with the appropriate number of tokens
   const numTokens = $("#token-number").val();
+  // Get the text up the start of the selection
   let ret = text.substring(0, editor.prop("selectionStart"));
+  // Replace selection with the appropriate number of tokens
   for (let i = 0; i < numTokens; i++) {
     if (i == 0) ret += " {tok.mask_token} ";
     else ret += "{tok.mask_token} ";
   }
+  // Get the rest of the text after the end of the selection
   ret += text.substring(editor.prop("selectionEnd"));
   return ret;
 }

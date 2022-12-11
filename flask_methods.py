@@ -30,6 +30,7 @@ def index():
     response = flask.make_response(html_code)
     return response
 
+# Handles the POST request sent by google-login
 @app.route('/auth', methods=['POST'])
 def auth():
     try:
@@ -65,6 +66,7 @@ def auth():
         # Invalid token
         pass
 
+# Returns the project page
 @app.route('/account/<user_id>', methods=['GET', 'POST'])
 def account(user_id):
     '''account landing page'''
@@ -166,7 +168,7 @@ def predict():
     num_tokens = data.get('num_tokens', 2)
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
-    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 7})
+    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 7})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
     temp = temp.json()

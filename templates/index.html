@@ -14,6 +14,9 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href={{url_for("static", filename="index.css")}} />
     <link rel="icon" href={{ url_for("static", filename="logo13pt.svg") }}/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src={{url_for("static", filename="project.js")}} async defer>
+    </script>
   </head>
   <body>
     <div id="header">
@@ -27,7 +30,7 @@
       {% if current_user.is_authenticated %}
       <div id="nav-bar">
         <a href={{ url_for('account', user_id=current_user.id) }}>Account</a>
-      <button type="button" id="log-out-button">
+      <button type="button" id="log-out-button" onclick="handleLogOutClick()">
         <strong>Log Out</strong>
       </button>
       </div>

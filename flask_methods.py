@@ -337,4 +337,4 @@ def delete_project():
 @login_required
 def logout():
     logout_user()
-    return flask.redirect(flask.url_for("index"))
+    return flask.url_for("index")

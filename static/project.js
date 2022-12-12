@@ -242,3 +242,9 @@ function getPageState(event) {
 function refocus() {
   document.getElementById("editor").focus();
 }
+function handleLogOutClick() {
+  console.log("logout clicked");
+  $.get("/logout", (response) => {
+    window.location.href = response;
+  })
+}

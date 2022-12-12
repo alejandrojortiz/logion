@@ -61,6 +61,7 @@ body {
     border: 0px;
     border-radius: 30px;
     font-family: Goldman-Sans-Black;
+    cursor: pointer;
   }
   #main-content {
     display: flex;

@@ -22,7 +22,7 @@ from sqlalchemy import insert, select, delete
     
 #FOR HOSTING
 db_string = "postgresql://puycmyesqupjqt:329837e3a18d72b5b7dcbd08b3073831b3c1621e71fbca46f767a9691fe4b311@ec2-54-159-175-38.compute-1.amazonaws.com:5432/d32u7f4lie15tr"
-engine = create_engine(db_string, echo=True)
+engine = create_engine(db_string, echo=True, pool_pre_ping=True)
 
 
 base = declarative_base()

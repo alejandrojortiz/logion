@@ -1,10 +1,17 @@
 '''
 Methods for connecting with flask server
 
-author: Jay White
+authors: Jay White, Alejandro Ortiz
 '''
 
 import flask
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 import urllib.parse
 import random
 import re
@@ -13,12 +20,22 @@ import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import string
-
+from user import User
 #from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
-
+# Setup
+#-----------------------------------------------------------------------
 app = flask.Flask(__name__)
+app.secret_key = "temp_secret_key"
+# User session management setup
+# https://flask-login.readthedocs.io/en/latest
+login_manager = LoginManager()
+login_manager.init_app(app)
+# Flask-Login helper to retrieve a user from our db
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 #-----------------------------------------------------------------------
 
@@ -26,7 +43,7 @@ app = flask.Flask(__name__)
 @app.route('/index', methods=['GET'])
 def index():
     '''initial index page'''
-    html_code = flask.render_template("index.html")
+    html_code = flask.render_template("index.html", current_user = current_user)
     response = flask.make_response(html_code)
     return response
 
@@ -54,12 +71,16 @@ def auth():
         args_dict['postition'] = ""
         args_dict['name'] = name
         args_dict['ip_address'] = ""
-
+        
+        user = None
         if server_api.confirm_user(user_id):
-            pass
+            user = User(user_id=user_id, name=name, email=email, institution="",
+            position="", ip_address="")
         else:
             server_api.add_account(args_dict)
         
+        if (user):
+            login_user(user)
         return flask.redirect(flask.url_for("account", user_id=user_id))
 
     except ValueError:
@@ -81,7 +102,8 @@ def account(user_id):
     #     text_array = []
     # text_array = []
     
-    user_id = flask.request.path.split("/")[2]
+    if not current_user.is_authenticated:
+        return flask.render_template("error.html", error_message="Please log in")
     user_array = server_api.get_user(user_id)
     user_first_name = user_array["name"].split(" ")[0]
     #text_array = temporary_saved_projects()
@@ -262,7 +284,6 @@ def save_prediction():
         if data.get("prediction_blob"):
             prediction_blob = bytes(data.get("prediction_blob")[0], 'utf-8')
             update_dict['prediction_blob'] = prediction_blob
-        print("BLOB:", prediction_blob)
 
         prediction_id = 0
         for row in server_api.get_predictions(data['text_id'][0]):
@@ -271,12 +292,8 @@ def save_prediction():
 
         server_api.update_text(update_dict, prediction_id)
         if (data.get('redirect', 'false') != 'false'):
-            print("URL--------------------------------------")
-            print(flask.url_for('project', user_id = data['user_id'][0], text_id= text_id))
-            print("------------------------------------------")
             return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
         else:
-            print("WHY HERE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaa")
             return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
     else:
         prediction = data['prediction'][0]
@@ -287,12 +304,8 @@ def save_prediction():
         server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
                       save_time, prediction_blob)
         if (data.get('redirect', 'false') != 'false'):
-            print("URL--------------------------------------")
-            print(flask.url_for('project', user_id = data['user_id'][0], text_id= text_id))
-            print("------------------------------------------")
             return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
         else:
-            print("WHY HERE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaa")
             return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
         # return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
 
@@ -308,7 +321,7 @@ def register_user(user_id):
     args_dict['institution'] = institution if institution else ""
     args_dict['postition'] = position if position else ""
     server_api.update_account(parameter_to_update=args_dict, userid=user_id)
-    return flask.redirect(flask.url_for("account", userid=user_id))
+    return flask.redirect(flask.url_for("account", user_id=user_id))
 
 @app.route('/deleteProject', methods=['POST'])
 def delete_project():
@@ -319,3 +332,9 @@ def delete_project():
     user_id = data['user_id'][0]
     server_api.delete_text(text_name=text_name, user_id=user_id)
     return ""
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return flask.redirect(flask.url_for("index"))

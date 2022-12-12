@@ -32,13 +32,16 @@
           filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
           filename="logion-greek.svg") }} style="max-height: 5.1em;"/>
         </a>
-      <div id="project-nav-bar">
+      {% if current_user.is_authenticated %}
+      <div id="nav-bar">
         <a href={{ url_for('account', user_id=user_id) }}>Account</a>
       <button type="button" id="log-out-button">
         <strong>Log Out</strong>
-      </div>
       </button>
+      </div>
+      {% endif %}
     </div>
+    {% if current_user.is_authenticated %}
     <p id="text-name">{{text_name}}</p>
     <div id="main-content">
       <div id="prediction-area">
@@ -88,6 +91,9 @@
         Save Project
       </button>
     </div>
+    {% else %}
+    <p>Please log in</p>
+    {% endif %}
     <script src={{url_for("static", filename="project.js")}} async defer>
     </script>
   </body>

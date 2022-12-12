@@ -73,15 +73,17 @@ def auth():
         args_dict['ip_address'] = ""
         
         user = None
+        collect_ip = False
         if server_api.confirm_user(user_id):
             user = User(user_id=user_id, name=name, email=email, institution="",
             position="", ip_address="")
         else:
             server_api.add_account(args_dict)
+            collect_ip = True
         
         if (user):
             login_user(user)
-        return flask.redirect(flask.url_for("account", user_id=user_id))
+        return flask.redirect(flask.url_for("account", user_id=user_id, collect_ip=collect_ip))
 
     except ValueError:
         # Invalid token
@@ -338,3 +340,7 @@ def delete_project():
 def logout():
     logout_user()
     return flask.url_for("index")
+
+@app.route("/saveIP", methods=['POST'])
+def saveIP():
+    pass

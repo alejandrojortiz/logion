@@ -26,7 +26,7 @@
       
       {% if current_user.is_authenticated %}
       <div id="nav-bar">
-        <a href={{ url_for('account', user_id=current_user.user_id) }}>Account</a>
+        <a href={{ url_for('account', user_id=current_user.id) }}>Account</a>
       <button type="button" id="log-out-button">
         <strong>Log Out</strong>
       </button>

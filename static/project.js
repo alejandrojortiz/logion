@@ -1,6 +1,8 @@
 /*
 Functions and event handlers to provide the client side functionality
 for a project page.
+
+Author: Alejandro Ortiz
 */
 
 //----------------------------------------------------------------------
@@ -201,6 +203,7 @@ function handlePredictClick() {
   if (numTokens >= 2) {
     let notyf = new Notyf();
     notyf.success("Prediction queued");
+    $("#prediction-output").html("<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>")
   }
   if (!text) return;
   transfer = {
@@ -248,3 +251,17 @@ function handleLogOutClick() {
     window.location.href = response;
   })
 }
+// function handleLockClick() {
+//   const lock = document.getElementById("lock-button");
+//   const editor = document.getElementById("editor");
+//   if (lock.className === "unlocked") {
+//     editor.readOnly = true;
+//     editor.style.backgroundColor = '#e3e1e1';
+//     lock.className = "locked";
+//   }
+//   else {
+//     editor.readOnly = false;
+//     editor.style.backgroundColor = 'inherit';
+//     lock.className = "unlocked";
+//   }
+// }

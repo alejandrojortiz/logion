@@ -234,23 +234,21 @@ def save_project():
     text_name = data['text_name'][0]
     user_id = data['user_id'][0]
     is_new = data.get("new", "false")
+
+    # checking if text_name already exists in the database
     if (is_new != "false"):
-        print("HI")
         text = data['text'][0]
         text = urllib.parse.quote(text)
         time = data['time'][0]
         server_api.upload_text(text, text_name, user_id, time)
         text_id = server_api.get_text_id(user_id, text_name)
         return str(text_id)
-
-
-    # checking if text_name already exists in the database
-    if not server_api.confirm_text(text_name, user_id):
-        text = data['text'][0]
-        text = urllib.parse.quote(text)
-        time = data['time'][0]
-        server_api.upload_text(text, text_name, user_id, time)
-        return ""
+    # if not server_api.confirm_text(text_name, user_id):
+        # text = data['text'][0]
+        # text = urllib.parse.quote(text)
+        # time = data['time'][0]
+        # server_api.upload_text(text, text_name, user_id, time)
+        # return ""
     else:
         dict = {}
         if data.get("text"):

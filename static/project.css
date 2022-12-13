@@ -180,3 +180,30 @@ button {
     text-decoration: none;
     color: inherit;
 }
+#lock-button {
+    align-self: flex-start;
+    margin-left: 6%;
+    font-size: 1em;
+}
+
+/* Animation styles for prediction loader */
+.loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-block;
+    border-top: 3px solid #0cee41;
+    border-right: 3px solid transparent;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    text-align: center;
+  }
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } 

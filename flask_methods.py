@@ -71,19 +71,22 @@ def auth():
         args_dict['postition'] = ""
         args_dict['name'] = name
         args_dict['ip_address'] = ""
-        
+
         user = None
-        collect_ip = False
+        collect_ip = True
+        print("HEADER:--------------------------------------")
+        print(flask.request.headers)
+        print("---------------------------------------------")
         if server_api.confirm_user(user_id):
             user = User(user_id=user_id, name=name, email=email, institution="",
             position="", ip_address="")
         else:
             server_api.add_account(args_dict)
             collect_ip = True
-        
+
         if (user):
             login_user(user)
-        return flask.redirect(flask.url_for("account", user_id=user_id, collect_ip=collect_ip))
+        return flask.redirect(flask.url_for("account", user_id=user_id))
 
     except ValueError:
         # Invalid token
@@ -103,7 +106,7 @@ def account(user_id):
     # if (text_array == None):
     #     text_array = []
     # text_array = []
-    
+
     if not current_user.is_authenticated:
         return flask.render_template("error.html", error_message="Please log in")
     user_array = server_api.get_user(user_id)

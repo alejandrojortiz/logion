@@ -77,18 +77,13 @@ function handleSavePredictionClick(event) {
   const prediction = ancestor.querySelector(
     ".prediction-text-container"
   ).innerText;
-  console.log("CLICKED PREDICTION SAVE");
-
-  // Get prediction info
-  const tokenNum = $("#token-number").val();
-  const time = new Date().toLocaleDateString();
-
-  let textID = window.location.pathname.split("/");
-  textID = textID[3];
   // When saving a prediction on the new project page,
   // must prompt user for a project name and save the project
   // first, then go through the steps of saving the prediction
   // and redirect user to saved project page
+  let textID = window.location.pathname.split("/");
+  textID = textID[3];
+  const time = new Date().toLocaleString();
   if (textID === "newProject") {
     const textName = prompt("Enter a name for this text:");
     if (!textName) {
@@ -103,7 +98,7 @@ function handleSavePredictionClick(event) {
       return; // Client must enter a name to save a prediction
     }
     // Get text content of the textarea
-    text = $("#editor").val();
+    text = $("#editor-div").prop('innerText');
     if (text == "") {
       let notyf = new Notyf();
       notyf.error("Can't save empty text");
@@ -117,19 +112,18 @@ function handleSavePredictionClick(event) {
       user_id: userID,
       text: text,
       text_name: textName,
-      time: new Date().toLocaleString(),
+      time: time,
       new: "true",
     };
     request = $.post("/saveProject", saveTransfer, (response) => {
       textID = Number(response);
       // Save prediction
       const transfer = {
-        token_number: tokenNum,
-        prediction: prediction,
         prediction_name: predictionName,
+        prediction: prediction,
         text_id: textID,
         save_time: time,
-        prediction_blob: "TEST",
+        prediction_blob: JSON.stringify(getPageState()),
         redirect: "true",
         user_id: userID,
       };
@@ -148,12 +142,11 @@ function handleSavePredictionClick(event) {
   const predictionName = prompt("Enter prediction name");
   if (!predictionName) return; // Client must enter a name to save a prediction
   const transfer = {
-    token_number: tokenNum,
     prediction: prediction,
     prediction_name: predictionName,
     text_id: textID,
     save_time: time,
-    prediction_blob: "TEST",
+    prediction_blob: JSON.stringify(getPageState()),
   };
   console.log("TRANSFER", transfer);
   request = $.post("/savePrediction", transfer, handleSavePredictionResponse);
@@ -261,20 +254,16 @@ function handleDeleteClick(event) {
 
 // Called when a save prediction button is clicked
 // Gets the page state and information about the prediction
-function getPageState(event) {
-  const button = event.target;
-  const ancestor = button.closest(".single-prediction-container");
-  const prediction = ancestor.querySelector(".prediction-text-container");
+function getPageState() {
+
   let obj = {
-    text: $("#editor").val(),
+    text: document.getElementById('textarea-container').innerHTML,
+    prediction_output: document.getElementById('prediction-container').innerHTML,
     numTokens: $("#token-number").val(),
-    prediction: prediction,
-    prefix: "",
-    suffix: "",
-    distance: "",
-    highlightStart: $("#editor").prop("predictionStart"),
-    highlightEnd: $("#editor").prop("predictionEnd"),
+    prefix: $('#prefix').val(),
+    suffix: $('#suffix').val(),
   };
+  return obj;
 }
 function refocus() {
   document.getElementById("editor").focus();
@@ -284,6 +273,25 @@ function handleLogOutClick() {
   $.get("/logout", (response) => {
     window.location.href = response;
   });
+}
+
+function handlePredictionDblClick(event) {
+  let textID = window.location.pathname.split("/");
+  textID = textID[3];
+  let textName = event.target.innerText.split(':')[0];
+  const transfer = {
+    text_id: textID,
+    prediction_name: textName
+  }
+  $.post("/populatePrediction", transfer, (response) => {
+    const obj = JSON.parse(response);
+    const blob = JSON.parse(obj['prediction_blob']);
+    document.getElementById('textarea-container').innerHTML = blob['text'];
+    document.getElementById('prediction-container').innerHTML = blob['prediction_output'];
+    document.getElementById('suffix').value = blob['suffix'];
+    document.getElementById('prefix').value = blob['prefix'];
+    document.getElementById('token-number').value = blob['numTokens'];
+  })
 }
 // function handleLockClick() {
 //   const lock = document.getElementById("lock-button");

@@ -284,7 +284,6 @@ def get_text_id(user_id, text_name):
     else:
         return result.text_id
 
-
 def get_predictions(text_id: int):
     ''''
     Function that returns arrays of dicts where each dict is a row of prediction query. Each

@@ -20,6 +20,7 @@ import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from user import User
+from json import dumps
 #from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
@@ -270,46 +271,45 @@ def save_prediction():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     prediction_name = data['prediction_name'][0]
+    prediction = data['prediction'][0]
     text_id = data['text_id'][0]
+    prediction_json = data['prediction_blob'][0]
     
-    # checking if prediction_name already exists in the database
-    if server_api.confirm_prediction(prediction_name, text_id):
-        update_dict = {}
-        if data.get("prediction"):
-            update_dict['prediction'] = data.get("prediction")[0]
-        if data.get("text_id"):
-            update_dict['text_id'] = data.get("text_id")[0]
-        if data.get("token_number"):
-            update_dict['token_number'] = data.get("token_number")[0]
-        if data.get("save_time"):
-            update_dict['save_time'] = data.get('save_time')[0]
-        if data.get("prediction_blob"):
-            prediction_blob = bytes(data.get("prediction_blob")[0], 'utf-8')
-            update_dict['prediction_blob'] = prediction_blob
+    # # checking if prediction_name already exists in the database
+    # if server_api.confirm_prediction(prediction_name, text_id):
+    #     update_dict = {}
+    #     if data.get("prediction"):
+    #         update_dict['prediction'] = data.get("prediction")[0]
+    #     if data.get("text_id"):
+    #         update_dict['text_id'] = data.get("text_id")[0]
+    #     if data.get("token_number"):
+    #         update_dict['token_number'] = data.get("token_number")[0]
+    #     if data.get("save_time"):
+    #         update_dict['save_time'] = data.get('save_time')[0]
+    #     if data.get("prediction_blob"):
+    #         prediction_blob = bytes(data.get("prediction_blob")[0], 'utf-8')
+    #         update_dict['prediction_blob'] = prediction_blob
 
-        prediction_id = 0
-        for row in server_api.get_predictions(data['text_id'][0]):
-            if row['prediction_name'] == data['prediction_name'][0]:
-                prediction_id = row['prediction_id']
+    #     prediction_id = 0
+    #     for row in server_api.get_predictions(data['text_id'][0]):
+    #         if row['prediction_name'] == data['prediction_name'][0]:
+    #             prediction_id = row['prediction_id']
 
-        server_api.update_text(update_dict, prediction_id)
-        if (data.get('redirect', 'false') != 'false'):
-            return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
-        else:
-            return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+    #     server_api.update_text(update_dict, prediction_id)
+    #     if (data.get('redirect', 'false') != 'false'):
+    #         return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
+    #     else:
+    #         return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+    # else:
+    save_time = data['save_time'][0]
+    
+    server_api.upload_prediction(prediction, text_id, 0, prediction_name,
+                    save_time, bytes(prediction_json, 'utf-8'))
+    if (data.get('redirect', 'false') != 'false'):
+        return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
     else:
-        prediction = data['prediction'][0]
-        token_number = data['token_number'][0]
-        save_time = data['save_time'][0]
-        prediction_blob = bytes(data['prediction_blob'][0], 'utf-8')
-        
-        server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
-                      save_time, prediction_blob)
-        if (data.get('redirect', 'false') != 'false'):
-            return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
-        else:
-            return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
-        # return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+        return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+    # return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):
@@ -344,3 +344,18 @@ def logout():
 @app.route("/saveIP", methods=['POST'])
 def saveIP():
     pass
+
+@app.route("/populatePrediction", methods=['POST'])
+def populate_prediction():
+    # get predictions for repopulating prediction area when restoring a prediction
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    predictions = server_api.get_predictions(data['text_id'][0])
+    prediction = None
+    for prediction_dict in predictions:
+        if prediction_dict["prediction_name"] == data['prediction_name'][0]:
+            prediction = prediction_dict
+            prediction['prediction_blob'] = prediction['prediction_blob'].decode('utf-8')
+
+    return dumps(prediction)

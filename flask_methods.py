@@ -19,7 +19,6 @@ import requests as req
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
-import string
 from user import User
 #from temp_pred import main as predict
 

@@ -12,22 +12,24 @@ Generic debounce function
 Used in the selectionchange event listener to limit the number of 
 selectionchange events that trigger a highlight capture 
 */
-function debounce(fn, delay) {
-  let timer = null;
-  return function () {
-    var context = this,
-      args = arguments;
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      fn.apply(context, args);
-    }, delay);
-  };
-}
-const DEBOUNCE_DURATION = 100;
-document.addEventListener(
-  "selectionchange",
-  debounce(getHighlight, DEBOUNCE_DURATION)
-);
+// function debounce(fn, delay) {
+//   let timer = null;
+//   return function () {
+//     var context = this,
+//       args = arguments;
+//     clearTimeout(timer);
+//     timer = setTimeout(function () {
+//       fn.apply(context, args);
+//     }, delay);
+//   };
+// }
+// const DEBOUNCE_DURATION = 100;
+// document.addEventListener(
+//   "selectionchange",
+//   debounce(getHighlight, DEBOUNCE_DURATION)
+// );
+let textArea = document.getElementById("editor");
+let textDiv = null;
 
 // Gets the highlighted text in the textarea element with id=editor
 function getHighlight() {
@@ -40,14 +42,24 @@ function getHighlight() {
   const numTokens = $("#token-number").val();
   // Get the text up the start of the selection
   let ret = text.substring(0, editor.prop("selectionStart"));
+  let styledText = ret;
   // Replace selection with the appropriate number of tokens
   for (let i = 0; i < numTokens; i++) {
-    if (i == 0) ret += " {tok.mask_token} ";
-    else ret += "{tok.mask_token} ";
+    if (i == 0) {
+      ret += " {tok.mask_token} ";
+      styledText +=
+        "<span style='background-color: mediumblue; color: white;'>";
+    } else ret += "{tok.mask_token} ";
   }
+  styledText += text.substring(
+  editor.prop("selectionStart"),
+  editor.prop("selectionEnd")
+  );
+  styledText += "</span>";
+  styledText += text.substring(editor.prop("selectionEnd"));
   // Get the rest of the text after the end of the selection
   ret += text.substring(editor.prop("selectionEnd"));
-  return ret;
+  return { 'text': ret, 'styledText': styledText };
 }
 
 // Handles the response from saving a prediction
@@ -124,7 +136,7 @@ function handleSavePredictionClick(event) {
       request = $.post("/savePrediction", transfer, (response) => {
         window.location.href = response;
         let lastNotyf = new Notyf();
-        lastNotyf.success("Prediction saved!")
+        lastNotyf.success("Prediction saved!");
       });
     });
     return;
@@ -198,14 +210,29 @@ function handlePredictResponse(response) {
 // Handles a click of the prediction button
 function handlePredictClick() {
   console.log("Clicked");
-  const text = getHighlight();
+  const texts = getHighlight();
+  const text = texts["text"];
+  if (!text) return;
   const numTokens = $("#token-number").val();
   if (numTokens >= 2) {
     let notyf = new Notyf();
     notyf.success("Prediction queued");
-    $("#prediction-output").html("<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>")
+    $("#prediction-output").html(
+      "<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>"
+    );
   }
-  if (!text) return;
+  textArea = document.getElementById("editor"); // save current textarea state
+  if (!textDiv) {
+    textDiv = document.createElement("div");
+    textDiv.id = "editor";
+    textDiv.style.overflowY = "auto";
+    textDiv.style.maxHeight = "100%";
+    console.log(text);
+  }
+  textDiv.innerHTML = texts["styledText"].replaceAll('\n', "<br>"); // update textDiv
+  console.log("SIZE:", textDiv.style);
+  document.getElementById("textarea-container").innerHTML = "";
+  document.getElementById("textarea-container").appendChild(textDiv);
   transfer = {
     text: text,
     numTokens: numTokens,
@@ -214,6 +241,12 @@ function handlePredictClick() {
   };
   request = $.post("/predict", transfer, handlePredictResponse);
   document.getElementById("editor").focus();
+}
+
+// Handles a click of the lock button
+function handleLockClick() {
+  document.getElementById("textarea-container").innerHTML = "";
+  document.getElementById("textarea-container").appendChild(textArea);
 }
 
 // Handles a click of a delete button for a prediction
@@ -249,7 +282,7 @@ function handleLogOutClick() {
   console.log("logout clicked");
   $.get("/logout", (response) => {
     window.location.href = response;
-  })
+  });
 }
 // function handleLockClick() {
 //   const lock = document.getElementById("lock-button");

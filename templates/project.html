@@ -43,11 +43,12 @@
     </div>
     {% if current_user.is_authenticated %}
     <p id="text-name">{{text_name}}</p>
+    <span id="lock-button" onclick="handleLockClick()">Lock</span>
     <div id="main-content">
       <div id="prediction-area">
         <div id="work-area">
           <div id="textarea-container">
-            <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
+            <textarea wrap="soft" id="editor" style="font-size: 1em;">{{uploaded}}</textarea>
           </div>
           <div id="prediction-container">
             <div id="prediction-output"></div>

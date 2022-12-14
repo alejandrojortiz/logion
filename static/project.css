@@ -185,7 +185,9 @@ button {
     margin-left: 6%;
     font-size: 1em;
 }
-
+#editor {
+    font-size: 1em;
+}
 /* Animation styles for prediction loader */
 .loader {
     width: 48px;

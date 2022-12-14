@@ -42,9 +42,11 @@
       {% endif %}
     </div>
     {% if current_user.is_authenticated %}
-    <p id="text-name">{{text_name}}</p>
-    <span id="lock-button" onclick="handleLockClick()">Lock</span>
     <div id="main-content">
+      <div id="label-container">
+        <span id="lock-button" onclick="handleLockClick()">Lock</span>
+        <p id="text-name">{{text_name}}</p>
+        </div>
       <div id="prediction-area">
         <div id="work-area">
           <div id="textarea-container">

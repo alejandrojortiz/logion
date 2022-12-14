@@ -224,13 +224,13 @@ function handlePredictClick() {
   textArea = document.getElementById("editor"); // save current textarea state
   if (!textDiv) {
     textDiv = document.createElement("div");
-    textDiv.id = "editor";
+    textDiv.id = "editor-div";
     textDiv.style.overflowY = "auto";
     textDiv.style.maxHeight = "100%";
+    textDiv.style.fontFamily = 'monospace'
     console.log(text);
   }
   textDiv.innerHTML = texts["styledText"].replaceAll('\n', "<br>"); // update textDiv
-  console.log("SIZE:", textDiv.style);
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textDiv);
   transfer = {
@@ -247,6 +247,7 @@ function handlePredictClick() {
 function handleLockClick() {
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textArea);
+  document.getElementById("prediction-output").innerHTML = "";
 }
 
 // Handles a click of a delete button for a prediction

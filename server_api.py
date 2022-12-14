@@ -136,12 +136,20 @@ def confirm_text(text_name:str, user_id:str):
     else:
         return True
     
-def delete_text(text_name:str, user_id:str):
+def delete_text(text_id):
     '''
     Function that deletes text from the database based off text name
     '''
     
-    stmt = delete(Text).where(Text.text_name == text_name).where(Text.user_id==user_id)
+    # delete predictions
+    predictions = get_predictions(text_id)
+    
+    for prediction in predictions:
+        prediction_name = prediction["prediction_name"]
+        delete_prediction(prediction_name, text_id)
+
+    # delete project
+    stmt = delete(Text).where(Text.text_id == text_id)
     
     conn = engine.connect(engine)
     result = conn.execute(stmt)

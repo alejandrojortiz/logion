@@ -7,27 +7,6 @@ Author: Alejandro Ortiz
 
 //----------------------------------------------------------------------
 
-/* 
-Generic debounce function
-Used in the selectionchange event listener to limit the number of 
-selectionchange events that trigger a highlight capture 
-*/
-// function debounce(fn, delay) {
-//   let timer = null;
-//   return function () {
-//     var context = this,
-//       args = arguments;
-//     clearTimeout(timer);
-//     timer = setTimeout(function () {
-//       fn.apply(context, args);
-//     }, delay);
-//   };
-// }
-// const DEBOUNCE_DURATION = 100;
-// document.addEventListener(
-//   "selectionchange",
-//   debounce(getHighlight, DEBOUNCE_DURATION)
-// );
 let textArea = document.getElementById("editor");
 let textDiv = null;
 
@@ -234,7 +213,7 @@ function handlePredictClick() {
     textDiv.id = "editor-div";
     textDiv.style.overflowY = "auto";
     textDiv.style.maxHeight = "100%";
-    textDiv.style.fontFamily = 'monospace'
+    textDiv.style.fontFamily = 'monospace';
   }
   textDiv.innerHTML = texts["styledText"].replaceAll('\n', "<br>"); // update textDiv
   if (child.id != "editor-div") textArea = document.getElementById("editor"); // save current textarea state
@@ -246,12 +225,13 @@ function handlePredictClick() {
     prefix: $("#prefix").val(),
     suffix: $("#suffix").val(),
   };
+  document.getElementById('lock-button').style.display = 'inline-block';
   request = $.post("/predict", transfer, handlePredictResponse);
-  document.getElementById("editor").focus();
 }
 
 // Handles a click of the lock button
-function handleLockClick() {
+function handleLockTextClick(event) {
+  document.getElementById('lock-button').style.display = 'none';
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textArea);
   document.getElementById("prediction-output").innerHTML = "";
@@ -269,7 +249,6 @@ function handleDeleteClick(event) {
 // Called when a save prediction button is clicked
 // Gets the page state and information about the prediction
 function getPageState() {
-
   let obj = {
     text: document.getElementById('textarea-container').innerHTML,
     prediction_output: document.getElementById('prediction-container').innerHTML,
@@ -280,7 +259,7 @@ function getPageState() {
   return obj;
 }
 function refocus() {
-  document.getElementById("editor").focus();
+  if (textArea) textArea.focus();
 }
 function handleLogOutClick() {
   console.log("logout clicked");
@@ -292,11 +271,14 @@ function handleLogOutClick() {
 function handlePredictionDblClick(event) {
   let textID = window.location.pathname.split("/");
   textID = textID[3];
-  let textName = event.target.innerText.split(':')[0];
+  const child = event.target;
+  const ancestor = child.closest('.saved-prediction-text-container');
+  const predictionName = ancestor.querySelector('.saved-prediction-name').innerText;
   const transfer = {
     text_id: textID,
-    prediction_name: textName
+    prediction_name: predictionName.replace(':', '\:')
   }
+  document.getElementById('lock-button').style.display = 'inline-block';
   $.post("/populatePrediction", transfer, (response) => {
     const obj = JSON.parse(response);
     const blob = JSON.parse(obj['prediction_blob']);
@@ -307,17 +289,17 @@ function handlePredictionDblClick(event) {
     document.getElementById('token-number').value = blob['numTokens'];
   })
 }
-// function handleLockClick() {
-//   const lock = document.getElementById("lock-button");
-//   const editor = document.getElementById("editor");
-//   if (lock.className === "unlocked") {
-//     editor.readOnly = true;
-//     editor.style.backgroundColor = '#e3e1e1';
-//     lock.className = "locked";
-//   }
-//   else {
-//     editor.readOnly = false;
-//     editor.style.backgroundColor = 'inherit';
-//     lock.className = "unlocked";
-//   }
-// }
+function handleDeleteSavedPredictionClick(event) {
+  const button = event.target;
+  const ancestor = button.closest(".saved-prediction-container");
+  const predictionName = ancestor.querySelector('.saved-prediction-name').innerText;
+  let textID = window.location.pathname.split("/");
+  textID = textID[3];
+  const transfer = {
+    text_id: textID,
+    prediction_name: predictionName.replaceAll(':', '\:')
+  }
+  $.post('/deletePrediction', transfer, (response) => {
+    ancestor.remove();
+  })
+}

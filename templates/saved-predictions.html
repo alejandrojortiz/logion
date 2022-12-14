@@ -1,3 +1,9 @@
 {% for row in prediction_array: %}
-    <p style="margin-top: 0.2em; margin-bottom: 0.2em;" ondblclick="handlePredictionDblClick(event)">{{"%s:" % row.prediction_name}} {{"%s" % row.prediction_output}}</p>
+<div class="saved-prediction-container">
+    <div class="saved-prediction-text-container" style="margin-top: 0.2em; margin-bottom: 0.2em;" ondblclick="handlePredictionDblClick(event)">
+        <p style="margin: 0; margin-right: 0.2em;" class="saved-prediction-name">{{"%s:" % row.prediction_name}}</p>
+        <p styel="margin: 0;" class="saved-prediction-output">{{"%s" % row.prediction_output}}</p>
+    </div>  
+    <button type="button" class="delete-prediction-button" style="color: red;" onclick="handleDeleteSavedPredictionClick(event)">&#x2715</button>
+</div>
 {% endfor %}

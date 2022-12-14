@@ -332,7 +332,18 @@ def delete_project():
     data = urllib.parse.parse_qs(data)
     text_name = data['text_name'][0]
     user_id = data['user_id'][0]
-    server_api.delete_text(text_name=text_name, user_id=user_id)
+    text_id = server_api.get_text_id(user_id=user_id, text_name=text_name)
+    server_api.delete_text(text_id=text_id)
+    return ""
+
+@app.route('/deletePrediction', methods=['POST'])
+def delete_prediction():
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    text_id = data['text_id'][0]
+    prediction_name = data['prediction_name'][0].replace("\:", ':')[:-1]
+    server_api.delete_prediction(prediction_name=prediction_name, text_id=text_id)
     return ""
 
 @app.route("/logout")
@@ -351,11 +362,12 @@ def populate_prediction():
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
+    print("DATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", data)
     predictions = server_api.get_predictions(data['text_id'][0])
     prediction = None
     for prediction_dict in predictions:
-        if prediction_dict["prediction_name"] == data['prediction_name'][0]:
+        if prediction_dict["prediction_name"] == data['prediction_name'][0].replace("\:", ':')[:-1]:
             prediction = prediction_dict
             prediction['prediction_blob'] = prediction['prediction_blob'].decode('utf-8')
-
+    print("PRED:", prediction)
     return dumps(prediction)

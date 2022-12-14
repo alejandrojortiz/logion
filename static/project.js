@@ -203,7 +203,22 @@ function handlePredictResponse(response) {
 // Handles a click of the prediction button
 function handlePredictClick() {
   console.log("Clicked");
-  const texts = getHighlight();
+  const parent =document.getElementById('textarea-container');
+  console.log(parent);
+  const child = parent.firstElementChild;
+  let texts = null;
+  console.log("ID:", child.id)
+  if (child.id == "editor-div") {
+    document.getElementById('textarea-container').innerHTML = "";
+    console.log("AREA", textArea);
+    document.getElementById('textarea-container').appendChild(textArea);
+    texts = getHighlight();
+    document.getElementById('textarea-container').innerHTML = "";
+    document.getElementById('textarea-container').appendChild(child);
+  }
+  else {
+   texts = getHighlight();
+  }
   const text = texts["text"];
   if (!text) return;
   const numTokens = $("#token-number").val();
@@ -214,16 +229,15 @@ function handlePredictClick() {
       "<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>"
     );
   }
-  textArea = document.getElementById("editor"); // save current textarea state
   if (!textDiv) {
     textDiv = document.createElement("div");
     textDiv.id = "editor-div";
     textDiv.style.overflowY = "auto";
     textDiv.style.maxHeight = "100%";
     textDiv.style.fontFamily = 'monospace'
-    console.log(text);
   }
   textDiv.innerHTML = texts["styledText"].replaceAll('\n', "<br>"); // update textDiv
+  if (child.id != "editor-div") textArea = document.getElementById("editor"); // save current textarea state
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textDiv);
   transfer = {

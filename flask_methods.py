@@ -204,9 +204,7 @@ def predict():
         if c not in letters:
             return ''
     num_tokens = data.get('num_tokens', 2)
-    if not num_tokens.isnumeric():
-        return ''
-    if not int(num_tokens) > 0:
+    if not num_tokens > 0:
         return ''
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)

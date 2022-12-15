@@ -384,7 +384,7 @@ def saveIP():
 
 @app.route("/populatePrediction", methods=['POST'])
 def populate_prediction():
-    # get predictions for repopulating prediction area when restoring a prediction
+    # get predictions for repopulating prediction area when restoring a prediction 
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)

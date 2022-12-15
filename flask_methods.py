@@ -38,6 +38,7 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.get(user_id)
 
+prev_pred = False
 #-----------------------------------------------------------------------
 
 @app.route('/', methods=['GET'])
@@ -175,8 +176,11 @@ def project(user_id, text_id):
         print("ARRAY:", prediction_array)
         #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
+    global prev_pred
     html_code = flask.render_template("project.html", text_name=text_name, uploaded=uploaded,
-                                      prediction_array=prediction_array, user_id = user_id)
+                                      prediction_array=prediction_array, user_id = user_id, prev_pred=prev_pred)
+    if (prev_pred):
+        prev_pred = False
     response = flask.make_response(html_code)
 
     return response
@@ -256,6 +260,7 @@ def save_project():
     user_id = data['user_id'][0]
     is_new = data.get("new", "false")
 
+    print("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
     # checking if text_name already exists in the database
     if (is_new != "false"):
         text = data['text'][0]
@@ -270,6 +275,7 @@ def save_project():
         time = data['time'][0]
         server_api.upload_text(text, text_name, user_id, time)
         return flask.url_for('/project', user_id=user_id, text_id=server_api.get_text_id(user_id=user_id, text_name=text_name))
+
     else:
         dict = {}
         if data.get("text"):
@@ -327,6 +333,8 @@ def save_prediction():
     server_api.upload_prediction(prediction, text_id, 0, prediction_name,
                     save_time, bytes(prediction_json, 'utf-8'))
     if (data.get('redirect', 'false') != 'false'):
+        global prev_pred
+        prev_pred = True
         return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
     else:
         return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))

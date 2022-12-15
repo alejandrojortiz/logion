@@ -103,7 +103,19 @@
     {% else %}
     <p>Please log in</p>
     {% endif %}
-    <script src={{url_for("static", filename="project.js")}} async defer>
+    <script src={{url_for("static", filename="project.js")}}>
     </script>
+    {% if prev_pred %}
+    <script>
+      const prevPredDiv = document.getElementById('prev-predictions-container');
+      const firstPred = prevPredDiv.querySelector('.saved-prediction-text-container');
+      if (firstPred) {
+        let e = new Event('dblclick');
+      firstPred.dispatchEvent(e);
+      console.log("DONE");
+      }
+    </script>
+    {% endif %}
+    
   </body>
 </html>

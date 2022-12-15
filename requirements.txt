@@ -27,6 +27,7 @@ executing==1.0.0
 fastjsonschema==2.16.1
 filelock==3.8.0
 Flask==2.2.2
+Flask-Login==0.6.2
 fonttools==4.37.1
 google==3.0.0
 google-auth==2.14.0

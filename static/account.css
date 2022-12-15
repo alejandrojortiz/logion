@@ -11,11 +11,24 @@ body {
   #project-link-container {
     padding: 0.2em;
     border: 1.5px #959595 solid;
-border-radius: 10px;
+    border-radius: 10px;
     width: 80%;
+    height: 15em;
+    overflow-y: auto;
   }
   .project-link-row {
     margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+  }
+  .project-link-row:hover {
+    background-color: #e3e1e1;
+  }
+  .project-link-row button:hover {
+    color: white !important;
   }
   .project-link {
     text-decoration: underline;
@@ -48,6 +61,7 @@ border-radius: 10px;
     border: 0px;
     border-radius: 30px;
     font-family: Goldman-Sans-Black;
+    cursor: pointer;
   }
   #main-content {
     display: flex;
@@ -72,3 +86,12 @@ border-radius: 10px;
     margin-left: 10%;
     font-weight: 200;
   }
+  .delete-project-button {
+    background-color: inherit;
+    border: none;
+    margin: 0;
+    display: inline-block;
+  }
+  .delete-project-button:hover {
+    color: black !important; /* X button has inline style to be red, need to overwrite*/
+}

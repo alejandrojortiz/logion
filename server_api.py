@@ -4,15 +4,27 @@ functions responsible for all query interactions with the logion database
 authors: Eugene Liu
 
 '''
+from sqlalchemy import text as esc_text
 from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Identity, LargeBinary
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import insert, select, delete
 
-# uncomment for local
-#db_string = "sqlite:////database.db"
-db_string = "postgresql://eitohxzsrpboeq:14718d25bf62d075842a7760aa27d4ccc4dae0b61b03cab2d426739a35d42507@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d7nh6ggfp9agvo"
-engine = create_engine(db_string, echo=True)
+
+
+# FOR LOCAL TESTING:
+# from sqlalchemy_utils import database_exists, create_database
+# db_string = "sqlite:///testDB.db"
+# engine = create_engine(db_string)
+
+# if not database_exists(engine.url):
+#     create_database(engine.url)
+    
+#FOR HOSTING
+db_string = "postgresql://puycmyesqupjqt:329837e3a18d72b5b7dcbd08b3073831b3c1621e71fbca46f767a9691fe4b311@ec2-54-159-175-38.compute-1.amazonaws.com:5432/d32u7f4lie15tr"
+engine = create_engine(db_string, echo=True, pool_pre_ping=True)
+
+
 base = declarative_base()
 
 # declaring users table
@@ -73,76 +85,82 @@ class Prediction(base):
         self.prediction_blob = prediction_blob
         
 base.metadata.create_all(engine)
-engine.dispose()
 
 def confirm_user(user_id:str):
     '''Function that checks if user is in the database'''
     conn = engine.connect()
 
     stmt = select(User).where(User.user_id == user_id)
-    result = conn.execute(stmt)
-    
+    result = conn.execute(stmt).first()
+    print("RESULT---------------------------------------")
     conn.close()
     
-    print("we are getting a result")
-    if result is None:
+    if (not result):
         return False
     else:
         return True
 
-def confirm_prediction(prediction_name:str):
+def confirm_prediction(prediction_name:str, text_id:int):
     '''
     Function that checks if prediciton name is in the database. Returns true if name is not in database, false if
     prediction name already exists
     '''
     
-    stmt = select(Prediction).where(Prediction.prediction_name==prediction_name)
+    stmt = select(Prediction).where(Prediction.prediction_name==prediction_name).where(Prediction.text_id==text_id)
     
     conn = engine.connect()
-    result = conn.execute(stmt)
+    result = conn.execute(stmt).first()
     
     conn.close()
     
     if result is None:
-        return True
-    else:
         return False
+    else:
+        return True
     
-def confirm_text(text_name:str):
+def confirm_text(text_name:str, user_id:str):
     '''
     Function that checks if text name is in the database. Returns true if name is not in database, false if
     text name already exists
     '''
 
-    stmt = select(Text).where(Text.text_name==text_name)
+    stmt = select(Text).where(Text.text_name==text_name).where(Text.user_id==user_id)
     
     conn = engine.connect()
-    result = conn.execute(stmt)
+    result = conn.execute(stmt).first()
     
     conn.close()
     
     if result is None:
-        return True
-    else:
         return False
+    else:
+        return True
     
-def delete_text(text_name:str):
+def delete_text(text_id):
     '''
     Function that deletes text from the database based off text name
     '''
     
-    stmt = delete(Text).where(Text.text_name == text_name)
+    # delete predictions
+    predictions = get_predictions(text_id)
+    
+    for prediction in predictions:
+        prediction_name = prediction["prediction_name"]
+        delete_prediction(prediction_name, text_id)
+
+    # delete project
+    stmt = delete(Text).where(Text.text_id == text_id)
     
     conn = engine.connect(engine)
     result = conn.execute(stmt)
     conn.close()
 
-def delete_prediction(prediction_name:str):
+def delete_prediction(prediction_name:str, text_id:str):
     '''
     Function that deletes prediction from the database based off prediction name
     '''
     
-    stmt = delete(Prediction).where(Prediction.prediction_name == prediction_name)
+    stmt = delete(Prediction).where(Prediction.prediction_name == prediction_name).where(Prediction.text_id==text_id)
     
     conn = engine.connect(engine)
     result = conn.execute(stmt)
@@ -210,7 +228,7 @@ def get_user(user_id:str):
     conn = engine.connect()
     
     # creating SQL statement
-    stmt = select(Text).where(Text.user_id == user_id)
+    stmt = select(User).where(User.user_id == user_id)
     result = conn.execute(stmt)
     
     conn.close()
@@ -218,10 +236,9 @@ def get_user(user_id:str):
     if result is None:
         return []
     
-    text_array = []
+    user_dict = {}
     for user in result:
         user = list(user)
-        user_dict = {}
         
         user_dict["user_id"] = user[0]
         user_dict["name"] = user[1]
@@ -229,9 +246,8 @@ def get_user(user_id:str):
         user_dict["institution"] = user[3]
         user_dict["position"] = user[4]
         user_dict["ip_address"] = user[5]
-        text_array.append(user_dict)
         
-    return text_array[0]
+    return user_dict
 
 def get_text(user_id:str):
     '''
@@ -264,6 +280,18 @@ def get_text(user_id:str):
 
     return text_array
 
+def get_text_id(user_id, text_name):
+    conn = engine.connect()
+    stmt = select(Text).where(Text.text_name==text_name).where(Text.user_id==user_id)
+    
+    conn = engine.connect()
+    result = conn.execute(stmt).first()
+    print(result)
+    if result is None:
+        return False
+    else:
+        return result.text_id
+
 def get_predictions(text_id: int):
     ''''
     Function that returns arrays of dicts where each dict is a row of prediction query. Each
@@ -289,12 +317,12 @@ def get_predictions(text_id: int):
         prediction_dict = {}
         
         prediction_dict["prediction_id"] = prediction[0]
-        prediction_dict["token_number"] = prediction[1]
-        prediction_dict["text_id"] = prediction[2]
+        prediction_dict["text_id"] = prediction[1]
+        prediction_dict["token_number"] = prediction[2]
         prediction_dict["prediction_name"] = prediction[3]
         prediction_dict["prediction_output"] = prediction[4]
         prediction_dict["save_time"] = prediction[5]
-        prediction_dict["prediction_blob"]       
+        prediction_dict["prediction_blob"] = prediction[6]  
         prediction_array.append(prediction_dict)
 
     return prediction_array
@@ -307,7 +335,7 @@ def upload_text(text: str, text_name: str, user_id: str, save_time: str):
 
     # execution of stmt
     conn = engine.connect()
-    result = conn.execute(stmt)
+    result = conn.execute(stmt) # no need for text escape when using insert
     conn.close()
         
 
@@ -331,17 +359,21 @@ def update_text(update_dict: dict, text_id):
     '''Updates text by passing in a dictionary of values and columns to modify
        as well as a text_id
     '''
-    columns = update_dict.keys
+
+    print("TEXT ID:", text_id)
+    columns = update_dict.keys()
+    
+    SQL_str = "UPDATE texts SET "
     for i, col in enumerate(columns):
         if i == 0:
-            SQL_str += col + "=" + update_dict[col]
+            SQL_str += col + "=" + "\'"  + update_dict[col] + "\'"
         else:
-            SQL_str += ", " + col + "=" + update_dict[col]
+            SQL_str += ", " + col + "=" + "\'" + update_dict[col] + "\'" + " "
     
     SQL_str += "WHERE text_id=" + str(text_id)
 
     with engine.connect() as con:
-        rs = con.execute(SQL_str)
+        rs = con.execute(esc_text(SQL_str))
         con.close()
 
 
@@ -351,13 +383,13 @@ def update_prediction(update_dict: dict, prediction_id: int):
     '''
     SQL_str = "UPDATE predictions SET "
     
-    columns = update_dict.keys
+    columns = update_dict.keys()
     for i, col in enumerate(columns):
         
         if i == 0:
-            SQL_str += col + "=" + update_dict[col]
+            SQL_str += col + "=" + "\'" + update_dict[col] + "\'"
         else:
-            SQL_str += ", " + col + "=" + update_dict[col]
+            SQL_str += ", " + col + "=" + "\'" + update_dict[col] + "\'"
     
     SQL_str += "WHERE prediction_id=" + str(prediction_id)
 

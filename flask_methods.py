@@ -253,7 +253,9 @@ def save_project():
         text = urllib.parse.quote(text)
         time = data['time'][0]
         server_api.upload_text(text, text_name, user_id, time)
-        return ""
+        text_id = server_api.get_text_id(user_id=user_id, text_name=text_name)
+        print("ID::::::::::::::::::::", text_id)
+        return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
     else:
         dict = {}
         if data.get("text"):

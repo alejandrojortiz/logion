@@ -31,14 +31,14 @@ function getHighlight() {
     } else ret += "{tok.mask_token} ";
   }
   styledText += text.substring(
-  editor.prop("selectionStart"),
-  editor.prop("selectionEnd")
+    editor.prop("selectionStart"),
+    editor.prop("selectionEnd")
   );
   styledText += "</span>";
   styledText += text.substring(editor.prop("selectionEnd"));
   // Get the rest of the text after the end of the selection
   ret += text.substring(editor.prop("selectionEnd"));
-  return { 'text': ret, 'styledText': styledText };
+  return { text: ret, styledText: styledText };
 }
 
 // Handles the response from saving a prediction
@@ -77,7 +77,7 @@ function handleSavePredictionClick(event) {
       return; // Client must enter a name to save a prediction
     }
     // Get text content of the textarea
-    text = $("#editor-div").prop('innerText');
+    text = $("#editor-div").prop("innerText");
     if (text == "") {
       let notyf = new Notyf();
       notyf.error("Can't save empty text");
@@ -141,16 +141,6 @@ function handleSaveProjectResponse(response) {
 // Handles a click of the save project button
 function handleSaveProjectClick() {
   // console.log($("#text-name").prop("innerText"));
-
-  // Check if there is already a text name (true for projects that have
-  // already been saved) or prompt user to enter one if not
-  if ($("#text-name").prop("innerText")) {
-    textName = $("#text-name").prop("innerText");
-  } else {
-    textName = prompt("Enter text name");
-  }
-  if (!textName) return; // User must enter a text name to save a project
-
   // Get text content of the textarea
   text = $("#editor").val();
   if (text == "") {
@@ -158,10 +148,28 @@ function handleSaveProjectClick() {
     notyf.error("Can't save empty text");
     return;
   }
-
   // Get user id
   userID = window.location.pathname.split("/");
   userID = userID[2];
+
+  // Check if there is already a text name (true for projects that have
+  // already been saved) or prompt user to enter one if not
+  if ($("#text-name").prop("innerText")) {
+    textName = $("#text-name").prop("innerText");
+  } else {
+    textName = prompt("Enter text name");
+    if (!textName) return; // User must enter a text name to save a project
+    // Send data to server
+    transfer = {
+      user_id: userID,
+      text: text,
+      text_name: textName,
+      time: new Date().toLocaleString(),
+    };
+    request = $.post("/saveProject", transfer, (response) => {
+      window.location.href = response;
+    });
+  }
 
   // Send data to server
   transfer = {
@@ -182,36 +190,35 @@ function handlePredictResponse(response) {
 // Handles a click of the prediction button
 function handlePredictClick() {
   console.log("Clicked");
-  const parent =document.getElementById('textarea-container');
+  const parent = document.getElementById("textarea-container");
   console.log(parent);
   const child = parent.firstElementChild;
   let texts = null;
-  console.log("ID:", child.id)
+  console.log("ID:", child.id);
   if (child.id == "editor-div") {
-    document.getElementById('textarea-container').innerHTML = "";
+    document.getElementById("textarea-container").innerHTML = "";
     console.log("AREA", textArea);
-    document.getElementById('textarea-container').appendChild(textArea);
+    document.getElementById("textarea-container").appendChild(textArea);
     texts = getHighlight();
-    document.getElementById('textarea-container').innerHTML = "";
-    document.getElementById('textarea-container').appendChild(child);
-  }
-  else {
-   texts = getHighlight();
+    document.getElementById("textarea-container").innerHTML = "";
+    document.getElementById("textarea-container").appendChild(child);
+  } else {
+    texts = getHighlight();
   }
   const text = texts["text"];
   if (!text) return;
   const numTokens = $("#token-number").val();
-    $("#prediction-output").html(
-      "<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>"
-    );
+  $("#prediction-output").html(
+    "<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>"
+  );
   if (!textDiv) {
     textDiv = document.createElement("div");
     textDiv.id = "editor-div";
     textDiv.style.overflowY = "auto";
     textDiv.style.maxHeight = "100%";
-    textDiv.style.fontFamily = 'monospace';
+    textDiv.style.fontFamily = "monospace";
   }
-  textDiv.innerHTML = texts["styledText"].replaceAll('\n', "<br>"); // update textDiv
+  textDiv.innerHTML = texts["styledText"].replaceAll("\n", "<br>"); // update textDiv
   if (child.id != "editor-div") textArea = document.getElementById("editor"); // save current textarea state
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textDiv);
@@ -221,13 +228,13 @@ function handlePredictClick() {
     prefix: $("#prefix").val(),
     suffix: $("#suffix").val(),
   };
-  document.getElementById('lock-button').style.display = 'inline-block';
+  document.getElementById("lock-button").style.display = "inline-block";
   request = $.post("/predict", transfer, handlePredictResponse);
 }
 
 // Handles a click of the lock button
 function handleLockTextClick(event) {
-  document.getElementById('lock-button').style.display = 'none';
+  document.getElementById("lock-button").style.display = "none";
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textArea);
   document.getElementById("prediction-output").innerHTML = "";
@@ -246,11 +253,12 @@ function handleDeleteClick(event) {
 // Gets the page state and information about the prediction
 function getPageState() {
   let obj = {
-    text: document.getElementById('textarea-container').innerHTML,
-    prediction_output: document.getElementById('prediction-container').innerHTML,
+    text: document.getElementById("textarea-container").innerHTML,
+    prediction_output: document.getElementById("prediction-container")
+      .innerHTML,
     numTokens: $("#token-number").val(),
-    prefix: $('#prefix').val(),
-    suffix: $('#suffix').val(),
+    prefix: $("#prefix").val(),
+    suffix: $("#suffix").val(),
   };
   return obj;
 }
@@ -268,34 +276,39 @@ function handlePredictionDblClick(event) {
   let textID = window.location.pathname.split("/");
   textID = textID[3];
   const child = event.target;
-  const ancestor = child.closest('.saved-prediction-text-container');
-  const predictionName = ancestor.querySelector('.saved-prediction-name').innerText;
+  const ancestor = child.closest(".saved-prediction-text-container");
+  const predictionName = ancestor.querySelector(
+    ".saved-prediction-name"
+  ).innerText;
   const transfer = {
     text_id: textID,
-    prediction_name: predictionName.replace(':', '\:')
-  }
-  document.getElementById('lock-button').style.display = 'inline-block';
+    prediction_name: predictionName.replace(":", ":"),
+  };
+  document.getElementById("lock-button").style.display = "inline-block";
   $.post("/populatePrediction", transfer, (response) => {
     const obj = JSON.parse(response);
-    const blob = JSON.parse(obj['prediction_blob']);
-    document.getElementById('textarea-container').innerHTML = blob['text'];
-    document.getElementById('prediction-container').innerHTML = blob['prediction_output'];
-    document.getElementById('suffix').value = blob['suffix'];
-    document.getElementById('prefix').value = blob['prefix'];
-    document.getElementById('token-number').value = blob['numTokens'];
-  })
+    const blob = JSON.parse(obj["prediction_blob"]);
+    document.getElementById("textarea-container").innerHTML = blob["text"];
+    document.getElementById("prediction-container").innerHTML =
+      blob["prediction_output"];
+    document.getElementById("suffix").value = blob["suffix"];
+    document.getElementById("prefix").value = blob["prefix"];
+    document.getElementById("token-number").value = blob["numTokens"];
+  });
 }
 function handleDeleteSavedPredictionClick(event) {
   const button = event.target;
   const ancestor = button.closest(".saved-prediction-container");
-  const predictionName = ancestor.querySelector('.saved-prediction-name').innerText;
+  const predictionName = ancestor.querySelector(
+    ".saved-prediction-name"
+  ).innerText;
   let textID = window.location.pathname.split("/");
   textID = textID[3];
   const transfer = {
     text_id: textID,
-    prediction_name: predictionName.replaceAll(':', '\:')
-  }
-  $.post('/deletePrediction', transfer, (response) => {
+    prediction_name: predictionName.replaceAll(":", ":"),
+  };
+  $.post("/deletePrediction", transfer, (response) => {
     ancestor.remove();
-  })
+  });
 }

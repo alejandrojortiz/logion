@@ -333,7 +333,7 @@ def save_prediction():
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):
     args_dict = {}
-    # decodes instituion and position
+    # decodes instituion and position 
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)

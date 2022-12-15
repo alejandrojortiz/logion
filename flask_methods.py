@@ -207,10 +207,12 @@ def predict():
     for c in chars:
         if c not in letters:
             return 'Error: Invalid Suffix Input'
-    num_tokens = data.get('num_tokens')
-    print('num_tokens:', num_tokens)
+    num_tokens = data['num_tokens'][0]
+    print('num_tokens before:', num_tokens)
     print('type:', type(num_tokens))
     num_tokens = data.get('num_tokens', -1)
+    print('num_tokens after:', num_tokens)
+    print('type:', type(num_tokens))
     if not num_tokens > 0:
         return 'Error: Invalid Token Input'
     text = text.replace("-\n", "")

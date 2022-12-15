@@ -21,6 +21,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from user import User
 from json import dumps
+from transformers import BertTokenizer
 #from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
@@ -189,12 +190,30 @@ def predict():
     prefix = data.get('prefix', "")
     if (prefix != ""):
         prefix = prefix[0]
+    chars = set(prefix)
+    letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
+    for c in chars:
+        if c not in letters:
+            return ''
     suffix = data.get('suffix', "")
     if (suffix != ""):
         suffix = suffix[0]
+    chars = set(suffix)
+    letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
+    for c in chars:
+        if c not in letters:
+            return ''
     num_tokens = data.get('num_tokens', 2)
+    if not num_tokens.isnumeric():
+        return ''
+    if not int(num_tokens) > 0:
+        return ''
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
+    tokenizer = BertTokenizer.from_pretrained('pranaydeeps/Ancient-Greek-BERT')
+    length = len(tokenizer(text)['input_ids'])
+    if length > 512:
+        return ''
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
@@ -354,7 +373,14 @@ def logout():
 
 @app.route("/saveIP", methods=['POST'])
 def saveIP():
-    pass
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    user_id = data['user_id'][0]
+    parameters = {}
+    parameters['ip_address'] = bytes(data['ip_address'][0], 'utf-8')
+    server_api.update_account(parameters, user_id)
+    return ""
 
 @app.route("/populatePrediction", methods=['POST'])
 def populate_prediction():

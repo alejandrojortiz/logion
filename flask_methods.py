@@ -21,6 +21,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from user import User
 from json import dumps
+from transformers import BertTokenizer
 #from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
@@ -83,10 +84,10 @@ def auth():
             position="", ip_address="")
         else:
             server_api.add_account(args_dict)
-            collect_ip = True
+            user = User(user_id=user_id, name=name, email=email, institution="",
+            position="", ip_address="")
 
-        if (user):
-            login_user(user)
+        login_user(user)
         return flask.redirect(flask.url_for("account", user_id=user_id))
 
     except ValueError:
@@ -193,12 +194,32 @@ def predict():
     prefix = data.get('prefix', "")
     if (prefix != ""):
         prefix = prefix[0]
+    chars = set(prefix)
+    letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
+    for c in chars:
+        if c not in letters:
+            return 'Invalid Prefix Input'
     suffix = data.get('suffix', "")
     if (suffix != ""):
         suffix = suffix[0]
+    chars = set(suffix)
+    letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
+    for c in chars:
+        if c not in letters:
+            return 'Invalid Suffix Input'
     num_tokens = data.get('num_tokens', 2)
+    if not num_tokens > 0:
+        return 'Invalid Token Input'
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
+    tokenizer = BertTokenizer.from_pretrained('pranaydeeps/Ancient-Greek-BERT')
+    length = len(tokenizer(text)['input_ids'])
+    print("length:")
+    print(length)
+    print("char count:")
+    print(len(text))
+    if length > 512:
+        return 'Text is too large for model'
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
@@ -253,7 +274,8 @@ def save_project():
         text = urllib.parse.quote(text)
         time = data['time'][0]
         server_api.upload_text(text, text_name, user_id, time)
-        return ""
+        return flask.url_for('/project', user_id=user_id, text_id=server_api.get_text_id(user_id=user_id, text_name=text_name))
+
     else:
         dict = {}
         if data.get("text"):
@@ -321,7 +343,7 @@ def save_prediction():
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):
     args_dict = {}
-    # decodes instituion and position
+    # decodes instituion and position 
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
@@ -361,11 +383,18 @@ def logout():
 
 @app.route("/saveIP", methods=['POST'])
 def saveIP():
-    pass
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    user_id = data['user_id'][0]
+    parameters = {}
+    parameters['ip_address'] = bytes(data['ip_address'][0], 'utf-8')
+    server_api.update_account(parameters, user_id)
+    return ""
 
 @app.route("/populatePrediction", methods=['POST'])
 def populate_prediction():
-    # get predictions for repopulating prediction area when restoring a prediction
+    # get predictions for repopulating prediction area when restoring a prediction 
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)

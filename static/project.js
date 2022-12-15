@@ -95,6 +95,11 @@ function handleSavePredictionClick(event) {
       new: "true",
     };
     request = $.post("/saveProject", saveTransfer, (response) => {
+      if (response.startsWith("Error")) {
+        let notyf = new Notyf();
+        notyf.error(response);
+        return;
+      }
       textID = Number(response);
       // Save prediction
       const transfer = {
@@ -151,6 +156,7 @@ function handleSaveProjectClick() {
   // Get user id
   userID = window.location.pathname.split("/");
   userID = userID[2];
+  console.log(window.location.pathname.split("/")[3])
 
   // Check if there is already a text name (true for projects that have
   // already been saved) or prompt user to enter one if not
@@ -165,8 +171,13 @@ function handleSaveProjectClick() {
       text: text,
       text_name: textName,
       time: new Date().toLocaleString(),
+      text_id: window.location.pathname.split("/")[3]
     };
     request = $.post("/saveProject", transfer, (response) => {
+      if (response.startsWith("Error")) {
+        let notyf = new Notyf();
+        notyf.error(response);
+      }
       window.location.href = response;
     });
   }

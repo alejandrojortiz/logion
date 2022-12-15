@@ -263,6 +263,10 @@ def save_project():
     print("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
     # checking if text_name already exists in the database
     if (is_new != "false"):
+        print("CASE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        exists = server_api.confirm_text(text_name=text_name, user_id=user_id)
+        if exists:
+            return "Error: text name already exists"
         text = data['text'][0]
         text = urllib.parse.quote(text)
         time = data['time'][0]
@@ -270,6 +274,7 @@ def save_project():
         text_id = server_api.get_text_id(user_id, text_name)
         return str(text_id)
     elif not server_api.confirm_text(text_name, user_id):
+        print("CASE BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
         text = data['text'][0]
         text = urllib.parse.quote(text)
         time = data['time'][0]
@@ -278,6 +283,12 @@ def save_project():
         print("ID::::::::::::::::::::", text_id)
         return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
     else:
+        print("CASE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+        temp_text_id = data.get("text_id", "-1")
+        print("IDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", temp_text_id)
+        if (temp_text_id != "-1"):
+            print("HERE CORECTLYYYYYYYYYYYYYYYYYYYYYYYYY")
+            return "Error: text name already exists"
         dict = {}
         if data.get("text"):
             temp_text = urllib.parse.quote(data.get('text')[0])

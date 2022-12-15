@@ -217,13 +217,13 @@ def predict():
     if length > 512:
         return 'Error: Text is too large for model'
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15})
-    print('temp: ')
-    print(temp)
     # if bool(temp):
     #    return 'No predictions match this search'
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
     temp = temp.json()
+    print('temp: ')
+    print(temp)
     for pred in temp:
         temp_string = ''
         for i in pred[0]:

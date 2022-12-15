@@ -194,7 +194,7 @@ def predict():
     letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
     for c in chars:
         if c not in letters:
-            return ''
+            return 'Invalid Prefix Input'
     suffix = data.get('suffix', "")
     if (suffix != ""):
         suffix = suffix[0]
@@ -202,18 +202,20 @@ def predict():
     letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
     for c in chars:
         if c not in letters:
-            return ''
+            return 'Invalid Suffix Input'
     num_tokens = data.get('num_tokens', 2)
     if not num_tokens > 0:
-        return ''
+        return 'Invalid Token Input'
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
     tokenizer = BertTokenizer.from_pretrained('pranaydeeps/Ancient-Greek-BERT')
     length = len(tokenizer(text)['input_ids'])
     print("length:")
     print(length)
+    print("char count:")
+    print(len(text))
     if length > 512:
-        return ''
+        return 'Text is too large for model'
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15})
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)

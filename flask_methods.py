@@ -207,13 +207,9 @@ def predict():
     for c in chars:
         if c not in letters:
             return 'Error: Invalid Suffix Input'
-    num_tokens = data['numTokens'][0]
-    if not (num_tokens.isdigit()):
-        num_tokens = -1
-    num_tokens = int(num_tokens)
-    print("Nummm tokensssssssss", num_tokens)
+    num_tokens = data.get('num_tokens', 2)
     if not num_tokens > 0:
-        return 'Error: Invalid Token Input'
+        return 'Invalid Token Input'
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
     tokenizer = BertTokenizer.from_pretrained('pranaydeeps/Ancient-Greek-BERT')

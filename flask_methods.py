@@ -217,8 +217,8 @@ def predict():
     if length > 512:
         return 'Error: Text is too large for model'
     try:
-        temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15}, timeout=30)
-    except req.exceptions.Timeout:
+        temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15}, timeout=25)
+    except Exception:
         return 'No predictions match this search'
     # if bool(temp):
     #    return 'No predictions match this search'

@@ -210,7 +210,8 @@ def predict():
     num_tokens = data['numTokens'][0]
     print('num_tokens before:', num_tokens)
     print('type:', type(num_tokens))
-    num_tokens = data.get('numTokens', -1)
+    if not (num_tokens.isdigit()):
+        num_tokens = -1
     print('num_tokens after:', num_tokens)
     print('type:', type(num_tokens))
     if not num_tokens > 0:

@@ -201,13 +201,9 @@ function handlePredictClick() {
   const text = texts["text"];
   if (!text) return;
   const numTokens = $("#token-number").val();
-  if (numTokens >= 2) {
-    let notyf = new Notyf();
-    notyf.success("Prediction queued");
     $("#prediction-output").html(
       "<div style='display: flex; align-items: center; justify-content: center;'><span class='loader'></span></div>"
     );
-  }
   if (!textDiv) {
     textDiv = document.createElement("div");
     textDiv.id = "editor-div";

@@ -214,7 +214,7 @@ def predict():
         num_tokens = -1
     print('num_tokens after:', num_tokens)
     print('type:', type(num_tokens))
-    if not num_tokens > 0:
+    if not int(num_tokens) > 0:
         return 'Error: Invalid Token Input'
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)

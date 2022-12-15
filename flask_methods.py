@@ -83,10 +83,10 @@ def auth():
             position="", ip_address="")
         else:
             server_api.add_account(args_dict)
-            collect_ip = True
+            user = User(user_id=user_id, name=name, email=email, institution="",
+            position="", ip_address="")
 
-        if (user):
-            login_user(user)
+        login_user(user)
         return flask.redirect(flask.url_for("account", user_id=user_id))
 
     except ValueError:
@@ -264,12 +264,12 @@ def save_project():
         server_api.upload_text(text, text_name, user_id, time)
         text_id = server_api.get_text_id(user_id, text_name)
         return str(text_id)
-    # if not server_api.confirm_text(text_name, user_id):
-        # text = data['text'][0]
-        # text = urllib.parse.quote(text)
-        # time = data['time'][0]
-        # server_api.upload_text(text, text_name, user_id, time)
-        # return ""
+    elif not server_api.confirm_text(text_name, user_id):
+        text = data['text'][0]
+        text = urllib.parse.quote(text)
+        time = data['time'][0]
+        server_api.upload_text(text, text_name, user_id, time)
+        return flask.url_for('/project', user_id=user_id, text_id=server_api.get_text_id(user_id=user_id, text_name=text_name))
     else:
         dict = {}
         if data.get("text"):

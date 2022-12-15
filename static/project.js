@@ -148,8 +148,21 @@ function handleSaveProjectClick() {
     textName = $("#text-name").prop("innerText");
   } else {
     textName = prompt("Enter text name");
+    if (!textName) return; // User must enter a text name to save a project
+          // Get user id
+      userID = window.location.pathname.split("/");
+      userID = userID[2];
+
+      // Send data to server
+      transfer = {
+        user_id: userID,
+        text: text,
+        text_name: textName,
+        time: new Date().toLocaleString(),
+      };
+      request = $.post("/saveProject", transfer, (response)=>{window.location.href = response;});
+      return;
   }
-  if (!textName) return; // User must enter a text name to save a project
 
   // Get text content of the textarea
   text = $("#editor").val();

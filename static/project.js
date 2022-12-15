@@ -153,11 +153,11 @@ function handleSaveProjectClick() {
 
   // Get text content of the textarea
   text = $("#editor").val();
-  if (text == "") {
-    let notyf = new Notyf();
-    notyf.error("Can't save empty text");
-    return;
-  }
+  // if (text == "") {
+    // let notyf = new Notyf();
+    // notyf.error("Can't save empty text");
+    // return;
+  // }
 
   // Get user id
   userID = window.location.pathname.split("/");

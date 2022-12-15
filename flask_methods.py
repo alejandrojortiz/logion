@@ -212,6 +212,8 @@ def predict():
     text = re.sub(r'\s+', ' ', text)
     tokenizer = BertTokenizer.from_pretrained('pranaydeeps/Ancient-Greek-BERT')
     length = len(tokenizer(text)['input_ids'])
+    print("length:")
+    print(length)
     if length > 512:
         return ''
     temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15})

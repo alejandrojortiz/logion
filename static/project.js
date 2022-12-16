@@ -15,11 +15,24 @@ function getHighlight() {
   // Get text
   const editor = $("#editor");
   let text = editor.val();
-  if (!text) return "";
+  if (!text) return ""; // Must have text to highlight
+  // Must have distinct selection
   if (editor.prop("selectionStart") == editor.prop("selectionEnd")) return "";
 
-  const numTokens = $("#token-number").val();
-  // Get the text up the start of the selection
+  let numTokens = $("#token-number").val();
+  // Validate token-number input
+  numTokens = Number(numTokens);
+  if (!numTokens) {
+    let notyf = new Notyf();
+    notyf.error("Token number input must be numeric");
+    return "";
+  }
+  if (numTokens <= 0) {
+    let notyf = new Notyf();
+    notyf.error("Token number must be greater than 0");
+    return "";
+  }
+  // Get the text up to the start of the selection
   let ret = text.substring(0, editor.prop("selectionStart"));
   let styledText = ret;
   // Replace selection with the appropriate number of tokens
@@ -119,8 +132,6 @@ function handleSavePredictionClick(event) {
     });
     return;
   }
-
-  // Get page state
 
   // Save prediction
   const predictionName = prompt("Enter prediction name");
@@ -259,7 +270,6 @@ function handleLockTextClick(event) {
 // Handles a click of a delete button for a prediction
 // Removes the elements representing the prediction from the DOM
 function handleDeleteClick(event) {
-  // console.log("DELETE CLICKED");
   const button = event.target;
   const ancestor = button.closest(".single-prediction-container");
   if (ancestor) ancestor.remove();

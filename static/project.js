@@ -210,25 +210,30 @@ function handleSaveProjectClick() {
 
 // Handles the response from generating a model prediction
 function handlePredictResponse(response) {
-  console.log("PREDICTED");
+  if (response.startsWith("Error")) {
+    let notyf = new Notyf();
+    notyf.error(response);
+    $("#prediction-output").html("");
+    handleLockTextClick(); // simulate the unlocking
+    return;
+  }
   $("#prediction-output").html(response);
+  document.getElementById("lock-button").style.display = "inline-block";
 }
 
 // Handles a click of the prediction button
 function handlePredictClick() {
-  console.log("Clicked");
   const parent = document.getElementById("textarea-container");
-  console.log(parent);
   const child = parent.firstElementChild;
   let texts = null;
   console.log("ID:", child.id);
   if (child.id == "editor-div") {
-    document.getElementById("textarea-container").innerHTML = "";
+    parent.innerHTML = "";
     console.log("AREA", textArea);
-    document.getElementById("textarea-container").appendChild(textArea);
+    parent.appendChild(textArea);
     texts = getHighlight();
-    document.getElementById("textarea-container").innerHTML = "";
-    document.getElementById("textarea-container").appendChild(child);
+    parent.innerHTML = "";
+    parent.appendChild(child);
   } else {
     texts = getHighlight();
   }
@@ -247,20 +252,19 @@ function handlePredictClick() {
   }
   textDiv.innerHTML = texts["styledText"].replaceAll("\n", "<br>"); // update textDiv
   if (child.id != "editor-div") textArea = document.getElementById("editor"); // save current textarea state
-  document.getElementById("textarea-container").innerHTML = "";
-  document.getElementById("textarea-container").appendChild(textDiv);
+  parent.innerHTML = "";
+  parent.appendChild(textDiv);
   transfer = {
     text: text,
     numTokens: numTokens,
     prefix: $("#prefix").val(),
     suffix: $("#suffix").val(),
   };
-  document.getElementById("lock-button").style.display = "inline-block";
   request = $.post("/predict", transfer, handlePredictResponse);
 }
 
 // Handles a click of the lock button
-function handleLockTextClick(event) {
+function handleLockTextClick() {
   document.getElementById("lock-button").style.display = "none";
   document.getElementById("textarea-container").innerHTML = "";
   document.getElementById("textarea-container").appendChild(textArea);

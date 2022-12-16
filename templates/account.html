@@ -41,6 +41,7 @@
       </button>
     </div>
     {% if current_user.is_authenticated %}
+      {% if current_user.id == user_id %}
     <div id="main-content">
       <h1 style="font-weight: 300;font-style: normal;">Welcome, {{"%s" % user_first_name}}</h1>
       <a href={{url_for('project', user_id=user_id, text_id='newProject')}} id="new-project-link"
@@ -60,6 +61,9 @@
         {% endfor %}
       </div>
     </div>
+      {% else %}
+        <p>You are not authorized to access this page</p>
+      {% endif %}
     {% else %}
     Please log in
     {% endif %}

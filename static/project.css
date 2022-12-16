@@ -209,6 +209,7 @@ button {
     justify-content: center;
     align-items: center;
     text-align: center;
+    height: 2.2em;
 }
 .saved-prediction-container {
     display: flex;

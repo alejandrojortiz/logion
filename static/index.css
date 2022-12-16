@@ -13,6 +13,7 @@ button {
     box-shadow: 10px 10px 30px #c4c4c4;
     margin-bottom: 2em;
     padding-right: 1em;
+    width: 100%;
 }
 #logo-container {
     margin-right: auto;

@@ -54,11 +54,12 @@
       {% endif %}
     </div>
 
-    <div id="main-content" style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+    <div id="main-content" style="display: flex; flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap;">
       <div id="text-container" style="max-width: 50%;">
-        <p style="margin: 0;">A cutting-edge NLP algorithm specifically developed for Ancient Greek text</p>
+        <p style="margin: 0;">LOGION is a cutting-edge NLP algorithm specifically developed for Ancient Greek text</p>
         <p>Developed by a team in the Princeton Classics Department, Logion provides a user-friendly way to
-        query an AI model for help interpreting damaged portions of Ancient Greek texts.</p>
+        query an AI model for help interpreting Ancient Greek texts.</p>
+        <p>To get started, use Google sign-in to create a new account or sign in to your existing account.</p>
       </div>
       <div id="img-container" style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
         <img src={{ url_for("static", filename="landing.gif") }}/>

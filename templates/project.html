@@ -42,6 +42,7 @@
       {% endif %}
     </div>
     {% if current_user.is_authenticated %}
+      {% if current_user.id == user_id %}
     <div id="main-content">
       <div id="label-container">
         <button style="margin: 0;" id="lock-button" class="hidden" onclick="handleLockTextClick()">Unlock</button>
@@ -100,6 +101,9 @@
         Save Project
       </button>
     </div>
+      {% else %}
+        <p>You are not authorized to access this page</p>
+      {% endif %}
     {% else %}
     <p>Please log in</p>
     {% endif %}

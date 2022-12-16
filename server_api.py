@@ -142,6 +142,7 @@ def delete_text(text_id):
     '''
     
     # delete predictions
+    print("DELETE TEXTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT", text_id)
     predictions = get_predictions(text_id)
     
     for prediction in predictions:
@@ -150,6 +151,8 @@ def delete_text(text_id):
 
     # delete project
     stmt = delete(Text).where(Text.text_id == text_id)
+    id2 = get_predictions(text_id=text_id)
+    print("IDDD-----------------------------------------", id2)
     
     conn = engine.connect(engine)
     result = conn.execute(stmt)
@@ -288,7 +291,7 @@ def get_text_id(user_id, text_name):
     result = conn.execute(stmt).first()
     print(result)
     if result is None:
-        return False
+        return None
     else:
         return result.text_id
 

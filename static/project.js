@@ -139,8 +139,10 @@ function handleSavePredictionClick(event) {
 // Handles the response from saving a project
 function handleSaveProjectResponse(response) {
   notyf = new Notyf();
-  notyf.success("Project Saved");
-  console.log("Project Saved");
+  if (response.startsWith("Error")) {
+    notyf.success(response);
+  }
+  else notyf.success("Project Saved");
 }
 
 // Handles a click of the save project button
@@ -165,6 +167,7 @@ function handleSaveProjectClick() {
   } else {
     textName = prompt("Enter text name");
     if (!textName) return; // User must enter a text name to save a project
+    textName = textName.trim(); // Remove trailing whitespace from names to avoid duplicate names
     // Send data to server
     transfer = {
       user_id: userID,
@@ -177,9 +180,11 @@ function handleSaveProjectClick() {
       if (response.startsWith("Error")) {
         let notyf = new Notyf();
         notyf.error(response);
+        return;
       }
       window.location.href = response;
     });
+    return;
   }
 
   // Send data to server

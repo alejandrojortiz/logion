@@ -11,11 +11,8 @@ function handleDeleteClick(event) {
   console.log("DELETE CLICKED");
   const button = event.target;
   const ancestor = button.closest(".project-link-row"); // The project row container
-  let user_id = window.location.pathname.split("/");
-  user_id = user_id[2];
   const textName = ancestor.querySelector(".project-link").innerText;
   const transfer = {
-    user_id: user_id,
     text_name: textName,
   };
   request = $.post("/deleteProject", transfer, () => {

@@ -34,7 +34,7 @@
         </a>
       {% if current_user.is_authenticated %}
       <div id="nav-bar">
-        <a style="border: 1.5px solid black; padding: 0.2em;border-radius: 0.8em;" href={{ url_for('account', user_id=user_id) }}>Project Page</a>
+        <a style="border: 1.5px solid black; padding: 0.2em;border-radius: 0.8em;" href={{ url_for('account') }}>Project Page</a>
       <button type="button" id="log-out-button" onclick="handleLogOutClick()">
         <strong>Log Out</strong>
       </button>

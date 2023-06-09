@@ -74,7 +74,7 @@ function handleSavePredictionClick(event) {
   // first, then go through the steps of saving the prediction
   // and redirect user to saved project page
   let textID = window.location.pathname.split("/");
-  textID = textID[3];
+  textID = textID[2];
   const time = new Date().toLocaleString();
   if (textID === "newProject") {
     const textName = prompt("Enter a name for this text:");
@@ -96,12 +96,8 @@ function handleSavePredictionClick(event) {
       notyf.error("Can't save empty text");
       return;
     }
-    userID = window.location.pathname.split("/");
-    userID = userID[2];
-
     // Send data to server
     const saveTransfer = {
-      user_id: userID,
       text: text,
       text_name: textName,
       time: time,
@@ -122,7 +118,6 @@ function handleSavePredictionClick(event) {
         save_time: time,
         prediction_blob: JSON.stringify(getPageState()),
         redirect: "true",
-        user_id: userID,
       };
       request = $.post("/savePrediction", transfer, (response) => {
         window.location.href = response;
@@ -143,7 +138,7 @@ function handleSavePredictionClick(event) {
     save_time: time,
     prediction_blob: JSON.stringify(getPageState()),
   };
-  console.log("TRANSFER", transfer);
+  //console.log("TRANSFER", transfer);
   request = $.post("/savePrediction", transfer, handleSavePredictionResponse);
 }
 
@@ -166,10 +161,7 @@ function handleSaveProjectClick() {
     notyf.error("Can't save empty text");
     return;
   }
-  // Get user id
-  userID = window.location.pathname.split("/");
-  userID = userID[2];
-  console.log(window.location.pathname.split("/")[3])
+ 
 
   // Check if there is already a text name (true for projects that have
   // already been saved) or prompt user to enter one if not
@@ -181,11 +173,10 @@ function handleSaveProjectClick() {
     textName = textName.trim(); // Remove trailing whitespace from names to avoid duplicate names
     // Send data to server
     transfer = {
-      user_id: userID,
       text: text,
       text_name: textName,
       time: new Date().toLocaleString(),
-      text_id: window.location.pathname.split("/")[3]
+      text_id: window.location.pathname.split("/")[2]
     };
     request = $.post("/saveProject", transfer, (response) => {
       if (response.startsWith("Error")) {
@@ -200,7 +191,6 @@ function handleSaveProjectClick() {
 
   // Send data to server
   transfer = {
-    user_id: userID,
     text: text,
     text_name: textName,
     time: new Date().toLocaleString(),
@@ -304,7 +294,7 @@ function handleLogOutClick() {
 
 function handlePredictionDblClick(event) {
   let textID = window.location.pathname.split("/");
-  textID = textID[3];
+  textID = textID[2];
   const child = event.target;
   const ancestor = child.closest(".saved-prediction-text-container");
   const predictionName = ancestor.querySelector(
@@ -333,7 +323,7 @@ function handleDeleteSavedPredictionClick(event) {
     ".saved-prediction-name"
   ).innerText;
   let textID = window.location.pathname.split("/");
-  textID = textID[3];
+  textID = textID[2];
   const transfer = {
     text_id: textID,
     prediction_name: predictionName.replaceAll(":", ":"),

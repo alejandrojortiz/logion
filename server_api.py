@@ -23,7 +23,8 @@ from sqlalchemy import insert, select, delete
 #FOR HOSTING
 # old_db_string = "postgresql://puycmyesqupjqt:329837e3a18d72b5b7dcbd08b3073831b3c1621e71fbca46f767a9691fe4b311@ec2-54-159-175-38.compute-1.amazonaws.com:5432/d32u7f4lie15tr"
 # old_db_string = "postgresql://gjcvtmkbtbkagu:c55c4189ba3167c280c3395af5b631e39ae7a48afbc80c394645d68ff7427b12@ec2-34-236-103-63.compute-1.amazonaws.com:5432/d5po4jpa52ptgl"
-db_string = "postgresql://qyivggwbcjsanc:5bf80909759bfa8965c882234575d84ccf1b88375e74f344a964c7145729764f@ec2-54-84-182-168.compute-1.amazonaws.com:5432/d3cgf83ene6rd4"
+# old_db_string = "postgresql://qyivggwbcjsanc:5bf80909759bfa8965c882234575d84ccf1b88375e74f344a964c7145729764f@ec2-54-84-182-168.compute-1.amazonaws.com:5432/d3cgf83ene6rd4"
+db_string = "postgresql://xzygtvipplipnl:a792ad267dccac51063be89cbf8af27169ef5c2cb9138fed36851532795409a7@ec2-52-0-187-246.compute-1.amazonaws.com:5432/d1r3k6q1uan507"
 engine = create_engine(db_string, echo=True, pool_pre_ping=True)
 
 

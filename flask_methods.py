@@ -1,10 +1,17 @@
 '''
 Methods for connecting with flask server
 
-author: Jay White
+authors: Jay White, Alejandro Ortiz
 '''
 
 import flask
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 import urllib.parse
 import random
 import re
@@ -12,23 +19,37 @@ import requests as req
 import server_api
 from google.oauth2 import id_token
 from google.auth.transport import requests
-
+from user import User
+from json import dumps
+from transformers import BertTokenizer
 #from temp_pred import main as predict
 
 #-----------------------------------------------------------------------
-
+# Setup
+#-----------------------------------------------------------------------
 app = flask.Flask(__name__)
+app.secret_key = "temp_secret_key"
+# User session management setup
+# https://flask-login.readthedocs.io/en/latest
+login_manager = LoginManager()
+login_manager.init_app(app)
+# Flask-Login helper to retrieve a user from our db
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
+prev_pred = False
 #-----------------------------------------------------------------------
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 def index():
     '''initial index page'''
-    html_code = flask.render_template("index.html")
+    html_code = flask.render_template("index.html", current_user = current_user)
     response = flask.make_response(html_code)
     return response
 
+# Handles the POST request sent by google-login
 @app.route('/auth', methods=['POST'])
 def auth():
     try:
@@ -36,9 +57,7 @@ def auth():
         #token = flask.request.get_data().decode('utf-8').split("&")[0].split("=")[1]
         credential = urllib.parse.parse_qs(flask.request.get_data().decode('utf-8'))
         token = dict(credential).get('credential')[0]
-        #print(token)
         id_info = id_token.verify_oauth2_token(token, requests.Request(), '492185340356-n66a7tlk0efi4ccds9pbfmo77rs5mjdq.apps.googleusercontent.com')
-        #print("THERE")
         # ID token is valid. Get the user's Google Account ID from the decoded token.
         user_id = str(id_info['sub'])
         email = id_info['email']
@@ -53,36 +72,44 @@ def auth():
         args_dict['name'] = name
         args_dict['ip_address'] = ""
 
+        user = None
         if server_api.confirm_user(user_id):
-            pass
+            user = User(user_id=user_id, name=name, email=email, institution="",
+            position="", ip_address="")
         else:
             server_api.add_account(args_dict)
-        
-        return flask.redirect(flask.url_for("account", user_id=user_id))
+            user = User(user_id=user_id, name=name, email=email, institution="",
+            position="", ip_address="")
+
+        login_user(user)
+        return flask.redirect(flask.url_for("account"))
 
     except ValueError:
         # Invalid token
         pass
 
-@app.route('/account/<user_id>', methods=['GET', 'POST'])
-def account(user_id):
+# Returns the project page
+@app.route('/account', methods=['GET', 'POST'])
+def account():
     '''account landing page'''
 
         # text_array of dicts where each dict is a row of a text query
         # Each row/dict has keys: "text_id", "user_id", "text_name", "uploaded" (text), "save_time"
-    if server_api.confirm_user(user_id):
-        text_array = server_api.get_text(user_id)
+    if not current_user.is_authenticated:
+        return flask.render_template("error.html", error_message="Please log in")
+    if server_api.confirm_user(current_user.id):
+        text_array = server_api.get_text(current_user.id)
     else:
         text_array= []
     # if (text_array == None):
     #     text_array = []
     # text_array = []
+
     
-    user_id = flask.request.path.split("/")[2]
-    user_array = server_api.get_user(user_id)
+    user_array = server_api.get_user(current_user.id)
     user_first_name = user_array["name"].split(" ")[0]
     #text_array = temporary_saved_projects()
-    html_code = flask.render_template("account.html", user_id=user_id, text_array=text_array, user_first_name=user_first_name)
+    html_code = flask.render_template("account.html", user_id=current_user.id, text_array=text_array, user_first_name=user_first_name)
 
     response = flask.make_response(html_code)
 
@@ -123,25 +150,33 @@ def temporary_saved_projects():
     return projects
 
 #-----------------------------------------------------------------------
-@app.route('/project/<user_id>/<text_id>', methods=['GET'])
-def project(user_id, text_id):
+@app.route('/project/<text_id>', methods=['GET'])
+def project(text_id):
     '''Page containing main project interface'''
+    if not current_user.is_authenticated:
+        return flask.render_template("error.html", error_message="Please log in")
     text_name=""
     uploaded = ""
-    
-    texts = server_api.get_text(user_id)
-    for row in texts:
-        if str(row.get("text_id")) == str(text_id):
-            text_name = row.get("text_name")
-            uploaded = row.get("uploaded")
+    prediction_array = []
+    if text_id != "newProject":
+        texts = server_api.get_text(current_user.id)
+        for row in texts:
+            if str(row.get("text_id")) == str(text_id):
+                text_name = row.get("text_name")
+                uploaded = row.get("uploaded")
+                uploaded = urllib.parse.unquote(uploaded)
+                uploaded = urllib.parse.unquote_plus(uploaded)
 
-    # prediction_array of returns arrays of dicts where each dict is a row of prediction query
-    # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction" (text)
-    prediction_array = server_api.get_predictions(text_id=text_id)
-    #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
+        # prediction_array of returns arrays of dicts where each dict is a row of prediction query
+        # Each row/dict has keys: "textid", "prediction_name", "token_number", "prediction_output" (text)
+        prediction_array = server_api.get_predictions(text_id=text_id)
+        #prediction_array = [{'prediction_name': 'Ajax', 'prediction': 'Αἴας'}]
 
+    global prev_pred
     html_code = flask.render_template("project.html", text_name=text_name, uploaded=uploaded,
-                                      prediction_array=prediction_array)
+                                      prediction_array=prediction_array, user_id = current_user.id, prev_pred=prev_pred)
+    if (prev_pred):
+        prev_pred = False
     response = flask.make_response(html_code)
 
     return response
@@ -152,13 +187,63 @@ def predict():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     text = data['text'][0]
+    prefix = data.get('prefix', "")
+    if (prefix != ""):
+        prefix = prefix[0]
+    chars = set(prefix)
+    letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
+    for c in chars:
+        if c not in letters:
+            return 'Error: Invalid Prefix Input'
+    suffix = data.get('suffix', "")
+    if (suffix != ""):
+        suffix = suffix[0]
+    chars = set(suffix)
+    letters = 'ςερτυθιοπλκξηγφδσαζχψωβνμ'
+    for c in chars:
+        if c not in letters:
+            return 'Error: Invalid Suffix Input'
     num_tokens = data.get('num_tokens', 2)
+    if not num_tokens > 0:
+        return 'Invalid Token Input'
     text = text.replace("-\n", "")
     text = re.sub(r'\s+', ' ', text)
-    temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': "", 'suffix': "", 'num_pred': 5})
+    tokenizer = BertTokenizer.from_pretrained('pranaydeeps/Ancient-Greek-BERT')
+    length = len(tokenizer(text)['input_ids'])
+    if length > 512:
+        return 'Error: Text is too large for model'
+    try:
+        temp = req.post('https://classics-prediction-xkmqmbb5uq-uc.a.run.app', json={'text': text, 'prefix': prefix, 'suffix': suffix, 'num_pred': 15}, timeout=25)
+    except Exception:
+        return 'No predictions match this search'
+    # if bool(temp):
+    #    return 'No predictions match this search'
     #print("TEMP:", temp.json())
     #ret = temporary_prediction(text, num_tokens)
-    template = flask.render_template("prediction.html", predictions=temp.json())
+    temp = temp.json()
+    for pred in temp:
+        temp_string = ''
+        for i in pred[0]:
+            if '##' in i:
+                temp_string = temp_string[:-1]
+                temp_string += i.replace('##', '')
+                temp_string += ' '
+            elif i == '.':
+                temp_string = temp_string[:-1]
+                temp_string += '.'
+                temp_string += ' '
+            elif i == '-':
+                temp_string = temp_string[:-1]
+                temp_string += '-'
+            elif i == ',':
+                temp_string = temp_string[:-1]
+                temp_string += ','
+                temp_string += ' '
+            else:
+                temp_string += i
+                temp_string += ' '
+        pred[0] = temp_string
+    template = flask.render_template("prediction.html", predictions=temp)
     response = flask.make_response(template)
     return response
 
@@ -168,20 +253,39 @@ def save_project():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     text_name = data['text_name'][0]
+    user_id = current_user.id
+    is_new = data.get("new", "false")
 
     # checking if text_name already exists in the database
-    if server_api.confirm_text(text_name):
+    if (is_new != "false"):
+        exists = server_api.confirm_text(text_name=text_name, user_id=user_id)
+        if exists:
+            return "Error: text name already exists"
         text = data['text'][0]
-        user_id = data['user_id'][0]
-        time = '11:11:11am'
+        text = urllib.parse.quote(text)
+        time = data['time'][0]
         server_api.upload_text(text, text_name, user_id, time)
-        return ""
+        text_id = server_api.get_text_id(user_id, text_name)
+        return str(text_id)
+    elif not server_api.confirm_text(text_name, user_id):
+        text = data['text'][0]
+        text = urllib.parse.quote(text)
+        time = data['time'][0]
+        server_api.upload_text(text, text_name, user_id, time)
+        text_id = server_api.get_text_id(user_id=user_id, text_name=text_name)
+        return flask.url_for('project', text_id= text_id)
     else:
+        temp_text_id = data.get("text_id", "-1")
+        if (temp_text_id != "-1"):
+            return "Error: text name already exists"
         dict = {}
-        dict['text'] = data['text'][0]
-        dict['user_id'] = data['user_id'][0]
-        dict['text_name'] = data['text_name'][0]
-        dict['time'] = '11:11:11am'
+        if data.get("text"):
+            temp_text = urllib.parse.quote(data.get('text')[0])
+            dict['uploaded'] = temp_text
+        if data.get("text_name"):
+            dict['text_name'] = data.get("text_name")[0]
+        if data.get("time"):
+            dict['save_time'] = data.get("time")[0]
         text_id = 0
         for row in server_api.get_text(data['user_id'][0]):
             if row['text_name'] == data['text_name'][0]:
@@ -195,35 +299,52 @@ def save_prediction():
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
     prediction_name = data['prediction_name'][0]
+    prediction = data['prediction'][0]
+    text_id = data['text_id'][0]
+    prediction_json = data['prediction_blob'][0]
+    
+    # # checking if prediction_name already exists in the database
+    # if server_api.confirm_prediction(prediction_name, text_id):
+    #     update_dict = {}
+    #     if data.get("prediction"):
+    #         update_dict['prediction'] = data.get("prediction")[0]
+    #     if data.get("text_id"):
+    #         update_dict['text_id'] = data.get("text_id")[0]
+    #     if data.get("token_number"):
+    #         update_dict['token_number'] = data.get("token_number")[0]
+    #     if data.get("save_time"):
+    #         update_dict['save_time'] = data.get('save_time')[0]
+    #     if data.get("prediction_blob"):
+    #         prediction_blob = bytes(data.get("prediction_blob")[0], 'utf-8')
+    #         update_dict['prediction_blob'] = prediction_blob
 
-    # checking if prediction_name already exists in the database
-    if server_api.confirm_prediction(prediction_name):
-        prediction = data['prediction'][0]
-        text_id = data['text_id'][0]
-        token_number = data['token_number'][0]
-        save_time = '11:11:11am'
-        prediction_blob = data['prediction_blob'][0]
-        server_api.upload_prediction(prediction, text_id, token_number, prediction_name,
-                      save_time, prediction_blob)
-        return ""
+    #     prediction_id = 0
+    #     for row in server_api.get_predictions(data['text_id'][0]):
+    #         if row['prediction_name'] == data['prediction_name'][0]:
+    #             prediction_id = row['prediction_id']
+
+    #     server_api.update_text(update_dict, prediction_id)
+    #     if (data.get('redirect', 'false') != 'false'):
+    #         return flask.url_for('project', user_id = data['user_id'][0], text_id= text_id)
+    #     else:
+    #         return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+    # else:
+    save_time = data['save_time'][0]
+    
+    server_api.upload_prediction(prediction, text_id, 0, prediction_name,
+                    save_time, bytes(prediction_json, 'utf-8'))
+    if (data.get('redirect', 'false') != 'false'):
+        global prev_pred
+        prev_pred = True
+        return flask.url_for('project', text_id= text_id)
     else:
-        dict = {}
-        dict['prediction'] = data['prediction'][0]
-        dict['text_id'] = data['text_id'][0]
-        dict['token_number'] = data['token_number'][0]
-        dict['save_time'] = '11:11:11am'
-        dict['prediction_blob'] = data['prediction_blob'][0]
-        prediction_id = 0
-        for row in server_api.get_prediction(data['text_id'][0]):
-            if row['prediction_name'] == data['prediction_name'][0]:
-                text_id = row['prediction_id']
-        server_api.update_text(dict, prediction_id)
-        return ""
+        return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
+    # return flask.make_response(flask.render_template('saved-predictions.html', prediction_array=server_api.get_predictions(text_id)))
 
 @app.route('/register/<user_id>', methods=['POST'])
 def register_user(user_id):
     args_dict = {}
-    # decodes instituion and position
+    # decodes instituion and position 
     data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
     data = urllib.parse.unquote_plus(data)
     data = urllib.parse.parse_qs(data)
@@ -232,4 +353,57 @@ def register_user(user_id):
     args_dict['institution'] = institution if institution else ""
     args_dict['postition'] = position if position else ""
     server_api.update_account(parameter_to_update=args_dict, userid=user_id)
-    return flask.redirect(flask.url_for("account", userid=user_id))
+    return flask.redirect(flask.url_for("account"))
+
+@app.route('/deleteProject', methods=['POST'])
+def delete_project():
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    text_name = data['text_name'][0]
+    user_id = current_user.id
+    text_id = server_api.get_text_id(user_id=user_id, text_name=text_name)
+    if (text_id):
+        server_api.delete_text(text_id=text_id)
+    return ""
+
+@app.route('/deletePrediction', methods=['POST'])
+def delete_prediction():
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    text_id = data['text_id'][0]
+    prediction_name = data['prediction_name'][0].replace("\:", ':')[:-1]
+    server_api.delete_prediction(prediction_name=prediction_name, text_id=text_id)
+    return ""
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return flask.url_for("index")
+
+@app.route("/saveIP", methods=['POST'])
+def saveIP():
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    user_id = current_user.id
+    parameters = {}
+    parameters['ip_address'] = bytes(data['ip_address'][0], 'utf-8')
+    server_api.update_account(parameters, user_id)
+    return ""
+
+@app.route("/populatePrediction", methods=['POST'])
+def populate_prediction():
+    # get predictions for repopulating prediction area when restoring a prediction 
+    data = urllib.parse.unquote(flask.request.get_data().decode('utf-8'))
+    data = urllib.parse.unquote_plus(data)
+    data = urllib.parse.parse_qs(data)
+    predictions = server_api.get_predictions(data['text_id'][0])
+    prediction = None
+    for prediction_dict in predictions:
+        if prediction_dict["prediction_name"] == data['prediction_name'][0].replace("\:", ':')[:-1]:
+            prediction = prediction_dict
+            prediction['prediction_blob'] = prediction['prediction_blob'].decode('utf-8')
+    return dumps(prediction)

@@ -14,24 +14,37 @@
       rel="stylesheet"
       href={{url_for("static", filename="account.css")}}
     />
+    <link rel="icon" href={{ url_for("static", filename="logo13pt.svg") }}/>
     <title>Account Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   </head>
   <body>
     <div id="header">
-      <div id="logo-container">
+      <!-- <div id="logo-container">
         <a href="/">
-          <img src={{ url_for("static", filename="laurel.png") }}
+          <img src={{ url_for("static", filename="logo13pt.svg") }}
           style="max-height: 4em;"/><img src={{ url_for("static",
-          filename="text.png") }} style="max-height: 4em;"/>
+          filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="logion-greek.svg") }} style="max-height: 4em;"/>
         </a>
-      </div>
-      <button type="button" id="log-out-button">
+      </div> -->
+  
+        <a href="/" id="logo-container">
+          <img src={{ url_for("static", filename="logo13pt.svg") }}
+          style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="logion-greek.svg") }} style="max-height: 5.1em;"/>
+        </a>
+  
+      <button type="button" id="log-out-button" onclick="handleLogOutClick()">
         <strong>Log Out</strong>
       </button>
     </div>
+    {% if current_user.is_authenticated %}
+      {% if current_user.id == user_id %}
     <div id="main-content">
       <h1 style="font-weight: 300;font-style: normal;">Welcome, {{"%s" % user_first_name}}</h1>
-      <a href={{url_for('project', user_id=user_id, text_id='newProject')}} id="new-project-link"
+      <a href={{url_for('project', text_id='newProject')}} id="new-project-link"
         ><img
           src="../static/plus.svg"
           style="max-width: 5em; display: block"
@@ -41,11 +54,40 @@
       <div id="project-link-container">
         {% for row in text_array: %}
         <div class="project-link-row">
-          <a class="project-link" href={{url_for('project', user_id=row['user_id'], text_id=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
+          <a class="project-link" href={{url_for('project', text_id=row['text_id'])}}>{{"%s" % row['text_name']}}</a>
           <p class="date">{{"%s" % row['date']}}</p>
+          <button type="button" class="delete-project-button" style="color: red; font-size: 1.2em;" onclick="handleDeleteClick(event)">&#x2715</button>
         </div>
         {% endfor %}
       </div>
     </div>
+      {% else %}
+        <p>You are not authorized to access this page</p>
+      {% endif %}
+    {% else %}
+    Please log in
+    {% endif %}
+    
+    <script src={{url_for("static", filename="account.js")}} async defer>
+    </script>
+    
+    <!-- Script to collect ip address
+    Left unimplemented for Classics team to decide
+    what specific data they want to collect
+    and to insert their own API key -->
+    <!-- <script>
+      var request = new XMLHttpRequest();
+
+      request.open('GET', 'https://api.ipdata.co/?api-key=APIKEY');
+
+      request.setRequestHeader('Accept', 'application/json');
+
+      request.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          $.post("/saveIP", this.responseText () => {/* NO HANDLER NECESSARY */});
+        }
+      };
+      request.send();
+    </script> -->
   </body>
 </html>

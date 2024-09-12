@@ -19,7 +19,7 @@ p {
     flex-direction: row;
     border-bottom: 0.75px #959595 solid;
     margin-bottom: 0.4em;
-    height: 22em;
+    height: 20em;
 }
 #prediction-area {
     width: 90%;
@@ -32,7 +32,7 @@ input:disabled {
     border: none;
 }
 #textarea-container {
-    margin-bottom: 0.6em;
+    margin-bottom: 0.2em;
     flex: 1.75;
     border-right: 0.75px #959595 solid;
 }
@@ -42,9 +42,11 @@ input:disabled {
     resize: none;
     border: none;
     padding: 0;
+    margin-top: 0;
 }
 #parameter-container {
     display: flex;
+    flex-wrap:wrap;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -115,11 +117,12 @@ input:disabled {
 }
 #prev-predictions-container {
     margin-bottom: 0.6em;
-    min-height: 5em;
+    height: 5em;
     border: 1.5px #959595 solid;
     border-radius: 10px;
     padding: 0.2em;
     width: 80%;
+    overflow-y: auto;
 }
 #header {
     display: flex;
@@ -152,9 +155,107 @@ button {
     min-width: 10em;
     border: 0px;
     border-radius: 30px;
+    cursor: pointer;
 }
 .box-label {
     align-self: flex-start;
     margin-left: 10%;
-    font-size: 1.125em;
+    font-size: 1em;
 }
+#text-name {
+    margin: 0.2em;
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.2em;
+    height: 1.2em;
+}
+#editor:focus {
+    outline: none;
+}
+#nav-bar {
+    display:  flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+#nav-bar a {
+    margin-right: 0.5em;
+    text-decoration: none;
+    color: inherit;
+}
+#lock-button {
+    font-size: 1em;
+    display: none;
+    padding: 0.1em;
+    border-radius: 0.3em;
+    background-color: inherit;
+    border: 1.5px #959595 solid;
+    color: black;
+    cursor: pointer;
+    box-shadow: inset -1px -1px #7a7a7a;
+}
+#editor {
+    font-size: 1em;
+}
+#text-name {
+    display: inline-block;
+    text-align: center;
+    margin: auto;
+    overflow:auto;
+    max-width: 80%;
+}
+#label-container {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 2.2em;
+}
+.saved-prediction-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+.saved-prediction-text-container {
+    margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.delete-prediction-button {
+    background-color: inherit;
+    border: none;
+    margin: 0;
+    display: inline-block;
+    padding: 0;
+  }
+  .delete-prediction-button:hover {
+    color: black !important; /* X button has inline style to be red, need to overwrite*/
+}
+.saved-prediction-container:hover {
+    background-color: #e3e1e1;
+}
+/* Animation styles for prediction loader */
+.loader {
+    width: 3em;
+    height: 3em;
+    border-radius: 50%;
+    display: inline-block;
+    border-top: 3px solid #0cee41;
+    border-right: 3px solid transparent;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    text-align: center;
+  }
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } 

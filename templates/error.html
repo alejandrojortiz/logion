@@ -14,9 +14,6 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href={{url_for("static", filename="index.css")}} />
     <link rel="icon" href={{ url_for("static", filename="logo13pt.svg") }}/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src={{url_for("static", filename="index.js")}} async defer>
-    </script>
   </head>
   <body>
     <div id="header">
@@ -29,8 +26,8 @@
       
       {% if current_user.is_authenticated %}
       <div id="nav-bar">
-        <a style="border: 1.5px solid black; padding: 0.2em;border-radius: 0.8em;" href={{ url_for('account') }}>Account</a>
-      <button type="button" id="log-out-button" onclick="handleLogOutClick()">
+        <a href={{ url_for('account') }}>Account</a>
+      <button type="button" id="log-out-button">
         <strong>Log Out</strong>
       </button>
       </div>
@@ -53,17 +50,6 @@
       ></div>
       {% endif %}
     </div>
-
-    <div id="main-content" style="display: flex; flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap;">
-      <div id="text-container" style="max-width: 50%;">
-        <p style="margin: 0;">LOGION is a cutting-edge NLP algorithm specifically developed for Ancient Greek text</p>
-        <p>Developed by a team in the Princeton Classics Department, Logion provides a user-friendly way to
-        query an AI model for help interpreting Ancient Greek texts.</p>
-        <p>To get started, use Google sign-in to create a new account or sign in to your existing account.</p>
-      </div>
-      <div id="img-container" style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
-        <img src={{ url_for("static", filename="landing.gif") }}/>
-      </div>
-    </div>
+    {{ error_message }}
   </body>
 </html>

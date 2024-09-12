@@ -16,6 +16,7 @@
       href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
     />
     <link rel="stylesheet" href={{url_for("static", filename="project.css")}} />
+    <link rel="icon" href={{ url_for("static", filename="logo13pt.svg") }}/>
     <script
       src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"
       async
@@ -25,22 +26,32 @@
   </head>
   <body>
     <div id="header">
-      <div id="logo-container">
-        <a href="/">
-          <img src={{ url_for("static", filename="laurel.png") }}
+        <a href="/" id="logo-container">
+          <img src={{ url_for("static", filename="logo13pt.svg") }}
           style="max-height: 4em;"/><img src={{ url_for("static",
-          filename="text.png") }} style="max-height: 4em;"/>
+          filename="logion-english.svg") }} style="max-height: 4em;"/><img src={{ url_for("static",
+          filename="logion-greek.svg") }} style="max-height: 5.1em;"/>
         </a>
-      </div>
-      <button type="button" id="log-out-button">
+      {% if current_user.is_authenticated %}
+      <div id="nav-bar">
+        <a style="border: 1.5px solid black; padding: 0.2em;border-radius: 0.8em;" href={{ url_for('account') }}>Project Page</a>
+      <button type="button" id="log-out-button" onclick="handleLogOutClick()">
         <strong>Log Out</strong>
       </button>
+      </div>
+      {% endif %}
     </div>
+    {% if current_user.is_authenticated %}
+      {% if current_user.id == user_id %}
     <div id="main-content">
+      <div id="label-container">
+        <button style="margin: 0;" id="lock-button" class="hidden" onclick="handleLockTextClick()">Unlock</button>
+        <p id="text-name">{{text_name}}</p>
+      </div>
       <div id="prediction-area">
         <div id="work-area">
           <div id="textarea-container">
-            <textarea wrap="soft" id="editor">{{uploaded}}</textarea>
+            <textarea wrap="soft" id="editor" style="font-size: 1em; font-family: monospace;">{{uploaded}}</textarea>
           </div>
           <div id="prediction-container">
             <div id="prediction-output"></div>
@@ -49,20 +60,21 @@
         <div id="parameter-container">
           <label>
             Prefix:
-            <input type="text" disabled />
+            <input type="text" id="prefix" />
           </label>
           <label>
             Suffix:
-            <input type="text" disabled />
+            <input type="text" id="suffix" />
           </label>
           <label for="token-number">
             Number of Tokens:
-            <input type="num" id="token-number" />
+            <input type="num" id="token-number" value="2" onblur="refocus()"/>
           </label>
-          <label>
+          <!-- Currently disabled until model has implemented distance feature
+             <label>
             Distance:
             <input type="num" disabled />
-          </label>
+          </label> -->
           <button
             type="button"
             id="predict-button"
@@ -76,14 +88,38 @@
       <p class="box-label">Saved Predictions</p>
       <div id="prev-predictions-container">
         {% for row in prediction_array: %}
-        <p>{{"%s:" % row.prediction_name}} {{"%s" % row.prediction}}</p>
+        <div class="saved-prediction-container">
+          <div class="saved-prediction-text-container" style="margin-top: 0.2em; margin-bottom: 0.2em;" ondblclick="handlePredictionDblClick(event)">
+              <p style="margin: 0; margin-right: 0.2em;" class="saved-prediction-name">{{"%s:" % row.prediction_name}}</p>
+              <p styel="margin: 0;" class="saved-prediction-output">{{"%s" % row.prediction_output}}</p>
+          </div>  
+          <button type="button" class="delete-prediction-button" style="color: red;" onclick="handleDeleteSavedPredictionClick(event)">&#x2715</button>
+        </div>
         {% endfor %}
       </div>
       <button type="button" onclick="handleSaveProjectClick()">
         Save Project
       </button>
     </div>
-    <script src={{url_for("static", filename="project.js")}} async defer>
+      {% else %}
+        <p>You are not authorized to access this page</p>
+      {% endif %}
+    {% else %}
+    <p>Please log in</p>
+    {% endif %}
+    <script src={{url_for("static", filename="project.js")}}>
     </script>
+    {% if prev_pred %}
+    <script>
+      const prevPredDiv = document.getElementById('prev-predictions-container');
+      const firstPred = prevPredDiv.querySelector('.saved-prediction-text-container');
+      if (firstPred) {
+        let e = new Event('dblclick');
+      firstPred.dispatchEvent(e);
+      console.log("DONE");
+      }
+    </script>
+    {% endif %}
+    
   </body>
 </html>
